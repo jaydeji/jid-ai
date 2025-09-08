@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.24",
+    "@ai-sdk/openai-compatible": "^1.0.15",
+    "@hono/node-server": "^1.19.0",
+    "@requesty/ai-sdk": "^0.0.9",
+    "ai": "^5.0.34",
+    "dotenv-defaults": "^5.0.2",
+    "hono": "^4.9.6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}

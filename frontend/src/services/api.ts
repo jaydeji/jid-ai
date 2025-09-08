@@ -1,0 +1,29 @@
+import { MyFetch } from './fetch'
+import type { Chat, Models, User } from '@/types'
+import { groupByProvider } from '@/helpers/api'
+
+class Api {
+  myFetch: MyFetch
+
+  constructor() {
+    this.myFetch = new MyFetch()
+  }
+
+  getUser = () => {
+    //     const json = await ky.get('https://example.com', {json: {foo: true}}).json();
+    // console.log(json);
+    return this.myFetch.get<User>('user')
+  }
+
+  getModels = () => {
+    return groupByProvider(this.myFetch.get<Models>('models'))
+  }
+
+  getChats = () => {
+    return this.myFetch.get<Array<Chat>>('chats')
+  }
+}
+
+const api = new Api()
+
+export { api }
