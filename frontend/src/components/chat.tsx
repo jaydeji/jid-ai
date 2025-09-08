@@ -1,21 +1,19 @@
-import { DefaultChatTransport } from 'ai'
+import { DefaultChatTransport, generateId } from 'ai'
+import { useNavigate } from '@tanstack/react-router'
 import { useChat } from '@ai-sdk/react'
 import { useState } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
-import type { MyUIMessage } from '@/types'
-import {
-  ChatInput,
-  ChatInputSubmit,
-  ChatInputTextArea,
-} from '@/components/ui/chat-input'
+import type { Chat, MyUIMessage } from '@/types'
+import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
 import {
   ChatMessage,
   ChatMessageAvatar,
   ChatMessageContent,
 } from '@/components/ui/chat-message'
 import { ChatMessageArea } from '@/components/ui/chat-message-area'
-import { config } from '@/services'
+import { config, queryClient } from '@/services'
 import { BottomBar } from '@/templates/BottomBar'
+import { chatKey } from '@/services/react-query/keys'
 
 export function Chat({
   className,
@@ -30,15 +28,46 @@ export function Chat({
     }),
   })
 
+  const navigate = useNavigate()
+
   const [text, setText] = useState<string>('')
-  // const [model, setModel] = useState<string>('openai/gpt-5-mini:flex')
   const [model, setModel] = useState<string>(
-    'novita/meta-llama/llama-3.2-1b-instruct',
+    'novita/meta-llama/llama-3.2-1b-instruct', // openai/gpt-5-mini:flex
   )
 
+  // useEffect(() => {
+  //   if (data?.messages) {
+  //     setMessages(data.messages)
+  //   }
+  // }, [data?.messages])
+
   const handleSubmit = () => {
-    sendMessage({ text }, { body: { model } })
+    const chatId = data?.id ? data.id : generateId()
+
+    sendMessage({ text }, { body: { model, chatId } })
     setText('')
+
+    if (!data?.id) {
+      queryClient.setQueryData<Chat>(chatKey(chatId), {
+        id: chatId,
+        createdAt: 1757313146055,
+        title: 'New Chat',
+        updatedAt: 1757314442518,
+        userSetTitle: false,
+        messages: [
+          {
+            id: generateId(),
+            role: 'user' as const,
+            parts: [{ type: 'text' as const, text }],
+          },
+        ],
+      })
+    }
+
+    navigate({
+      to: '/chats/$chatId',
+      params: { chatId },
+    })
   }
 
   const isLoading = status === 'submitted'
@@ -49,6 +78,8 @@ export function Chat({
     }
     handleSubmit()
   }
+
+  console.log(messages, data?.messages)
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-y-auto" {...props}>

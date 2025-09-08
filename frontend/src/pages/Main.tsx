@@ -20,6 +20,8 @@ export default function Main() {
 
   const { data } = useChat(chatId)
 
+  console.log({ chatId, data })
+
   return (
     <SidebarProvider>
       <SidebarApp />

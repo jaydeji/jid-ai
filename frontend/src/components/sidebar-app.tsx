@@ -64,7 +64,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>Recent</SidebarGroupLabel>
             <SidebarMenu>
               {chats.map((chat) => (
-                <SidebarMenuItem key={chat.title}>
+                <SidebarMenuItem key={chat.id}>
                   <Link
                     to="/chats/$chatId"
                     params={{ chatId: chat.id }}

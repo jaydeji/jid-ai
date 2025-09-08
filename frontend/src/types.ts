@@ -35,10 +35,11 @@ export type Models = {
 
 export type Chat = {
   id: string
-  createdAt: 1757313146055
-  title: 'Adding Search Functionality to React Component with Dropdown Menu'
-  updatedAt: 1757314442518
-  userSetTitle: false
+  createdAt: number
+  title: string
+  updatedAt: number
+  userSetTitle: boolean
+  messages?: any
 }
 
 export type GroupedModels = Record<string, Array<Model>>

@@ -4,7 +4,6 @@ import { serve } from '@hono/node-server';
 import {
   convertToModelMessages,
   createIdGenerator,
-  generateId,
   streamText,
   type UIMessage,
 } from 'ai';
@@ -14,6 +13,7 @@ import { proxy } from 'hono/proxy';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { config } from './config.js';
 import { cache } from './cache.js';
+import { getChatsById } from './helpers.js';
 
 const provider = createOpenAICompatible({
   name: 'provider-name',
@@ -50,8 +50,9 @@ app.get('/chats', (c) => {
 
 app.get('/chats/:id', (c) => {
   const id = c.req.param('id');
-  const chats: any[] = cache.getKey('chats');
-  return c.json(chats.find((chat) => chat.id === id));
+  const chat = getChatsById(id);
+  if (!chat) return c.json({}, 404);
+  return c.json(chat);
 });
 
 app.post('/chat/:id', async (c) => {
@@ -83,25 +84,35 @@ app.post('/chat/:id', async (c) => {
 });
 
 app.post('/chat', async (c) => {
-  const { messages, model }: { messages: UIMessage[]; model: string } =
+  const {
+    messages,
+    model,
+    chatId,
+  }: { messages: UIMessage[]; model: string; chatId: string } =
     await c.req.json();
 
+  let chat = getChatsById(chatId);
+  let chatExists = !!chat;
   const now = Date.now();
 
-  const chat: any = {
-    id: generateId(),
-    createdAt: now,
-    updatedAt: now,
-    lastMessageAt: now,
-    title: 'New Chat',
-    model,
-    generationStatus: 'completed',
-    branchParent: null,
-    pinned: false,
-    //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
-    userSetTitle: false,
-    messages: [...messages],
-  };
+  if (chatExists) {
+    chat.updatedAt = now;
+    chat.messages.push(...messages);
+  } else {
+    chat = {
+      id: chatId,
+      createdAt: now,
+      updatedAt: now,
+      title: 'New Chat',
+      model,
+      generationStatus: 'completed',
+      branchParent: null,
+      pinned: false,
+      //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
+      userSetTitle: false,
+      messages: [...messages],
+    };
+  }
 
   // console.log(convertToModelMessages(messages));//[ { role: 'user', content: [ [Object] ] } ]
 
@@ -111,10 +122,10 @@ app.post('/chat', async (c) => {
     // model: provider('openai/gpt-5-mini'),
     model: provider(model),
     // system: 'You are a helpful assistant.',
-    messages: convertToModelMessages(messages),
+    messages: convertToModelMessages(chat.messages),
     providerOptions: {
       openai: {
-        reasoningEffort: 'high',
+        reasoningEffort: 'high', // make dynamic
       },
     },
   });
@@ -134,13 +145,20 @@ app.post('/chat', async (c) => {
     }),
     onFinish: ({ messages }) => {
       chat.updatedAt = Date.now();
-      chat.lastMessageAt = Date.now();
-      chat.messages = messages;
-      // chat.generationStatus = 'completed';
+
       const chats: any[] = cache.getKey('chats');
-      chats.unshift(chat);
+
+      chat.messages = messages;
+
+      if (chatExists) {
+        const chatIndex = chats.findIndex((chat) => chat.id === chatId);
+        chats[chatIndex] = chat;
+      } else {
+        // chat.generationStatus = 'completed';
+        chats.unshift(chat);
+      }
+
       cache.setKey('chats', chats);
-      // console.log(chats);
       cache.save();
     },
   });
