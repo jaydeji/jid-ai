@@ -8,7 +8,7 @@ import { proxy } from 'hono/proxy';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { config } from './config.js';
 
-const chats = [
+const chats: any = [
   // {
   //   id: 'jd73rkn1esb5an5cesjwm38txn7q7a2n',
   //   branchParent: null,
@@ -100,10 +100,6 @@ app.post('/chat', async (c) => {
       }
     },
   });
-});
-
-app.get('/user', (c) => {
-  return c.json({ userName: 'Jide' });
 });
 
 serve(
