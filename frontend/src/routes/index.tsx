@@ -37,7 +37,13 @@ const modelsRoute = createRoute({
   },
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, modelsRoute])
+const chatRoute = createRoute({
+  getParentRoute: () => indexRoute,
+  path: '/chats/$chatId',
+  component: App,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, chatRoute, modelsRoute])
 
 const router = createRouter({
   routeTree,

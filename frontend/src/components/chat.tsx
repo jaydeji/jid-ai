@@ -17,15 +17,24 @@ import { ChatMessageArea } from '@/components/ui/chat-message-area'
 import { config } from '@/services'
 import { BottomBar } from '@/templates/BottomBar'
 
-export function Chat({ className, ...props }: ComponentPropsWithoutRef<'div'>) {
+export function Chat({
+  className,
+  data,
+  ...props
+}: ComponentPropsWithoutRef<'div'> & { data: any }) {
   const { messages, sendMessage, status, stop } = useChat<MyUIMessage>({
+    id: data?.id,
+    messages: data?.messages,
     transport: new DefaultChatTransport({
       api: config.VITE_API_URL + '/chat',
     }),
   })
 
   const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<string>('openai/gpt-5-mini:flex')
+  // const [model, setModel] = useState<string>('openai/gpt-5-mini:flex')
+  const [model, setModel] = useState<string>(
+    'novita/meta-llama/llama-3.2-1b-instruct',
+  )
 
   const handleSubmit = () => {
     sendMessage({ text }, { body: { model } })

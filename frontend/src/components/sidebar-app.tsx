@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { Button } from '@/components/ui/button'
@@ -22,63 +23,6 @@ import {
 import { NavUser } from '@/components/nav-user'
 import { useChats, useUser } from '@/services/react-query/hooks'
 
-// This is sample data.
-const data = {
-  recentChats: [
-    {
-      title: 'Project Planning Assistant',
-      date: new Date(2024, 2, 20),
-      url: '#',
-    },
-    {
-      title: 'Code Review Helper',
-      date: new Date(2024, 2, 19),
-      url: '#',
-    },
-    {
-      title: 'Bug Analysis Chat',
-      date: new Date(2024, 2, 18),
-      url: '#',
-    },
-  ],
-  lastWeekChats: [
-    {
-      title: 'API Design Discussion',
-      date: new Date(2024, 2, 15),
-      url: '#',
-    },
-    {
-      title: 'Database Schema Planning',
-      date: new Date(2024, 2, 14),
-      url: '#',
-    },
-  ],
-  lastMonthChats: [
-    {
-      title: 'Architecture Overview',
-      date: new Date(2024, 1, 28),
-      url: '#',
-    },
-    {
-      title: 'Performance Optimization',
-      date: new Date(2024, 1, 25),
-      url: '#',
-    },
-  ],
-  previousChats: [
-    {
-      title: 'Initial Project Setup',
-      date: new Date(2023, 11, 15),
-      url: '#',
-    },
-    {
-      title: 'Requirements Analysis',
-      date: new Date(2023, 11, 10),
-      url: '#',
-    },
-  ],
-}
-
 export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   const { data: user } = useUser()
   const { data: chats } = useChats({ enabled: !!user })
@@ -100,8 +44,10 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button size="icon" variant="ghost">
-                  <SquarePen className="h-5 w-5" />
-                  <span className="sr-only">New Chat</span>
+                  <Link to="/" className="w-full">
+                    <SquarePen className="h-5 w-5" />
+                    <span className="sr-only">New Chat</span>
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -119,15 +65,21 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {chats.map((chat) => (
                 <SidebarMenuItem key={chat.title}>
-                  <SidebarMenuButton className="w-full flex items-center justify-start gap-2">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    <span
-                      className="flex-1 min-w-0 truncate"
-                      title={chat.title}
-                    >
-                      {chat.title}
-                    </span>
-                  </SidebarMenuButton>
+                  <Link
+                    to="/chats/$chatId"
+                    params={{ chatId: chat.id }}
+                    className="w-full"
+                  >
+                    <SidebarMenuButton className="w-full flex items-center justify-start gap-2">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      <span
+                        className="flex-1 min-w-0 truncate"
+                        title={chat.title}
+                      >
+                        {chat.title}
+                      </span>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

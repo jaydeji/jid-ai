@@ -22,6 +22,10 @@ class Api {
   getChats = () => {
     return this.myFetch.get<Array<Chat>>('chats')
   }
+
+  getChat = (chatId: string) => {
+    return this.myFetch.get<Chat>('chats/' + chatId)
+  }
 }
 
 const api = new Api()

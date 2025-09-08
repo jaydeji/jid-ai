@@ -1,44 +1,19 @@
 import 'dotenv-defaults/config';
 
 import { serve } from '@hono/node-server';
-import { convertToModelMessages, streamText, type UIMessage } from 'ai';
+import {
+  convertToModelMessages,
+  createIdGenerator,
+  generateId,
+  streamText,
+  type UIMessage,
+} from 'ai';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { proxy } from 'hono/proxy';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { config } from './config.js';
-
-const chats: any = [
-  // {
-  //   id: 'jd73rkn1esb5an5cesjwm38txn7q7a2n',
-  //   branchParent: null,
-  //   createdAt: 1757313146055,
-  //   generationStatus: 'completed',
-  //   lastMessageAt: 1757314442518,
-  //   model: 'gpt-5-mini',
-  //   pinned: false,
-  //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
-  //   title: 'Adding Search Functionality to React Component with Dropdown Menu',
-  //   updatedAt: 1757314442518,
-  //   userSetTitle: false,
-  // },
-];
-
-const user = {
-  userId: 'google:110510818893952848592',
-  userName: 'Babajide',
-  email: 'jyde.dev@gmail.com',
-  avatar: '',
-  additionalInfo:
-    'Never use this symbol "—". Don’t reference my occupation unless absolutely necessary',
-  currentModelParameters: {
-    includeSearch: true,
-    reasoningEffort: 'high',
-  },
-  currentlySelectedModel: 'openai/gpt-5-mini:flex',
-  disableExternalLinkWarning: true,
-  favoriteModels: ['gemini-2.5-flash', 'gpt-5-chat'],
-};
+import { cache } from './cache.js';
 
 const provider = createOpenAICompatible({
   name: 'provider-name',
@@ -64,14 +39,23 @@ app.get('/', (c) => {
 });
 
 app.get('/user', (c) => {
+  const user = cache.getKey<any[]>('users')[0];
   return c.json(user);
 });
 
 app.get('/chats', (c) => {
-  return c.json(chats);
+  const chats: any[] = cache.getKey('chats');
+  return c.json(chats.map((e) => ({ id: e.id, title: e.title })));
 });
 
-app.post('/chat', async (c) => {
+app.get('/chats/:id', (c) => {
+  const id = c.req.param('id');
+  const chats: any[] = cache.getKey('chats');
+  return c.json(chats.find((chat) => chat.id === id));
+});
+
+app.post('/chat/:id', async (c) => {
+  const id = c.req.param('id');
   const { messages, model }: { messages: UIMessage[]; model: string } =
     await c.req.json();
 
@@ -94,6 +78,70 @@ app.post('/chat', async (c) => {
           totalTokens: part.totalUsage.totalTokens,
         };
       }
+    },
+  });
+});
+
+app.post('/chat', async (c) => {
+  const { messages, model }: { messages: UIMessage[]; model: string } =
+    await c.req.json();
+
+  const now = Date.now();
+
+  const chat: any = {
+    id: generateId(),
+    createdAt: now,
+    updatedAt: now,
+    lastMessageAt: now,
+    title: 'New Chat',
+    model,
+    generationStatus: 'completed',
+    branchParent: null,
+    pinned: false,
+    //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
+    userSetTitle: false,
+    messages: [...messages],
+  };
+
+  // console.log(convertToModelMessages(messages));//[ { role: 'user', content: [ [Object] ] } ]
+
+  // chats[chatId] = chat;
+
+  const result = streamText({
+    // model: provider('openai/gpt-5-mini'),
+    model: provider(model),
+    // system: 'You are a helpful assistant.',
+    messages: convertToModelMessages(messages),
+    providerOptions: {
+      openai: {
+        reasoningEffort: 'high',
+      },
+    },
+  });
+
+  return result.toUIMessageStreamResponse({
+    messageMetadata: ({ part }) => {
+      if (part.type === 'finish') {
+        return {
+          totalTokens: part.totalUsage.totalTokens,
+        };
+      }
+    },
+    originalMessages: messages,
+    generateMessageId: createIdGenerator({
+      // prefix: 'msg',
+      size: 16,
+    }),
+    onFinish: ({ messages }) => {
+      chat.updatedAt = Date.now();
+      chat.lastMessageAt = Date.now();
+      chat.messages = messages;
+      // chat.generationStatus = 'completed';
+      const chats: any[] = cache.getKey('chats');
+      chats.unshift(chat);
+      cache.setKey('chats', chats);
+      // console.log(chats);
+      cache.save();
     },
   });
 });

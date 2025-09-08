@@ -1,5 +1,5 @@
 import { QueryClient, useQuery } from '@tanstack/react-query'
-import { chatsKey, modelKey, userKey } from './keys'
+import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
 
 export const queryClient = new QueryClient({
@@ -12,7 +12,7 @@ export const queryClient = new QueryClient({
 
 export const useChats = ({ enabled }: { enabled: boolean }) => {
   return useQuery({
-    queryKey: [chatsKey],
+    queryKey: chatsKey,
     queryFn: api.getChats,
     enabled,
   })
@@ -20,7 +20,7 @@ export const useChats = ({ enabled }: { enabled: boolean }) => {
 
 export const useModels = () => {
   return useQuery({
-    queryKey: [modelKey],
+    queryKey: modelKey,
     queryFn: api.getModels,
     staleTime: Infinity,
   })
@@ -28,7 +28,15 @@ export const useModels = () => {
 
 export const useUser = () => {
   return useQuery({
-    queryKey: [userKey],
+    queryKey: userKey,
     queryFn: api.getUser,
+  })
+}
+
+export const useChat = (chatId?: string) => {
+  return useQuery({
+    queryKey: chatKey(chatId!),
+    queryFn: () => api.getChat(chatId!),
+    enabled: !!chatId,
   })
 }

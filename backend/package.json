@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.24",
@@ -13,6 +14,7 @@
     "@requesty/ai-sdk": "^0.0.9",
     "ai": "^5.0.34",
     "dotenv-defaults": "^5.0.2",
+    "flat-cache": "^6.1.13",
     "hono": "^4.9.6",
     "zod": "^3.25.76"
   },
