@@ -9,6 +9,7 @@ class MyFetch {
   constructor() {
     this.api = ky.extend({
       prefixUrl: config.VITE_API_URL,
+      retry: 0,
       //   hooks: {
       //     beforeRequest: [
       //       (request) => {
