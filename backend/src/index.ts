@@ -51,10 +51,6 @@ const app = new Hono();
 
 app.use(cors());
 
-// In-memory cache
-let modelsCache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 1000 * 60 * 60; // 60 minutes
-
 app.get('/models', async (c) => {
   const res = await proxy(`${config.REQUESTY_BASE_URL}/models`);
 
