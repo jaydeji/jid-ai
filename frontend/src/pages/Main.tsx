@@ -17,8 +17,12 @@ import {
 } from '@/components/ui/sidebar'
 import { MyChat } from '@/components/chat'
 import { SidebarApp } from '@/components/sidebar-app'
-import { useChat as useChatHook } from '@/services/react-query/hooks'
+import {
+  queryClient,
+  useChat as useChatHook,
+} from '@/services/react-query/hooks'
 import { config } from '@/services'
+import { chatsKey } from '@/services/react-query/keys'
 
 export default function Main() {
   const { chatId } = useParams({ strict: false })
@@ -28,6 +32,7 @@ export default function Main() {
     transport: new DefaultChatTransport({
       api: config.VITE_API_URL + '/chat',
     }),
+    onFinish: () => console.log('finished'),
   })
 
   const navigate = useNavigate()
@@ -47,6 +52,8 @@ export default function Main() {
     if (chatId && data) {
       chatOptions.setMessages(data.messages)
     }
+
+    queryClient.invalidateQueries({ queryKey: chatsKey })
   }, [data])
 
   const handleSubmit = () => {
