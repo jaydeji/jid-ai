@@ -43,11 +43,16 @@ export default function Main() {
     }
   }, [chatId])
 
+  useEffect(() => {
+    if (chatId && data) {
+      chatOptions.setMessages(data.messages)
+    }
+  }, [data])
+
   const handleSubmit = () => {
     const chat_id = data?.id ? data.id : generateId()
 
     chatOptions.sendMessage({ text }, { body: { model, chatId: chat_id } })
-
     setText('')
 
     navigate({
@@ -87,8 +92,6 @@ export default function Main() {
           </header>
         )}
         <MyChat
-          data={data}
-          chat_id={data?.id ?? generateId()}
           chatOptions={chatOptions}
           setModel={setModel}
           model={model}

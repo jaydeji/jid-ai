@@ -12,8 +12,6 @@ import { BottomBar } from '@/templates/BottomBar'
 
 export function MyChat({
   className,
-  data,
-  chat_id,
   chatOptions,
   text,
   setText,
@@ -23,8 +21,6 @@ export function MyChat({
   handleSubmitMessage,
   ...props
 }: ComponentPropsWithoutRef<'div'> & {
-  data: any
-  chat_id: string
   chatOptions: UseChatHelpers<MyUIMessage>
   text: string
   setText: (e: string) => void
