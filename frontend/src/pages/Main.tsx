@@ -1,4 +1,8 @@
-import { useParams } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
+import { DefaultChatTransport, generateId } from 'ai'
+import { useChat } from '@ai-sdk/react'
+import { useEffect, useState } from 'react'
+import type { MyUIMessage } from '@/types'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,16 +15,55 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { Chat } from '@/components/chat'
+import { MyChat } from '@/components/chat'
 import { SidebarApp } from '@/components/sidebar-app'
-import { useChat } from '@/services/react-query/hooks'
+import { useChat as useChatHook } from '@/services/react-query/hooks'
+import { config } from '@/services'
 
 export default function Main() {
   const { chatId } = useParams({ strict: false })
+  const { data } = useChatHook(chatId)
 
-  const { data } = useChat(chatId)
+  const chatOptions = useChat<MyUIMessage>({
+    transport: new DefaultChatTransport({
+      api: config.VITE_API_URL + '/chat',
+    }),
+  })
 
-  console.log({ chatId, data })
+  const navigate = useNavigate()
+
+  const [text, setText] = useState<string>('')
+  const [model, setModel] = useState<string>(
+    'novita/meta-llama/llama-3.2-1b-instruct', // openai/gpt-5-mini:flex
+  )
+
+  useEffect(() => {
+    if (!chatId) {
+      chatOptions.setMessages([])
+    }
+  }, [chatId])
+
+  const handleSubmit = () => {
+    const chat_id = data?.id ? data.id : generateId()
+
+    chatOptions.sendMessage({ text }, { body: { model, chatId: chat_id } })
+
+    setText('')
+
+    navigate({
+      to: '/chats/$chatId',
+      params: { chatId: chat_id },
+    })
+  }
+
+  const isLoading = chatOptions.status === 'submitted'
+
+  const handleSubmitMessage = () => {
+    if (isLoading) {
+      return
+    }
+    handleSubmit()
+  }
 
   return (
     <SidebarProvider>
@@ -43,7 +86,17 @@ export default function Main() {
             </div>
           </header>
         )}
-        <Chat data={data} />
+        <MyChat
+          data={data}
+          chat_id={data?.id ?? generateId()}
+          chatOptions={chatOptions}
+          setModel={setModel}
+          model={model}
+          isLoading={isLoading}
+          handleSubmitMessage={handleSubmitMessage}
+          setText={setText}
+          text={text}
+        />
       </SidebarInset>
     </SidebarProvider>
   )
