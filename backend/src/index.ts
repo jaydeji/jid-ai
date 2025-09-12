@@ -4,6 +4,7 @@ import { serve } from '@hono/node-server';
 import {
   convertToModelMessages,
   createIdGenerator,
+  smoothStream,
   streamText,
   type UIMessage,
 } from 'ai';
@@ -79,6 +80,10 @@ app.post('/chat/:id', async (c) => {
         reasoningEffort: 'high',
       },
     },
+    experimental_transform: smoothStream({
+      delayInMs: 20, // optional: defaults to 10ms
+      chunking: 'line', // optional: defaults to 'word'
+    }),
   });
 
   return result.toUIMessageStreamResponse({
