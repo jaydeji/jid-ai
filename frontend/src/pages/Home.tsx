@@ -4,6 +4,7 @@ import { DefaultChatTransport } from 'ai'
 import { ModelsPage } from './Models'
 import type { MyUIMessage } from '@/types'
 import { useUser } from '@/services/react-query/hooks'
+import { getAuthHeader } from '@/services/auth'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuCheckboxes, SideBar } from '@/templates'
@@ -16,6 +17,11 @@ export const Home = () => {
   const { messages, sendMessage, status } = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({
       api: 'http://localhost:3001/chat',
+      headers: ((): Record<string, string> => {
+        const header = getAuthHeader()
+        return header ? { Authorization: header } : {}
+      })(),
+      credentials: 'same-origin',
     }),
   })
 

@@ -22,6 +22,7 @@ import {
   useChat as useChatHook,
 } from '@/services/react-query/hooks'
 import { config } from '@/services'
+import { getAuthHeader } from '@/services/auth'
 import { chatsKey } from '@/services/react-query/keys'
 
 export default function Main() {
@@ -31,6 +32,10 @@ export default function Main() {
   const chatOptions = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({
       api: config.VITE_API_URL + '/chat',
+      headers: ((): Record<string, string> => {
+        const header = getAuthHeader()
+        return header ? { Authorization: header } : {}
+      })(),
     }),
     onFinish: () => console.log('finished'),
   })
