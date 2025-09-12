@@ -9,7 +9,9 @@ RUN apk add --no-cache python3 make g++ bash
 COPY package.json package-lock.json vite.config.ts tsconfig.json ./
 RUN npm ci
 
-COPY .env .
+# Accept build arguments and set as ENV vars
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
 # Copy source and build
 COPY . .
