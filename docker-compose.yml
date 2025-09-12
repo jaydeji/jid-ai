@@ -6,10 +6,8 @@ services:
     image: chatapp-backend:latest
     ports:
       - '127.0.0.1:3001:3001'
-    environment:
-      - NODE_ENV=production
-      - REQUESTY_API_KEY=${REQUESTY_API_KEY}
-      - REQUESTY_BASE_URL=${REQUESTY_BASE_URL}
+    env_file:
+      - .env
     restart: unless-stopped
     networks:
       - app-network
