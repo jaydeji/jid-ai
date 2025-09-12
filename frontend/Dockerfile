@@ -5,6 +5,8 @@ WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
+RUN printenv | grep VITE_
+
 # Install build tools (for some native deps)
 RUN apk add --no-cache python3 make g++ bash
 
@@ -18,7 +20,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 # Copy source and build
 COPY . .
-RUN printenv | grep VITE_
+
 RUN npm run build
 
 # Stage 2 — serve with nginx
