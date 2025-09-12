@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: chatapp-backend:latest
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=production
+      - REQUESTY_API_KEY=${REQUESTY_API_KEY}
+      - REQUESTY_BASE_URL=${REQUESTY_BASE_URL}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: chatapp-frontend:latest
+    ports:
+      - '3000:80'
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://backend:3001}
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
