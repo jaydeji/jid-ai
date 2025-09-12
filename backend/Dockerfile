@@ -25,6 +25,7 @@ COPY package.json package-lock.json ./
 
 # Install only production deps
 RUN npm ci --omit=dev
+RUN npm run seed
 
 EXPOSE 3001
 

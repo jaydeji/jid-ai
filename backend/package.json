@@ -5,7 +5,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "seed": "tsx src/scripts/seed.ts"
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:prod": "node dist/scripts/seed.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.24",
