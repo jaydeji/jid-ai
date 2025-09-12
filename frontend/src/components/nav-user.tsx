@@ -7,6 +7,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 
+import { useNavigate } from '@tanstack/react-router'
 import type { User } from '@/types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -24,8 +25,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { clearAuth, getStoredUsername } from '@/services/auth'
+import { queryClient } from '@/services/react-query/hooks'
 
 export function NavUser({ user }: { user: User }) {
+  const navigate = useNavigate()
+  const storedUsername = getStoredUsername()
   const { isMobile } = useSidebar()
 
   return (
@@ -91,7 +96,13 @@ export function NavUser({ user }: { user: User }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                clearAuth()
+                queryClient.invalidateQueries()
+                navigate({ to: '/login' })
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -1,5 +1,6 @@
 import ky from 'ky'
 import { config } from './config'
+import { getAuthHeader } from './auth'
 
 import type { KyInstance } from 'ky'
 
@@ -10,16 +11,19 @@ class MyFetch {
     this.api = ky.extend({
       prefixUrl: config.VITE_API_URL,
       retry: 0,
-      headers: {
-        Authorization: 'Basic ' + btoa('testuser:supersecret'),
+      hooks: {
+        beforeRequest: [
+          (request) => {
+            const header = getAuthHeader()
+            if (header) {
+              request.headers.set('Authorization', header)
+            } else {
+              // ensure header is removed when not logged in
+              request.headers.delete('Authorization')
+            }
+          },
+        ],
       },
-      //   hooks: {
-      //     beforeRequest: [
-      //       (request) => {
-      //         // request.headers.set('X-Requested-With', 'ky')
-      //       },
-      //     ],
-      //   },
     })
   }
 

@@ -4,12 +4,15 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  useNavigate,
 } from '@tanstack/react-router'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient } from '@/services'
 import App from '@/App'
 import { ModelsPage } from '@/pages/Models'
+import LoginPage from '@/pages/Login'
+import { isLoggedIn } from '@/services/auth'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -26,7 +29,15 @@ const rootRoute = createRootRouteWithContext<{
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: App,
+  component: function Index() {
+    const navigate = useNavigate()
+    if (!isLoggedIn()) {
+      // Redirect to login if not authenticated
+      navigate({ to: '/login' })
+      return null
+    }
+    return <App />
+  },
 })
 
 const modelsRoute = createRoute({
@@ -43,7 +54,18 @@ const chatRoute = createRoute({
   component: App,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, chatRoute, modelsRoute])
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginPage,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  chatRoute,
+  modelsRoute,
+  loginRoute,
+])
 
 const router = createRouter({
   routeTree,
