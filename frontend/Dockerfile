@@ -16,10 +16,7 @@ RUN npm ci
 # Copy source and build
 COPY . .
 
-RUN echo "Build-time VITE_API_URL=$VITE_API_URL"
-
 RUN npm run build
-RUN echo "A Build-time VITE_API_URL=$VITE_API_URL"
 
 
 # Stage 2 — serve with nginx
