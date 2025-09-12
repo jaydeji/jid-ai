@@ -28,7 +28,7 @@ const app = new Hono();
 app.use(cors());
 
 app.use(
-  '/auth/*',
+  '*',
   basicAuth({
     username: 'jide',
     password: config.AUTH_PASS,
