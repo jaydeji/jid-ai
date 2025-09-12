@@ -10,6 +10,9 @@ class MyFetch {
     this.api = ky.extend({
       prefixUrl: config.VITE_API_URL,
       retry: 0,
+      headers: {
+        Authorization: 'Basic ' + btoa('testuser:supersecret'),
+      },
       //   hooks: {
       //     beforeRequest: [
       //       (request) => {
