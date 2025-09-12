@@ -14,6 +14,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { config } from './config.js';
 import { cache } from './cache.js';
 import { getChatsById } from './helpers.js';
+import { basicAuth } from 'hono/basic-auth';
 
 const provider = createOpenAICompatible({
   name: 'provider-name',
@@ -25,6 +26,14 @@ const provider = createOpenAICompatible({
 const app = new Hono();
 
 app.use(cors());
+
+app.use(
+  '/auth/*',
+  basicAuth({
+    username: 'jide',
+    password: config.AUTH_PASS,
+  })
+);
 
 app.get('/models', async (c) => {
   const res = await proxy(`${config.REQUESTY_BASE_URL}/models`);
