@@ -30,31 +30,31 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
 
   const loggedIn = isLoggedIn()
 
-  if (!loggedIn) {
-    return (
-      <Sidebar className="border-r-0" {...props}>
-        <SidebarHeader>
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <MessageCircle className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-semibold">jid-ai</span>
-            </div>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <div className="p-4">
-            <Link to="/login" className="w-full">
-              <Button>Sign in</Button>
-            </Link>
-          </div>
-        </SidebarContent>
-      </Sidebar>
-    )
-  }
+  // if (!loggedIn) {
+  //   return (
+  //     <Sidebar className="border-r-0" {...props}>
+  //       <SidebarHeader>
+  //         <div className="flex items-center justify-between p-2">
+  //           <div className="flex items-center gap-3">
+  //             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+  //               <MessageCircle className="h-5 w-5 text-primary-foreground" />
+  //             </div>
+  //             <span className="text-lg font-semibold">jid-ai</span>
+  //           </div>
+  //         </div>
+  //       </SidebarHeader>
+  //       <SidebarContent>
+  //         <div className="p-4">
+  //           <Link to="/login" className="w-full">
+  //             <Button>Sign in</Button>
+  //           </Link>
+  //         </div>
+  //       </SidebarContent>
+  //     </Sidebar>
+  //   )
+  // }
 
-  if (!user || !chats) return null
+  // if (!user || !chats) return null
 
   return (
     <Sidebar className="border-r-0" {...props}>
@@ -90,7 +90,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupLabel>Recent</SidebarGroupLabel>
             <SidebarMenu>
-              {chats.map((chat) => (
+              {(chats || []).map((chat) => (
                 <SidebarMenuItem key={chat.id}>
                   <Link
                     to="/chats/$chatId"
@@ -159,9 +159,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarContent>
       <SidebarRail />
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
   )
 }
