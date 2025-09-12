@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: chatapp-backend:latest
     ports:
-      - '3001:3001'
+      - '127.0.0.1:3001:3001'
     environment:
       - NODE_ENV=production
       - REQUESTY_API_KEY=${REQUESTY_API_KEY}
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     image: chatapp-frontend:latest
     ports:
-      - '3000:80'
+      - '127.0.0.1:3000:80'
     environment:
       - VITE_API_URL=${VITE_API_URL:-http://backend:3001}
     depends_on:
