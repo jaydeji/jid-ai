@@ -16,9 +16,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://backend:3001}
     image: chatapp-frontend:latest
     ports:
-      - '127.0.0.1:3000:80'
+      - '3000:80'
     environment:
       - VITE_API_URL=${VITE_API_URL:-http://backend:3001}
     depends_on:
