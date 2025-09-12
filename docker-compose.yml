@@ -17,12 +17,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://backend:3001}
+        VITE_API_URL: ${VITE_API_URL}
     image: chatapp-frontend:latest
     ports:
       - '3000:80'
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://backend:3001}
+      - VITE_API_URL=${VITE_API_URL}
     depends_on:
       - backend
     restart: unless-stopped
