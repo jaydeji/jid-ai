@@ -3,8 +3,9 @@ import { cache } from '../cache.js';
 export const users = [
   {
     userId: 'google:110510818893952848592',
-    userName: 'Babajide',
-    email: 'jyde.dev@gmail.com',
+    firstName: 'Test1',
+    lastName: 'Test',
+    email: 'test1@gmail.com',
     avatar: '',
     additionalInfo:
       'Never use this symbol "—". Don’t reference my occupation unless absolutely necessary',

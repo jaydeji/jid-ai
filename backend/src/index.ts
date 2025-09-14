@@ -31,7 +31,7 @@ app.use(cors());
 app.use(
   '*',
   basicAuth({
-    username: 'jide',
+    username: 'test1@gmail.com',
     password: config.AUTH_PASS,
   })
 );

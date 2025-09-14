@@ -12,6 +12,7 @@
     "@ai-sdk/openai": "^2.0.24",
     "@ai-sdk/openai-compatible": "^1.0.15",
     "@hono/node-server": "^1.19.0",
+    "@openrouter/ai-sdk-provider": "^1.2.0",
     "@requesty/ai-sdk": "^0.0.9",
     "ai": "^5.0.34",
     "dotenv-defaults": "^5.0.2",
