@@ -44,6 +44,19 @@ app.get('/models', async (c) => {
   return res;
 });
 
+app.get('/spend', async (c) => {
+  try {
+    const res = await proxy(`${config.REQUESTY_BASE_URL}/manage/apikey`, {
+      headers: {
+        Authorization: `Bearer ${config.REQUESTY_API_KEY}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
