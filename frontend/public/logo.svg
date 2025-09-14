@@ -1,0 +1,53 @@
+<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5b73f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle for the icon -->
+  <circle cx="35" cy="40" r="25" fill="url(#brandGradient)" opacity="0.1"/>
+  
+  <!-- AI Brain/Circuit icon -->
+  <g transform="translate(22, 27)">
+    <!-- Central node -->
+    <circle cx="13" cy="13" r="3" fill="url(#brandGradient)"/>
+    
+    <!-- Connection lines -->
+    <path d="M13,10 L13,5 M10,13 L5,13 M16,13 L21,13 M13,16 L13,21" 
+          stroke="url(#accentGradient)" 
+          stroke-width="2" 
+          stroke-linecap="round"/>
+    
+    <!-- Outer nodes -->
+    <circle cx="13" cy="5" r="2" fill="url(#accentGradient)"/>
+    <circle cx="5" cy="13" r="2" fill="url(#accentGradient)"/>
+    <circle cx="21" cy="13" r="2" fill="url(#accentGradient)"/>
+    <circle cx="13" cy="21" r="2" fill="url(#accentGradient)"/>
+    
+    <!-- Additional connection nodes -->
+    <circle cx="8" cy="8" r="1.5" fill="url(#brandGradient)" opacity="0.7"/>
+    <circle cx="18" cy="8" r="1.5" fill="url(#brandGradient)" opacity="0.7"/>
+    <circle cx="8" cy="18" r="1.5" fill="url(#brandGradient)" opacity="0.7"/>
+    <circle cx="18" cy="18" r="1.5" fill="url(#brandGradient)" opacity="0.7"/>
+    
+    <!-- Connecting lines to corner nodes -->
+    <path d="M11,11 L8,8 M15,11 L18,8 M11,15 L8,18 M15,15 L18,18" 
+          stroke="url(#brandGradient)" 
+          stroke-width="1" 
+          stroke-linecap="round" 
+          opacity="0.6"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="75" y="35" font-family="'Segoe UI', Arial, sans-serif" font-size="24" font-weight="700" fill="url(#brandGradient)">Jid</text>
+  <text x="75" y="55" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="400" fill="url(#accentGradient)" letter-spacing="2px">AI</text>
+  
+  <!-- Subtle accent line -->
+  <line x1="75" y1="42" x2="120" y2="42" stroke="url(#accentGradient)" stroke-width="1" opacity="0.3"/>
+</svg>

@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useAuthActions } from '@convex-dev/auth/react'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { Button } from '@/components/ui/button'
-import { setAuth } from '@/services/auth'
 import { queryClient } from '@/services/react-query/hooks'
 
 export default function LoginPage() {
@@ -11,25 +13,41 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    setError(null)
-    setLoading(true)
+  const users = useQuery(api.users.get)
 
-    try {
-      // Store credentials (basic auth token). Backend will verify on first request.
-      setAuth(username, password)
+  const handleSubmit = async (event?: React.FormEvent) => {
+    event?.preventDefault()
+    const formData = new FormData(event?.currentTarget as any)
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`)
+    // }
+    // const provider = 'password-custom'
+    const provider = 'password'
 
-      // Invalidate cached user/chats so they re-fetch with new credentials
-      queryClient.invalidateQueries()
+    void signIn(provider, formData)
+    // e?.preventDefault()
+    // setError(null)
+    // setLoading(true)
 
-      // Navigate to home
-      navigate({ to: '/' })
-    } catch (err) {
-      setError('Failed to login')
-      setLoading(false)
-    }
+    // try {
+    //   // Store credentials (basic auth token). Backend will verify on first request.
+    //   setAuth(username, password)
+
+    //   // Invalidate cached user/chats so they re-fetch with new credentials
+    //   queryClient.invalidateQueries()
+
+    //   // Navigate to home
+    //   navigate({ to: '/' })
+    // } catch (err) {
+    //   setError('Failed to login')
+    //   setLoading(false)
+    // }
   }
+
+  const { signIn } = useAuthActions()
+  const [step, setStep] = useState<'signUp' | 'signIn'>('signIn')
+
+  useEffect(() => {}, [])
 
   return (
     <div className="flex items-center justify-center h-screen p-4">
@@ -37,11 +55,27 @@ export default function LoginPage() {
         <h2 className="mb-4 text-xl font-semibold">Sign in</h2>
         <form onSubmit={handleSubmit} className="grid gap-3">
           <label className="grid gap-1 text-sm">
+            <span>Email</span>
+            <input
+              className="input"
+              placeholder="Email"
+              type="text"
+              name="email"
+              // value={username}
+              // onChange={(e) => setUsername(e.target.value)}
+              required
+              autoFocus
+            />
+          </label>
+          <label className="grid gap-1 text-sm">
             <span>Username</span>
             <input
               className="input"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Username"
+              type="text"
+              name="username"
+              // value={username}
+              // onChange={(e) => setUsername(e.target.value)}
               required
               autoFocus
             />
@@ -51,19 +85,40 @@ export default function LoginPage() {
             <input
               className="input"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              placeholder="Password"
+              // value={password}
+              // onChange={(e) => setPassword(e.target.value)}
               required
             />
           </label>
 
-          {error && <div className="text-sm text-destructive">{error}</div>}
+          {/* <input name="flow" type="hidden" value={'signIn'} /> */}
+          <input name="flow" type="hidden" value={'signUp'} />
+          {/* <input name="email" type="hidden" value={'jyde.dev@gmail.com'} /> */}
+          {/* <input name="username" type="hidden" value={'jide'} /> */}
+
+          <Button type="submit">Sign In</Button>
+
+          {/* <Button type="submit">
+            {step === 'signIn' ? 'Sign in' : 'Sign up'}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              setStep(step === 'signIn' ? 'signUp' : 'signIn')
+            }}
+          >
+            {step === 'signIn' ? 'Sign up' : 'Sign in instead'}
+          </Button> */}
+
+          {/* {error && <div className="text-sm text-destructive">{error}</div>}
 
           <div className="mt-3 flex items-center justify-end gap-2">
             <Button type="submit" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>
