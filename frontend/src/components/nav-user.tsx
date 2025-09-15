@@ -5,9 +5,10 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  VectorSquare,
 } from 'lucide-react'
 
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import type { User } from '@/types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -77,6 +78,13 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <Link to="/models">
+              <DropdownMenuItem>
+                <VectorSquare />
+                Models
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>

@@ -1,7 +1,7 @@
-import { useNavigate, useParams } from '@tanstack/react-router'
-import { DefaultChatTransport, generateId } from 'ai'
+import { Outlet, useParams } from '@tanstack/react-router'
+import { DefaultChatTransport } from 'ai'
 import { useChat } from '@ai-sdk/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { MyUIMessage } from '@/types'
 import {
   Breadcrumb,
@@ -15,7 +15,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { MyChat } from '@/components/chat'
 import { SidebarApp } from '@/components/sidebar-app'
 import {
   queryClient,
@@ -40,13 +39,6 @@ export default function Main() {
     onFinish: () => console.log('finished'),
   })
 
-  const navigate = useNavigate()
-
-  const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<string>(
-    'nvidia/nemotron-nano-9b-v2:free', // openai/gpt-5-mini:flex
-  )
-
   useEffect(() => {
     if (!chatId) {
       chatOptions.setMessages([])
@@ -60,27 +52,6 @@ export default function Main() {
 
     queryClient.invalidateQueries({ queryKey: chatsKey })
   }, [data])
-
-  const handleSubmit = () => {
-    const chat_id = data?.id ? data.id : generateId()
-
-    chatOptions.sendMessage({ text }, { body: { model, chatId: chat_id } })
-    setText('')
-
-    navigate({
-      to: '/chats/$chatId',
-      params: { chatId: chat_id },
-    })
-  }
-
-  const isLoading = chatOptions.status === 'submitted'
-
-  const handleSubmitMessage = () => {
-    if (isLoading) {
-      return
-    }
-    handleSubmit()
-  }
 
   return (
     <SidebarProvider>
@@ -103,15 +74,9 @@ export default function Main() {
             </Breadcrumb>
           </div>
         </header>
-        <MyChat
-          chatOptions={chatOptions}
-          setModel={setModel}
-          model={model}
-          isLoading={isLoading}
-          handleSubmitMessage={handleSubmitMessage}
-          setText={setText}
-          text={text}
-        />
+        <div className="flex-1 flex flex-col h-full overflow-y-auto">
+          <Outlet />
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )

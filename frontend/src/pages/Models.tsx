@@ -35,21 +35,19 @@ const Modality = ({ modality }: { modality: Array<ModalityType> }) => {
   }
 
   return (
-    <TableCell>
-      <div className="flex flex-wrap gap-2">
-        {modality
-          .sort()
-          .reverse()
-          .map((e) => {
-            const className = colorMap[e] ?? 'text-gray'
-            return (
-              <span className={className} key={e}>
-                {e}
-              </span>
-            )
-          })}
-      </div>
-    </TableCell>
+    <div className="flex flex-wrap gap-2">
+      {modality
+        .sort()
+        .reverse()
+        .map((e) => {
+          const className = colorMap[e] ?? 'text-gray'
+          return (
+            <span className={className} key={e}>
+              {e}
+            </span>
+          )
+        })}
+    </div>
   )
 }
 

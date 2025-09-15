@@ -54,7 +54,7 @@ const Row = ({
         className="flex items-center px-3 py-2 text-xs font-medium text-muted-foreground bg-muted/50 border-b border-border/50 sticky top-0 z-10"
       >
         <div className="flex items-center gap-2">
-          <div className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <div className="h-1 w-1 rounded-full bg-[#2cb67d]" />
           <span className="uppercase tracking-wide">{item.name}</span>
         </div>
       </div>
@@ -117,6 +117,7 @@ const Row = ({
 export function ComboBox({ model, onSelect }: any) {
   const [open, setOpen] = React.useState(false)
   const { data } = useModels()
+  const [search, setSearch] = React.useState('')
 
   const items: Array<Item> =
     data?.keys.flatMap((key) => [
@@ -128,6 +129,19 @@ export function ComboBox({ model, onSelect }: any) {
         }),
       ),
     ]) ?? []
+
+  const filteredItems = React.useMemo(() => {
+    if (!search.trim()) return items
+
+    const lower = search.toLowerCase()
+    return items.filter((item) => {
+      if (item.type === 'key') return item.name.toLowerCase().includes(lower)
+      return (
+        item.name.toLowerCase().includes(lower) ||
+        item.id.toLowerCase().includes(lower)
+      )
+    })
+  }, [items, search])
 
   const selectedModel = data?.models.find((m: any) => m.id === model)
 
@@ -153,20 +167,29 @@ export function ComboBox({ model, onSelect }: any) {
             <CommandInput
               placeholder="Search models..."
               className="h-10 px-3 text-sm border-0 focus:ring-0"
+              value={search}
+              onValueChange={setSearch}
             />
           </div>
 
           <div className="max-h-[320px] overflow-hidden">
-            {items.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No models found.
               </CommandEmpty>
             ) : (
               <List
                 rowComponent={Row}
-                rowCount={items.length}
+                rowCount={filteredItems.length}
                 rowHeight={rowHeight}
-                rowProps={{ items, onSelect, model }}
+                rowProps={{
+                  items: filteredItems,
+                  onSelect: (...args) => {
+                    setOpen(false)
+                    onSelect(...args)
+                  },
+                  model,
+                }}
                 className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
               />
             )}

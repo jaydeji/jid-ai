@@ -30,7 +30,7 @@ export function MyChat({
   setModel: any
 }) {
   return (
-    <div className="flex-1 flex flex-col h-full overflow-y-auto" {...props}>
+    <>
       <ChatMessageArea scrollButtonAlignment="center">
         <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-4">
           {chatOptions.messages.map((message) => {
@@ -75,6 +75,6 @@ export function MyChat({
           <BottomBar model={model} setModel={setModel} />
         </ChatInput>
       </div>
-    </div>
+    </>
   )
 }

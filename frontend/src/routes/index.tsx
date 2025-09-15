@@ -1,5 +1,4 @@
 import {
-  Link,
   Outlet,
   createRootRouteWithContext,
   createRoute,
@@ -13,6 +12,7 @@ import App from '@/App'
 import { ModelsPage } from '@/pages/Models'
 import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
+import { Chat } from '@/pages/Chat'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -26,9 +26,15 @@ const rootRoute = createRootRouteWithContext<{
   ),
 })
 
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginPage,
+})
+
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  id: '_pathlessLayout',
   component: function Index() {
     const navigate = useNavigate()
     if (!isLoggedIn()) {
@@ -40,30 +46,26 @@ const indexRoute = createRoute({
   },
 })
 
-const modelsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/models',
-  component: function About() {
-    return <ModelsPage />
-  },
+const newChatRoute = createRoute({
+  getParentRoute: () => indexRoute,
+  path: '/',
+  component: Chat,
 })
 
 const chatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/chats/$chatId',
-  component: App,
+  component: Chat,
 })
 
-const loginRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/login',
-  component: LoginPage,
+const modelsRoute = createRoute({
+  getParentRoute: () => indexRoute,
+  path: '/models',
+  component: ModelsPage,
 })
 
 const routeTree = rootRoute.addChildren([
-  indexRoute,
-  chatRoute,
-  modelsRoute,
+  indexRoute.addChildren([newChatRoute, chatRoute, modelsRoute]),
   loginRoute,
 ])
 

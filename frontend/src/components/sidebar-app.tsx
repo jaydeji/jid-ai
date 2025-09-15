@@ -58,32 +58,37 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar className="border-r-0" {...props}>
-      <SidebarHeader>
-        <div className="flex items-center justify-between p-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <MessageCircle className="h-5 w-5 text-primary-foreground" />
+      <Link to="/" className="w-full">
+        <SidebarHeader>
+          <div className="flex items-center justify-between p-2">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <MessageCircle className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-lg font-semibold">jid AI</span>
             </div>
-            <span className="text-lg font-semibold">jid-ai</span>
-          </div>
-          {/* New Chat Button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <Link to="/" className="w-full">
-                    <SquarePen className="h-5 w-5" />
+            {/* New Chat Button */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="cursor-pointer"
+                  >
+                    <SquarePen className="h-5 w-5 " />
                     <span className="sr-only">New Chat</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>New Chat</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </SidebarHeader>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>New Chat</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </SidebarHeader>
+      </Link>
+
       <SidebarContent>
         <div className="flex flex-col gap-4">
           {/* Recent Chats */}
