@@ -11,17 +11,15 @@ import {
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { proxy } from 'hono/proxy';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { config } from './config.js';
 import { cache } from './cache.js';
 import { getChatsById } from './helpers.js';
 import { basicAuth } from 'hono/basic-auth';
 
-const provider = createOpenAICompatible({
-  name: 'provider-name',
-  apiKey: config.REQUESTY_API_KEY,
-  baseURL: config.REQUESTY_BASE_URL,
-  includeUsage: true, // Include usage information in streaming responses
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+const openrouter = createOpenRouter({
+  apiKey: config.OPEN_ROUTER_API_KEY,
 });
 
 const app = new Hono();
@@ -37,7 +35,7 @@ app.use(
 );
 
 app.get('/models', async (c) => {
-  const res = await proxy(`${config.REQUESTY_BASE_URL}/models`);
+  const res = await proxy(`${config.OPEN_ROUTER_BASE_URL}/models`);
 
   res.headers.append('Cache-Control', 'public, max-age=3600');
 
@@ -85,7 +83,7 @@ app.post('/chat/:id', async (c) => {
 
   const result = streamText({
     // model: provider('openai/gpt-5-mini'),
-    model: provider(model),
+    model: openrouter(model),
     // system: 'You are a helpful assistant.',
     messages: convertToModelMessages(messages),
     providerOptions: {
@@ -147,7 +145,7 @@ app.post('/chat', async (c) => {
 
   const result = streamText({
     // model: provider('openai/gpt-5-mini'),
-    model: provider(model),
+    model: openrouter(model),
     // system: 'You are a helpful assistant.',
     messages: convertToModelMessages(chat.messages),
     providerOptions: {

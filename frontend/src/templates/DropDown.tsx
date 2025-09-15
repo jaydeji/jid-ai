@@ -35,10 +35,10 @@ function RowComponent({
         <div className="truncate font-medium">{model.id}</div>
         <div className="text-xs text-slate-500 flex gap-3">
           <span className="truncate">
-            In: {formatNumber({ price: model.input_price })}
+            In: {formatNumber({ price: model.pricing.prompt })}
           </span>
           <span className="truncate">
-            Out: {formatNumber({ price: model.output_price })}
+            Out: {formatNumber({ price: model.pricing.completion })}
           </span>
         </div>
       </div>
@@ -52,6 +52,7 @@ export function DropdownMenuCheckboxes({ model, onSelect, value }: any) {
   const [showPanel, setShowPanel] = useState<Checked>(false)
 
   const { data, isFetching: isModelsFetching } = useModels()
+
   const [query, setQuery] = useState('')
 
   const filteredModels = useMemo(() => {

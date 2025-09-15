@@ -23,6 +23,36 @@ import {
 } from '@/components/ui/tooltip'
 import { formatNumber } from '@/helpers/api'
 
+type KnownModality = 'text' | 'image' | 'file' | 'audio'
+type ModalityType = KnownModality | (string & {})
+
+const Modality = ({ modality }: { modality: Array<ModalityType> }) => {
+  const colorMap: Record<string, string> = {
+    text: 'text-green-700',
+    audio: 'text-red-700',
+    image: 'text-blue-700',
+    file: 'text-yellow-700',
+  }
+
+  return (
+    <TableCell>
+      <div className="flex flex-wrap gap-2">
+        {modality
+          .sort()
+          .reverse()
+          .map((e) => {
+            const className = colorMap[e] ?? 'text-gray'
+            return (
+              <span className={className} key={e}>
+                {e}
+              </span>
+            )
+          })}
+      </div>
+    </TableCell>
+  )
+}
+
 export const ModelsPage = () => {
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -31,9 +61,7 @@ export const ModelsPage = () => {
 
   if (!data) return null
 
-  const models = selectedProvider
-    ? data.groupedModels[selectedProvider] || []
-    : []
+  const models = selectedProvider ? data.groupedModels[selectedProvider] : []
 
   const filteredModels = models.filter((m) =>
     m.id.toLowerCase().includes(search.toLowerCase()),
@@ -88,9 +116,8 @@ export const ModelsPage = () => {
                 <TableRow>
                   <TableHead>Model ID</TableHead>
                   <TableHead>Context</TableHead>
-                  <TableHead>Vision</TableHead>
-                  <TableHead>Caching</TableHead>
-                  <TableHead>Reasoning</TableHead>
+                  <TableHead>Inputs</TableHead>
+                  <TableHead>Outputs</TableHead>
                   <TableHead>Input Price</TableHead>
                   <TableHead>Output Price</TableHead>
                 </TableRow>
@@ -100,12 +127,9 @@ export const ModelsPage = () => {
                   ({
                     id,
                     description,
-                    output_price,
-                    input_price,
-                    context_window,
-                    supports_vision,
-                    supports_caching,
-                    supports_reasoning,
+                    pricing,
+                    context_length,
+                    architecture,
                   }) => (
                     <TableRow key={id}>
                       <TableCell>
@@ -124,15 +148,18 @@ export const ModelsPage = () => {
                           id
                         )}
                       </TableCell>
-                      <TableCell>{context_window.toLocaleString()}</TableCell>
-                      <TableCell>{supports_vision ? '✅' : '❌'}</TableCell>
-                      <TableCell>{supports_caching ? '✅' : '❌'}</TableCell>
-                      <TableCell>{supports_reasoning ? '✅' : '❌'}</TableCell>
+                      <TableCell>{context_length.toLocaleString()}</TableCell>
                       <TableCell>
-                        {formatNumber({ price: input_price })}
+                        <Modality modality={architecture.input_modalities} />
                       </TableCell>
                       <TableCell>
-                        {formatNumber({ price: output_price })}
+                        <Modality modality={architecture.output_modalities} />
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber({ price: pricing.prompt })}
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber({ price: pricing.completion })}
                       </TableCell>
                     </TableRow>
                   ),

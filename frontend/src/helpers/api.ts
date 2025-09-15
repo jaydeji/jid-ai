@@ -26,7 +26,9 @@ export const groupByProvider = async (
 
   // sort each provider's models by input_price (ascending)
   keys.forEach((provider) => {
-    grouped[provider].sort((a, b) => a.input_price - b.input_price)
+    grouped[provider].sort(
+      (a, b) => Number(a.pricing.prompt) - Number(b.pricing.completion),
+    )
   })
 
   // return an object with provider keys ordered alphabetically
@@ -37,20 +39,26 @@ export const groupByProvider = async (
       return acc
     }, {})
 
-  return { groupedModels, models: data, keys }
+  return {
+    groupedModels,
+    models: data.sort(
+      (a, b) => Number(a.pricing.prompt) - Number(b.pricing.completion),
+    ),
+    keys,
+  }
 }
 
 export const formatNumber = ({
   price,
   isCents,
 }: {
-  price: number
+  price: number | string
   isCents?: boolean
 }) => {
   return isCents
     ? new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(price * 100)
-    : `$${(price * 1_000_000).toFixed(2)}/M`
+      }).format(Number(price) * 100)
+    : `$${(Number(price) * 1_000_000).toFixed(2)}/M`
 }

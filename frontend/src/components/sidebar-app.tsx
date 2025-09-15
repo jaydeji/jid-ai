@@ -159,7 +159,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarContent>
       <SidebarRail />
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter>{user && <NavUser />}</SidebarFooter>
     </Sidebar>
   )
 }
