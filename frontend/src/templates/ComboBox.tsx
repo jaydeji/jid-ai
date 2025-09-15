@@ -9,10 +9,8 @@ import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
 } from '@/components/ui/command'
 import {
   Popover,
@@ -21,9 +19,6 @@ import {
 } from '@/components/ui/popover'
 import { useModels } from '@/services/react-query/hooks'
 import { formatNumber } from '@/helpers/api'
-
-// Reuse your domain Model type from service
-// Example: type Model = { id: string; name: string; pricing: { prompt: number; completion: number }; }
 
 type Item = { type: 'key'; name: string } | (Model & { type: 'model' })
 type RowProps = {
@@ -35,15 +30,14 @@ type RowProps = {
 function rowHeight(index: number, { items }: RowProps) {
   switch (items[index].type) {
     case 'key': {
-      return 30
+      return 32
     }
     case 'model': {
-      return 40
+      return 56
     }
   }
 }
 
-// Row renderer
 const Row = ({
   index,
   style,
@@ -55,42 +49,68 @@ const Row = ({
 
   if (item.type === 'key') {
     return (
-      <CommandGroup
-        heading={item.name}
+      <div
         style={style}
-        className="px-2 py-1 text-xs font-semibold text-muted-foreground bg-muted"
-      ></CommandGroup>
+        className="flex items-center px-3 py-2 text-xs font-medium text-muted-foreground bg-muted/50 border-b border-border/50 sticky top-0 z-10"
+      >
+        <div className="flex items-center gap-2">
+          <div className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <span className="uppercase tracking-wide">{item.name}</span>
+        </div>
+      </div>
     )
   }
 
+  const isSelected = model === item.id
+
   return (
-    <CommandItem
-      key={item.id}
-      value={item.id}
-      onSelect={(currentValue) => {
-        onSelect(currentValue === model ? '' : currentValue)
-        // setOpen(false)
-      }}
-      style={style}
-    >
-      <div className="flex-1">
-        <div className="truncate font-medium">{item.name}</div>
-        <div className="text-xs flex gap-3">
-          <span className="truncate">
-            In: {formatNumber({ price: item.pricing.prompt })}
-          </span>
-          <span className="truncate">
-            Out: {formatNumber({ price: item.pricing.completion })}
-          </span>
-        </div>
-      </div>
-      <Check
+    <div style={style} className="px-1">
+      <CommandItem
+        key={item.id}
+        value={item.id}
+        onSelect={(currentValue) => {
+          onSelect(currentValue === model ? '' : currentValue)
+        }}
         className={cn(
-          'ml-auto',
-          model === item.id ? 'opacity-100' : 'opacity-0',
+          'flex items-center gap-3 px-3 py-2 mx-1 my-0.5 rounded-md cursor-pointer transition-all duration-150',
+          'hover:bg-accent/80 hover:text-accent-foreground',
+          'focus:bg-accent focus:text-accent-foreground',
+          'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground',
+          isSelected && 'bg-accent/50 shadow-sm',
         )}
-      />
-    </CommandItem>
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="font-medium text-sm truncate">{item.name}</div>
+            <Check
+              className={cn(
+                'h-4 w-4 shrink-0 transition-opacity',
+                isSelected ? 'opacity-100 text-primary' : 'opacity-0',
+              )}
+            />
+          </div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] uppercase font-medium tracking-wide opacity-60">
+                In:
+              </span>
+              <span className="font-mono">
+                {formatNumber({ price: item.pricing.prompt })}
+              </span>
+            </div>
+            <div className="h-3 w-px bg-border" />
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] uppercase font-medium tracking-wide opacity-60">
+                Out:
+              </span>
+              <span className="font-mono">
+                {formatNumber({ price: item.pricing.completion })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </CommandItem>
+    </div>
   )
 }
 
@@ -98,7 +118,6 @@ export function ComboBox({ model, onSelect }: any) {
   const [open, setOpen] = React.useState(false)
   const { data } = useModels()
 
-  // Flatten group structure -> one virtualized list
   const items: Array<Item> =
     data?.keys.flatMap((key) => [
       { type: 'key' as const, name: key },
@@ -110,6 +129,8 @@ export function ComboBox({ model, onSelect }: any) {
       ),
     ]) ?? []
 
+  const selectedModel = data?.models.find((m: any) => m.id === model)
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -117,29 +138,39 @@ export function ComboBox({ model, onSelect }: any) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between"
+          className="w-40 justify-between h-10 px-3 font-normal"
         >
-          {model && data
-            ? data.models.find((m: any) => m.id === model)?.id
-            : 'Select model...'}
-          <ChevronsUpDown className="opacity-50" />
+          <span className="truncate">
+            {selectedModel?.name || 'Select model...'}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="min-w-[250px] p-0">
-        <Command>
-          <CommandInput placeholder="Search models..." className="h-9" />
-          <CommandList>
-            <CommandEmpty>No model found.</CommandEmpty>
-            {items.length > 0 && (
+      <PopoverContent className="w-[380px] p-0 shadow-lg" align="start">
+        <Command className="rounded-lg border-0 h-[320px]">
+          <div className="border-b border-border/50">
+            <CommandInput
+              placeholder="Search models..."
+              className="h-10 px-3 text-sm border-0 focus:ring-0"
+            />
+          </div>
+
+          <div className="max-h-[320px] overflow-hidden">
+            {items.length === 0 ? (
+              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                No models found.
+              </CommandEmpty>
+            ) : (
               <List
                 rowComponent={Row}
                 rowCount={items.length}
                 rowHeight={rowHeight}
                 rowProps={{ items, onSelect, model }}
+                className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
               />
             )}
-          </CommandList>
+          </div>
         </Command>
       </PopoverContent>
     </Popover>
