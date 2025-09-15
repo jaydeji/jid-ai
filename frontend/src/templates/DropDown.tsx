@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { List } from 'react-window'
+import { ComboBox } from './ComboBox'
+import type { RowComponentProps } from 'react-window'
 import type { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 import type { GroupedModels, Model } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -12,37 +15,55 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useModels } from '@/services/react-query/hooks'
 import { formatNumber } from '@/helpers/api'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
 type Checked = DropdownMenuCheckboxItemProps['checked']
 
 function RowComponent({
-  model,
+  models,
   onSelect,
   value,
-}: {
-  model: Model
+  index,
+  style,
+}: RowComponentProps<{
+  models: Array<Model>
   onSelect: (value: string) => void
   value: string
-}) {
+}>) {
+  const model = models[index]
   return (
-    <DropdownMenuCheckboxItem
-      key={model.id}
-      className="cursor-pointer w-full pl-10"
-      onSelect={() => onSelect(model.id)}
-      checked={value === model.id}
-    >
-      <div className="flex-1">
-        <div className="truncate font-medium">{model.id}</div>
-        <div className="text-xs text-slate-500 flex gap-3">
-          <span className="truncate">
-            In: {formatNumber({ price: model.pricing.prompt })}
-          </span>
-          <span className="truncate">
-            Out: {formatNumber({ price: model.pricing.completion })}
-          </span>
-        </div>
-      </div>
-    </DropdownMenuCheckboxItem>
+    <div></div>
+    // <Popover>
+    //   <PopoverTrigger asChild>
+    //     <Button variant="outline">{model}</Button>
+    //   </PopoverTrigger>
+    //   <PopoverContent className="w-80 h-96 p-0">
+    //     <ModelsList models={models} onSelect={onSelect} value={value} />
+    //   </PopoverContent>
+    // </Popover>
+    // <DropdownMenuCheckboxItem
+    //   key={model.id}
+    //   className="cursor-pointer w-full pl-10"
+    //   onSelect={() => onSelect(model.id)}
+    //   checked={value === model.id}
+    //   style={style}
+    // >
+    //   <div className="flex-1">
+    //     <div className="truncate font-medium">{model.id}</div>
+    //     <div className="text-xs text-slate-500 flex gap-3">
+    //       <span className="truncate">
+    //         In: {formatNumber({ price: model.pricing.prompt })}
+    //       </span>
+    //       <span className="truncate">
+    //         Out: {formatNumber({ price: model.pricing.completion })}
+    //       </span>
+    //     </div>
+    //   </div>
+    // </DropdownMenuCheckboxItem>
   )
 }
 
@@ -72,6 +93,8 @@ export function DropdownMenuCheckboxes({ model, onSelect, value }: any) {
 
   if (isModelsFetching) return null
 
+  return <ComboBox />
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -80,7 +103,7 @@ export function DropdownMenuCheckboxes({ model, onSelect, value }: any) {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="h-96 relative">
+      <DropdownMenuContent className="h-96 relative min-w-[300px]">
         <div className="px-3 pt-2">
           <DropdownMenuLabel>Models</DropdownMenuLabel>
 
@@ -106,21 +129,18 @@ export function DropdownMenuCheckboxes({ model, onSelect, value }: any) {
 
         <DropdownMenuSeparator />
 
-        <div
-          className="overflow-y-auto"
-          style={{ height: 'calc(100% - 88px)' }}
-        >
+        <div className="overflow-y-auto">
           {filteredData && filteredData.models.length > 0 ? (
-            <div className="flex flex-col">
-              {filteredData.models.map((m) => (
-                <RowComponent
-                  key={m.id}
-                  model={m}
-                  onSelect={onSelect}
-                  value={value}
-                />
-              ))}
-            </div>
+            <List
+              rowComponent={RowComponent}
+              rowCount={filteredData.models.length}
+              rowHeight={38}
+              rowProps={{
+                models: filteredData.models,
+                onSelect: onSelect,
+                value: value,
+              }}
+            />
           ) : (
             <div className="p-3 text-sm text-slate-500">No results.</div>
           )}

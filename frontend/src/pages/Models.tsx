@@ -114,7 +114,7 @@ export const ModelsPage = () => {
             <Table className="">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Model ID</TableHead>
+                  <TableHead>Model</TableHead>
                   <TableHead>Context</TableHead>
                   <TableHead>Inputs</TableHead>
                   <TableHead>Outputs</TableHead>
@@ -126,6 +126,7 @@ export const ModelsPage = () => {
                 {filteredModels.map(
                   ({
                     id,
+                    name,
                     description,
                     pricing,
                     context_length,
@@ -137,7 +138,7 @@ export const ModelsPage = () => {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span className="cursor-help underline decoration-dotted">
-                                {id}
+                                {name}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent className="max-w-xs">

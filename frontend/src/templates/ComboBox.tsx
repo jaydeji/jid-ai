@@ -17,10 +17,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { useModels } from '@/services/react-query/hooks'
+import { formatNumber } from '@/helpers/api'
 
-export function ComboBox() {
+export function ComboBox({ model, onSelect }: any) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState('')
 
   const { data } = useModels()
 
@@ -33,13 +33,13 @@ export function ComboBox() {
           aria-expanded={open}
           className=" justify-between"
         >
-          {value && data
-            ? data.models.find((model) => model.id === value)?.id
+          {model && data
+            ? data.models.find((m) => m.id === model)?.id
             : 'Select model...'}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="min-w-[150px] p-0">
         <Command>
           <CommandInput placeholder="Search models..." className="h-9" />
           <CommandList>
@@ -47,20 +47,30 @@ export function ComboBox() {
             {data &&
               data.keys.map((id) => (
                 <CommandGroup key={id} heading={id}>
-                  {data.groupedModels[id].map((model) => (
+                  {data.groupedModels[id].map((m) => (
                     <CommandItem
-                      key={model.id}
-                      value={model.id}
+                      key={m.id}
+                      value={m.id}
                       onSelect={(currentValue) => {
-                        setValue(currentValue === value ? '' : currentValue)
+                        onSelect(currentValue === model ? '' : currentValue)
                         setOpen(false)
                       }}
                     >
-                      {model.id}
+                      <div className="flex-1">
+                        <div className="truncate font-medium">{m.name}</div>
+                        <div className="text-xs  flex gap-3">
+                          <span className="truncate">
+                            In: {formatNumber({ price: m.pricing.prompt })}
+                          </span>
+                          <span className="truncate">
+                            Out: {formatNumber({ price: m.pricing.completion })}
+                          </span>
+                        </div>
+                      </div>
                       <Check
                         className={cn(
                           'ml-auto',
-                          value === model.id ? 'opacity-100' : 'opacity-0',
+                          model === m.id ? 'opacity-100' : 'opacity-0',
                         )}
                       />
                     </CommandItem>
