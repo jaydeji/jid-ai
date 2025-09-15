@@ -13,9 +13,12 @@ export const users = [
       includeSearch: true,
       reasoningEffort: 'high',
     },
-    currentlySelectedModel: 'openai/gpt-5-mini:flex',
+    currentlySelectedModel: 'nvidia/nemotron-nano-9b-v2:free',
     disableExternalLinkWarning: true,
-    favoriteModels: ['gemini-2.5-flash', 'gpt-5-chat'],
+    favoriteModels: [
+      'nvidia/nemotron-nano-9b-v2:free',
+      'deepseek/deepseek-r1:free',
+    ],
   },
 ];
 

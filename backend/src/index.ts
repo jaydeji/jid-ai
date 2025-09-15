@@ -13,7 +13,7 @@ import { cors } from 'hono/cors';
 import { proxy } from 'hono/proxy';
 import { config } from './config.js';
 import { cache } from './cache.js';
-import { getChatsById } from './helpers.js';
+import { getChatsById, getUserById } from './helpers.js';
 import { basicAuth } from 'hono/basic-auth';
 
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
@@ -183,7 +183,14 @@ app.post('/chat', async (c) => {
         chats.unshift(chat);
       }
 
+      const users: any[] = cache.getKey('users');
+      const usersIndex = users.findIndex(
+        (user) => user.userId === 'google:110510818893952848592'
+      );
+      users[usersIndex].currentlySelectedModel = model;
+
       cache.setKey('chats', chats);
+      cache.setKey('users', users);
       cache.save();
     },
   });

@@ -1,10 +1,4 @@
 import { useState } from 'react'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -52,122 +46,95 @@ const Modality = ({ modality }: { modality: Array<ModalityType> }) => {
 }
 
 export const ModelsPage = () => {
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-
-  const { data, isFetching: isModelsFetching } = useModels()
+  const { data } = useModels()
 
   if (!data) return null
 
-  const models = selectedProvider ? data.groupedModels[selectedProvider] : []
+  // Flatten all providers into a single models array
+  const allModels = data.keys.flatMap((provider) =>
+    data.groupedModels[provider].map((m) => ({ ...m, provider })),
+  )
 
-  const filteredModels = models.filter((m) =>
+  const filteredModels = allModels.filter((m) =>
     m.id.toLowerCase().includes(search.toLowerCase()),
   )
 
   return (
-    <div className="flex ">
-      {/* Sidebar */}
-      <aside className="w-64 border-r p-4 overflow-scroll h-screen">
-        <h2 className="mb-2 font-semibold">Providers</h2>
-        <Accordion type="single" collapsible>
-          {data.keys.map((provider) => (
-            <AccordionItem key={provider} value={provider}>
-              <AccordionTrigger
-                onClick={() => setSelectedProvider(provider)}
-                className="cursor-pointer"
-              >
-                {provider}
-              </AccordionTrigger>
-              <AccordionContent>
-                <p className="text-sm text-muted-foreground">
-                  {data.groupedModels[provider].length} models
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </aside>
+    <main className="p-6 h-screen overflow-scroll">
+      {/* Header + Search */}
+      <div className="mb-4 flex items-center justify-between sticky top-0 z-20 bg-background">
+        <h1 className="text-xl font-bold">All Models</h1>
+        <Input
+          placeholder="Search models..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-64"
+        />
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 h-screen overflow-scroll">
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">
-            {selectedProvider
-              ? `${selectedProvider} Models`
-              : 'Select a provider'}
-          </h1>
-          {selectedProvider && (
-            <Input
-              placeholder="Search models..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-64"
-            />
-          )}
-        </div>
-
-        {selectedProvider && (
-          <TooltipProvider>
-            <Table className="">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Model</TableHead>
-                  <TableHead>Context</TableHead>
-                  <TableHead>Inputs</TableHead>
-                  <TableHead>Outputs</TableHead>
-                  <TableHead>Input Price</TableHead>
-                  <TableHead>Output Price</TableHead>
+      {/* Models Table */}
+      <TooltipProvider>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Provider</TableHead>
+              <TableHead>Model</TableHead>
+              <TableHead>Context</TableHead>
+              <TableHead>Inputs</TableHead>
+              <TableHead>Outputs</TableHead>
+              <TableHead>Input Price</TableHead>
+              <TableHead>Output Price</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredModels.map(
+              ({
+                id,
+                name,
+                description,
+                pricing,
+                context_length,
+                architecture,
+                provider,
+              }) => (
+                <TableRow key={id}>
+                  <TableCell className="font-medium">{provider}</TableCell>
+                  <TableCell>
+                    {description.length ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help underline decoration-dotted">
+                            {name}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>{description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      id
+                    )}
+                  </TableCell>
+                  <TableCell>{context_length.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Modality modality={architecture.input_modalities} />
+                  </TableCell>
+                  <TableCell>
+                    <Modality modality={architecture.output_modalities} />
+                  </TableCell>
+                  <TableCell>
+                    {formatNumber({ price: pricing.prompt })}
+                  </TableCell>
+                  <TableCell>
+                    {formatNumber({ price: pricing.completion })}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredModels.map(
-                  ({
-                    id,
-                    name,
-                    description,
-                    pricing,
-                    context_length,
-                    architecture,
-                  }) => (
-                    <TableRow key={id}>
-                      <TableCell>
-                        {description.length ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help underline decoration-dotted">
-                                {name}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                              <p>{description}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          id
-                        )}
-                      </TableCell>
-                      <TableCell>{context_length.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Modality modality={architecture.input_modalities} />
-                      </TableCell>
-                      <TableCell>
-                        <Modality modality={architecture.output_modalities} />
-                      </TableCell>
-                      <TableCell>
-                        {formatNumber({ price: pricing.prompt })}
-                      </TableCell>
-                      <TableCell>
-                        {formatNumber({ price: pricing.completion })}
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )}
-              </TableBody>
-            </Table>
-          </TooltipProvider>
-        )}
-      </main>
-    </div>
+              ),
+            )}
+          </TableBody>
+        </Table>
+      </TooltipProvider>
+    </main>
   )
 }

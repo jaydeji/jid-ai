@@ -7,6 +7,7 @@ import { MyChat } from '@/components/chat'
 import {
   queryClient,
   useChat as useChatHook,
+  useUser,
 } from '@/services/react-query/hooks'
 import { config } from '@/services'
 import { getAuthHeader } from '@/services/auth'
@@ -15,6 +16,7 @@ import { chatsKey } from '@/services/react-query/keys'
 export const Chat = () => {
   const { chatId } = useParams({ strict: false })
   const { data } = useChatHook(chatId)
+  const { data: user } = useUser()
 
   const chatOptions = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({
@@ -31,8 +33,14 @@ export const Chat = () => {
 
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<string>(
-    'nvidia/nemotron-nano-9b-v2:free', // openai/gpt-5-mini:flex
+    user?.currentlySelectedModel || '', // openai/gpt-5-mini:flex
   )
+
+  useEffect(() => {
+    if (user?.currentlySelectedModel) {
+      setModel(user.currentlySelectedModel)
+    }
+  }, [user?.currentlySelectedModel])
 
   useEffect(() => {
     if (!chatId) {
