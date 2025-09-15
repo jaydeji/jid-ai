@@ -1,8 +1,7 @@
 {
   "name": "backend",
-  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",
@@ -16,12 +15,17 @@
     "@requesty/ai-sdk": "^0.0.9",
     "ai": "^5.0.34",
     "dotenv-defaults": "^5.0.2",
+    "drizzle-orm": "^0.44.5",
     "flat-cache": "^6.1.13",
     "hono": "^4.9.6",
+    "postgres": "^3.4.7",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.4",
+    "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }

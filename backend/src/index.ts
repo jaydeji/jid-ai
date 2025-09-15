@@ -1,4 +1,4 @@
-import 'dotenv-defaults/config.js';
+import 'dotenv-defaults/config';
 
 import { serve } from '@hono/node-server';
 import {
@@ -11,12 +11,14 @@ import {
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { proxy } from 'hono/proxy';
-import { config } from './config.js';
-import { cache } from './cache.js';
-import { getChatsById, getUserById } from './helpers.js';
+import { config } from './config';
+import { cache } from './cache';
+import { getChatsById, getUserById } from './helpers';
 import { basicAuth } from 'hono/basic-auth';
 
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { db } from './db';
+import { usersTable } from './schema';
 
 const openrouter = createOpenRouter({
   apiKey: config.OPEN_ROUTER_API_KEY,
@@ -55,7 +57,14 @@ app.get('/spend', async (c) => {
   }
 });
 
-app.get('/', (c) => {
+app.get('/', async (c) => {
+  try {
+    // Run a simple query
+    const result = await db.select().from(usersTable);
+    console.log('✅ Connection OK:', result);
+  } catch (err) {
+    console.error('❌ Connection failed:', err);
+  }
   return c.text('Hello Hono!');
 });
 

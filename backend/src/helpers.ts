@@ -1,4 +1,4 @@
-import { cache } from './cache.js';
+import { cache } from './cache';
 
 export const getChatsById = (id: string) => {
   const chats: any[] = cache.getKey('chats');
