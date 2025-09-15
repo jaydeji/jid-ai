@@ -17,7 +17,7 @@ import { getChatsById, getUserById } from './helpers';
 import { basicAuth } from 'hono/basic-auth';
 
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { db } from './db';
+// import { db } from './db';
 import { usersTable } from './schema';
 
 const openrouter = createOpenRouter({
@@ -58,13 +58,13 @@ app.get('/spend', async (c) => {
 });
 
 app.get('/', async (c) => {
-  try {
-    // Run a simple query
-    const result = await db.select().from(usersTable);
-    console.log('✅ Connection OK:', result);
-  } catch (err) {
-    console.error('❌ Connection failed:', err);
-  }
+  // try {
+  //   // Run a simple query
+  //   const result = await db.select().from(usersTable);
+  //   console.log('✅ Connection OK:', result);
+  // } catch (err) {
+  //   console.error('❌ Connection failed:', err);
+  // }
   return c.text('Hello Hono!');
 });
 
