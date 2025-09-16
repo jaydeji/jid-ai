@@ -31,6 +31,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@yourdomain.com
       - PGADMIN_DEFAULT_PASSWORD=admin_password_here
       - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
