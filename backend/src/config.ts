@@ -8,7 +8,6 @@ const envSchema = z.object({
   OPEN_ROUTER_API_KEY: z.string(),
   AUTH_PASS: z.string(),
   DATABASE_URL: z.string(),
-  DB_FILE_NAME: z.string(),
   //   MARKDOWN_PATH: z.string(),
   //   NODE_ENV: z
   //     .enum(['development', 'production', 'test'])

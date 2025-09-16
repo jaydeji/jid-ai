@@ -7,9 +7,9 @@ services:
     ports:
       - '127.0.0.1:5432:5432'
     environment:
-      - POSTGRES_DB=aiapp
-      - POSTGRES_USER=aiuser
-      - POSTGRES_PASSWORD=your_secure_password_here
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -28,10 +28,10 @@ services:
     ports:
       - '127.0.0.1:5050:80'
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@yourdomain.com
-      - PGADMIN_DEFAULT_PASSWORD=admin_password_here
-      - PGADMIN_CONFIG_SERVER_MODE=False
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=${PGADMIN_CONFIG_SERVER_MODE}
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=${PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
@@ -47,8 +47,6 @@ services:
     image: chatapp-backend:latest
     ports:
       - '127.0.0.1:3001:3001'
-    env_file:
-      - ./backend/.env
     depends_on:
       postgres: # Fixed: was 'db', should be 'postgres'
         condition: service_healthy
@@ -65,8 +63,6 @@ services:
     image: chatapp-frontend:latest
     ports:
       - '127.0.0.1:3000:80' # Fixed: bind to localhost for security
-    env_file:
-      - ./frontend/.env
     depends_on:
       - backend
     restart: unless-stopped

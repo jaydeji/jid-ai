@@ -10,3 +10,15 @@
 // });
 
 // export const db = drizzle({ client });
+
+// Make sure to install the 'pg' package
+
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { config } from './config';
+
+(async () => {
+  const db = drizzle(config.DATABASE_URL);
+
+  const result = await db.execute('select 1');
+  console.log(result);
+})();
