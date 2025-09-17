@@ -32,7 +32,7 @@ class MyFetch {
   }
 
   post = <T>(path: string, body?: any) => {
-    return this.api.post<T>(path, body).json()
+    return this.api.post<T>(path, body ? { json: body } : undefined).json()
   }
 }
 

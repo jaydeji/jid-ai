@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
-import { queryClient } from '@/services/react-query/hooks'
+import { queryClient, userSignIn } from '@/services/react-query/hooks'
 import { setAuth } from '@/services/auth'
 
 export default function LoginPage() {
@@ -11,14 +11,21 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const { mutateAsync } = userSignIn()
+
+  const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     setError(null)
     setLoading(true)
 
     try {
+      const { token }: any = await mutateAsync({
+        email,
+        password,
+      })
+
       // Store credentials (basic auth token). Backend will verify on first request.
-      setAuth(email, password)
+      setAuth(token)
 
       // Invalidate cached user/chats so they re-fetch with new credentials
       queryClient.invalidateQueries()

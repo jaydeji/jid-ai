@@ -9,6 +9,7 @@ CREATE TABLE "users" (
 	"currently_selected_model" varchar(256),
 	"favorite_models" jsonb,
 	"ai_credits_cents" integer DEFAULT 0 NOT NULL,
+	"hashed_password" text NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint

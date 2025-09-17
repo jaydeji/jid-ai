@@ -1,4 +1,4 @@
-const AUTH_KEY = 'basic_auth_token'
+const AUTH_KEY = 'token'
 
 export const setAuth = (token: string) => {
   sessionStorage.setItem(AUTH_KEY, token)
@@ -10,7 +10,7 @@ export const clearAuth = () => {
 
 export const getAuthHeader = (): string | null => {
   const token = sessionStorage.getItem(AUTH_KEY)
-  return token ? `Basic ${token}` : null
+  return token ? `Bearer ${token}` : null
 }
 
 export const isLoggedIn = (): boolean => {

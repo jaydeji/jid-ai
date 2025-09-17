@@ -45,6 +45,12 @@ export const useChat = (chatId?: string) => {
 
 export const useSignUp = () => {
   return useMutation({
-    mutationFn: (body: any) => api.signUp(body),
+    mutationFn: api.signUp,
+  })
+}
+
+export const userSignIn = () => {
+  return useMutation({
+    mutationFn: api.signIn,
   })
 }

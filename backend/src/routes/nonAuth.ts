@@ -10,7 +10,7 @@ import { consts } from '../constants';
 export const nonAuth = new Hono();
 
 nonAuth.post('/signup', async (c) => {
-  const { user }: { user: any } = await c.req.json();
+  const user = await c.req.json();
 
   let parsedUser;
 
@@ -21,29 +21,28 @@ nonAuth.post('/signup', async (c) => {
     throw new HTTPException(400, { message: 'Bad user', cause: error });
   }
 
-  const hashedPassword = await bcrypt.hash(
-    parsedUser.password,
-    consts.SALT_ROUNDS
-  );
+  const hp = await bcrypt.hash(parsedUser.password, consts.SALT_ROUNDS);
 
   const { password, ...passwordUser } = parsedUser;
 
-  (passwordUser as any).hashedPassword = hashedPassword;
+  (passwordUser as any).hashedPassword = hp;
 
   let savedUser;
 
   try {
     savedUser = await db.addUser(passwordUser);
-    console.log(savedUser);
+    console.log('Successfully saved user');
   } catch (error) {
     console.log(error);
   }
 
-  c.json({ user, token: await generateToken(user) });
+  const { hashedPassword, ...returnedUser } = savedUser!;
+
+  return c.json({ user, token: await generateToken(returnedUser) });
 });
 
 nonAuth.post('/signin', async (c) => {
-  const { user }: { user: any } = await c.req.json();
+  const user = await c.req.json();
 
   let parsedUser;
 
@@ -70,7 +69,7 @@ nonAuth.post('/signin', async (c) => {
     throw new HTTPException(404, { message: 'User not found' });
   }
 
-  c.json({ user, token: await generateToken(user) });
+  return c.json({ user, token: await generateToken(user) });
 });
 
 nonAuth.get('/', async (c) => {
