@@ -68,6 +68,24 @@ export class DB {
       .from(messagesTable)
       .where(eq(messagesTable.chatId, id));
   };
+
+  updateChat = async (id: string, data: any) => {
+    await this.db.update(chatsTable).set(data).where(eq(chatsTable.id, id));
+  };
+
+  updateUser = async (email: string, data: any) => {
+    await this.db
+      .update(usersTable)
+      .set(data)
+      .where(eq(usersTable.email, email));
+  };
+
+  updateMessages = async (email: string, data: any) => {
+    await this.db
+      .update(usersTable)
+      .set(data)
+      .where(eq(usersTable.email, email));
+  };
 }
 
 export const db = new DB();

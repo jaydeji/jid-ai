@@ -13,6 +13,7 @@ import { cache } from '../cache';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { db } from '../db';
 import { jwt, type JwtVariables } from 'hono/jwt';
+import { getPayload } from '../helpers';
 
 const openrouter = createOpenRouter({
   apiKey: config.OPEN_ROUTER_API_KEY,
@@ -50,7 +51,10 @@ auth.get('/spend', async (c) => {
 });
 
 auth.get('/user', async (c) => {
-  const { email } = c.get('jwtPayload');
+  // jwt payload may provide the subject as `sub` (where we store the email)
+  // or an `email` field depending on how the token was generated.
+  const email = getPayload(c)?.email;
+  if (!email) return c.json({}, 404);
   const user = await db.getUserByemail(email);
   return c.json(user);
 });
@@ -107,32 +111,45 @@ auth.post('/chat', async (c) => {
   }: { messages: UIMessage[]; model: string; chatId: string } =
     await c.req.json();
 
-  let chat = await db.getChatById(chatId);
+  // load chat from db (drizzle)
+  let chat: any = await db.getChatById(chatId);
+
+  // if chat exists in DB, load its messages from messages table
+  if (chat) {
+    const dbMessages = await db.getMessagesByChatById(chatId);
+    chat.messages = (dbMessages || []).map((m: any) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      createdAt: m.createdAt,
+    }));
+  }
+
   let chatExists = !!chat;
   const now = new Date();
 
   if (chatExists) {
+    // ensure updatedAt is a Date
     chat.updatedAt = now;
     chat.messages.push(...messages);
   } else {
+    // create an in-memory chat object (will be persisted elsewhere)
     chat = {
       id: chatId,
       createdAt: now,
       updatedAt: now,
       title: 'New Chat',
       model,
-      generationStatus: 'completed',
-      branchParent: null,
-      pinned: false,
+      // generationStatus: 'completed' as const,
+      // branchParent: null,
+      // pinned: false,
       //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
-      userSetTitle: false,
+      // userSetTitle: false,
       messages: [...messages],
-    };
+    } as any;
   }
 
   // console.log(convertToModelMessages(messages));//[ { role: 'user', content: [ [Object] ] } ]
-
-  // chats[chatId] = chat;
 
   const result = streamText({
     // model: provider('openai/gpt-5-mini'),
@@ -159,30 +176,13 @@ auth.post('/chat', async (c) => {
       // prefix: 'msg',
       size: 16,
     }),
-    onFinish: ({ messages }) => {
-      chat.updatedAt = Date.now();
-
-      const chats: any[] = cache.getKey('chats');
-
+    onFinish: async ({ messages }) => {
+      // keep updatedAt as Date
       chat.messages = messages;
 
-      if (chatExists) {
-        const chatIndex = chats.findIndex((chat) => chat.id === chatId);
-        chats[chatIndex] = chat;
-      } else {
-        // chat.generationStatus = 'completed';
-        chats.unshift(chat);
-      }
-
-      const users: any[] = cache.getKey('users');
-      const usersIndex = users.findIndex(
-        (user) => user.userId === 'google:110510818893952848592'
-      );
-      users[usersIndex].currentlySelectedModel = model;
-
-      cache.setKey('chats', chats);
-      cache.setKey('users', users);
-      cache.save();
+      const email = getPayload(c).email;
+      await db.updateUser(email, { currentlySelectedModel: model });
+      await db.updateChat(chat.id, { updatedAt: new Date() });
     },
   });
 });

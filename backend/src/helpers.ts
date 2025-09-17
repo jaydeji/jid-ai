@@ -1,6 +1,7 @@
 import { sign } from 'hono/jwt';
 import { cache } from './cache';
 import { config } from './config';
+import type { Context } from 'hono';
 
 export const getUserById = (id: string) => {
   const users: any[] = cache.getKey('users');
@@ -17,4 +18,13 @@ export const generateToken = async (user: any) => {
   const token = await sign(payload, config.AUTH_TOKEN);
 
   return token;
+};
+
+export const getPayload = (c: Context) => {
+  try {
+    const jwtPayload = c.get('jwtPayload') as any;
+    return jwtPayload;
+  } catch (error) {
+    console.log(error);
+  }
 };
