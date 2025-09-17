@@ -10,7 +10,6 @@ import { Hono } from 'hono';
 import { proxy } from 'hono/proxy';
 import { config } from '../config';
 import { cache } from '../cache';
-import { getChatsById } from '../helpers';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { db } from '../db';
 import { jwt, type JwtVariables } from 'hono/jwt';
@@ -61,9 +60,9 @@ auth.get('/chats', (c) => {
   return c.json(chats.map((e) => ({ id: e.id, title: e.title })));
 });
 
-auth.get('/chats/:id', (c) => {
+auth.get('/chats/:id', async (c) => {
   const id = c.req.param('id');
-  const chat = getChatsById(id);
+  const chat = await db.getChatById(id);
   if (!chat) return c.json({}, 404);
   return c.json(chat);
 });
@@ -108,9 +107,9 @@ auth.post('/chat', async (c) => {
   }: { messages: UIMessage[]; model: string; chatId: string } =
     await c.req.json();
 
-  let chat = getChatsById(chatId);
+  let chat = await db.getChatById(chatId);
   let chatExists = !!chat;
-  const now = Date.now();
+  const now = new Date();
 
   if (chatExists) {
     chat.updatedAt = now;

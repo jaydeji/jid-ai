@@ -7,6 +7,8 @@ import {
   integer,
   uniqueIndex,
   uuid,
+  timestamp,
+  boolean,
 } from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable(
@@ -37,3 +39,36 @@ export const usersTable = pgTable(
     };
   }
 );
+
+export const chatsTable = pgTable('chats', {
+  id: uuid('id').defaultRandom().primaryKey(), // chatId
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  title: varchar('title', { length: 255 }).default('New Chat').notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
+  generationStatus: varchar('generation_status', { length: 50 })
+    .$type<'completed' | 'pending' | 'failed'>()
+    .default('completed')
+    .notNull(),
+  branchParent: uuid('branch_parent'), // can be null
+  pinned: boolean('pinned').default(false).notNull(),
+  // threadId: uuid("thread_id"), // uncomment if you need thread relation
+  userSetTitle: boolean('user_set_title').default(false).notNull(),
+});
+
+// -- Message table (separate, since messages are array-like)
+export const messagesTable = pgTable('messages', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  chatId: uuid('chat_id')
+    .references(() => chatsTable.id, { onDelete: 'cascade' })
+    .notNull(),
+  role: varchar('role', { length: 20 }).notNull(), // e.g. user, assistant, system
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

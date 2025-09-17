@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
-import { usersTable } from './schema';
+import { chatsTable, messagesTable, usersTable } from './schema';
 import { eq } from 'drizzle-orm';
 
 export class DB {
@@ -50,6 +50,23 @@ export class DB {
         })
         .returning()
     )[0];
+  };
+
+  getChatById = async (id: string) => {
+    return (
+      await this.db
+        .select()
+        .from(chatsTable)
+        .where(eq(chatsTable.id, id))
+        .limit(1)
+    )?.[0];
+  };
+
+  getMessagesByChatById = async (id: string) => {
+    return await this.db
+      .select()
+      .from(messagesTable)
+      .where(eq(messagesTable.chatId, id));
   };
 }
 
