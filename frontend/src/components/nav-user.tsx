@@ -26,12 +26,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { clearAuth, getStoredEmail } from '@/services/auth'
+import { clearAuth } from '@/services/auth'
 import { queryClient, useUser } from '@/services/react-query/hooks'
 
 export function NavUser() {
   const navigate = useNavigate()
-  const storedEmail = getStoredEmail()
   const { isMobile } = useSidebar()
 
   const { data: user } = useUser()

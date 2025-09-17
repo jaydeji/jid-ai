@@ -26,6 +26,14 @@ class Api {
   getChat = (chatId: string) => {
     return this.myFetch.get<Chat>('chats/' + chatId)
   }
+
+  signIn = (body: any) => {
+    return this.myFetch.post('signin', body)
+  }
+
+  signUp = (body: any) => {
+    return this.myFetch.post('signup', body)
+  }
 }
 
 const api = new Api()

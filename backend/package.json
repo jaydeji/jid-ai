@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",
@@ -13,7 +13,9 @@
     "@hono/node-server": "^1.19.0",
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "@requesty/ai-sdk": "^0.0.9",
+    "@types/bcrypt": "^6.0.0",
     "ai": "^5.0.34",
+    "bcrypt": "^6.0.0",
     "dotenv-defaults": "^5.0.2",
     "drizzle-orm": "^0.44.5",
     "flat-cache": "^6.1.13",

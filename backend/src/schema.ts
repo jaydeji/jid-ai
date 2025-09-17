@@ -29,6 +29,7 @@ export const usersTable = pgTable(
     }),
     favoriteModels: jsonb('favorite_models').$type<string[]>(),
     aiCreditsCents: integer('ai_credits_cents').default(0).notNull(),
+    hashedPassword: text('hashed_password').notNull(),
   },
   (table) => {
     return {

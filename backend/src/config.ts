@@ -6,7 +6,7 @@ const envSchema = z.object({
   REQUESTY_BASE_URL: z.string(),
   OPEN_ROUTER_BASE_URL: z.string(),
   OPEN_ROUTER_API_KEY: z.string(),
-  AUTH_PASS: z.string(),
+  AUTH_TOKEN: z.string(),
   DATABASE_URL: z.string(),
   //   MARKDOWN_PATH: z.string(),
   //   NODE_ENV: z

@@ -13,6 +13,7 @@ import { ModelsPage } from '@/pages/Models'
 import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
 import { Chat } from '@/pages/Chat'
+import SignupPage from '@/pages/Signup'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -30,6 +31,12 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: LoginPage,
+})
+
+const signUpRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/signup',
+  component: SignupPage,
 })
 
 const indexRoute = createRoute({
@@ -67,6 +74,7 @@ const modelsRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute.addChildren([newChatRoute, chatRoute, modelsRoute]),
   loginRoute,
+  signUpRoute,
 ])
 
 const router = createRouter({

@@ -1,4 +1,4 @@
-import { QueryClient, useQuery } from '@tanstack/react-query'
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
 
@@ -40,5 +40,11 @@ export const useChat = (chatId?: string) => {
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
     enabled: !!chatId,
+  })
+}
+
+export const useSignUp = () => {
+  return useMutation({
+    mutationFn: (body: any) => api.signUp(body),
   })
 }

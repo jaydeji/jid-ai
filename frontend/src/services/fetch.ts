@@ -30,6 +30,10 @@ class MyFetch {
   get = <T>(path: string) => {
     return this.api.get<T>(path).json()
   }
+
+  post = <T>(path: string, body?: any) => {
+    return this.api.post<T>(path, body).json()
+  }
 }
 
 export { MyFetch }
