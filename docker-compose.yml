@@ -5,15 +5,18 @@ services:
     ports:
       - '127.0.0.1:5432:5432'
     environment:
-      # - POSTGRES_DB=${POSTGRES_DB}
-      # - POSTGRES_USER=${POSTGRES_USER}
-      # - POSTGRES_PASSWORD=example
-      - POSTGRES_DB=chatapp
-      - POSTGRES_USER=jide
-      - POSTGRES_PASSWORD=KtbzqT8N
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U jide -d chatapp']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
