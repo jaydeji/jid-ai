@@ -17,7 +17,6 @@ export default defineConfig({
     // ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   },
   verbose: true,
-
   dialect: 'postgresql',
-  strict: true, // Enable strict mode
+  // strict: true, // Enable strict mode
 });
