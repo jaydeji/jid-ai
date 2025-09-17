@@ -114,8 +114,10 @@ auth.post('/chat', async (c) => {
   // load chat from db (drizzle)
   let chat: any = await db.getChatById(chatId);
 
+  const chatExists = !!chat;
+
   // if chat exists in DB, load its messages from messages table
-  if (chat) {
+  if (chatExists) {
     const dbMessages = await db.getMessagesByChatById(chatId);
     chat.messages = (dbMessages || []).map((m: any) => ({
       id: m.id,
@@ -125,11 +127,9 @@ auth.post('/chat', async (c) => {
     }));
   }
 
-  let chatExists = !!chat;
   const now = new Date();
 
-  if (chatExists) {
-    // ensure updatedAt is a Date
+  if (!chatExists) {
     chat.updatedAt = now;
     chat.messages.push(...messages);
   } else {
@@ -181,8 +181,30 @@ auth.post('/chat', async (c) => {
       chat.messages = messages;
 
       const email = getPayload(c).email;
-      await db.updateUser(email, { currentlySelectedModel: model });
-      await db.updateChat(chat.id, { updatedAt: new Date() });
+
+      if (!chatExists) {
+        await db.transaction(async (tx) => {
+          await tx.updateUser(email, { currentlySelectedModel: model });
+          await tx.createChat({
+            id: chat.id,
+            createdAt: chat.createdAt,
+            updatedAt: chat.updatedAt,
+            title: chat.title,
+            model: chat.model,
+          });
+          await tx.createMessages(
+            messages.map((m) => ({ ...m, chatId: chat.id }))
+          );
+        });
+      } else {
+        await db.transaction(async (tx) => {
+          await tx.updateUser(email, { currentlySelectedModel: model });
+          await tx.updateChat(chat.id, {
+            updatedAt: new Date(),
+            model: chat.model,
+          });
+        });
+      }
     },
   });
 });

@@ -34,19 +34,6 @@ export class DB {
         .insert(usersTable)
         .values({
           ...user,
-          // avatar: '',
-          // additionalInfo:
-          //   'Never use this symbol "—". Don’t reference my occupation unless absolutely necessary',
-          // currentModelParameters: {
-          //   includeSearch: true,
-          //   reasoningEffort: 'high',
-          // },
-          // currentlySelectedModel: 'nvidia/nemotron-nano-9b-v2:free',
-          // disableExternalLinkWarning: true,
-          // favoriteModels: [
-          //   'nvidia/nemotron-nano-9b-v2:free',
-          //   'deepseek/deepseek-r1:free',
-          // ],
         })
         .returning()
     )[0];
@@ -73,6 +60,14 @@ export class DB {
     await this.db.update(chatsTable).set(data).where(eq(chatsTable.id, id));
   };
 
+  createChat = async (chat: any) => {
+    return (await this.db.insert(chatsTable).values(chat).returning())?.[0];
+  };
+
+  createMessages = async (messages: any[]) => {
+    return await this.db.insert(messagesTable).values(messages).returning();
+  };
+
   updateUser = async (email: string, data: any) => {
     await this.db
       .update(usersTable)
@@ -80,11 +75,46 @@ export class DB {
       .where(eq(usersTable.email, email));
   };
 
-  updateMessages = async (email: string, data: any) => {
-    await this.db
-      .update(usersTable)
+  /**
+   * Persist messages for a chat.
+   * Strategy: delete existing messages for the chat, then bulk insert provided messages.
+   * Each message object should contain: id (uuid), role, content, createdAt (Date or ISO string)
+   */
+  saveMessagesForChat = async (chatId: string, messages: any[]) => {
+    // Remove existing messages for chat
+    await this.db.delete(messagesTable).where(eq(messagesTable.chatId, chatId));
+
+    if (!messages || messages.length === 0) return [];
+
+    const rows = messages.map((m: any) => {
+      const createdAt =
+        m.createdAt && !(m.createdAt instanceof Date)
+          ? new Date(m.createdAt)
+          : m.createdAt ?? new Date();
+      return {
+        id: m.id,
+        chatId,
+        role: m.role,
+        content:
+          typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
+        createdAt,
+      };
+    });
+
+    return await this.db.insert(messagesTable).values(rows).returning();
+  };
+
+  /**
+   * Update a single message by id (if needed)
+   */
+  updateMessageById = async (id: string, data: any) => {
+    return await this.db
+      .update(messagesTable)
       .set(data)
-      .where(eq(usersTable.email, email));
+      .where(eq(messagesTable.id, id));
+  };
+  transaction = <T>(callback: (tx: any) => Promise<T>, options?: any) => {
+    return this.db.transaction(callback, options);
   };
 }
 
