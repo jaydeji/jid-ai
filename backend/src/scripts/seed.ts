@@ -24,6 +24,8 @@ async function main() {
       'nvidia/nemotron-nano-9b-v2:free',
       'deepseek/deepseek-r1:free',
     ],
+    hashedPassword:
+      '$2b$10$I5ajy97PMu.jIOmlAy565.yTYWirD2vAoUvX29G/l4BDUtOR5EV6.',
   };
 
   await db.insert(usersTable).values(user);
