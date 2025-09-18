@@ -7,20 +7,20 @@ export const nonAuth = new Hono();
 nonAuth.post('/signup', async (c) => {
   try {
     const user = await c.req.json();
-    c.json(await signUp(user));
+    return c.json(await signUp(user));
   } catch ({ error, status }: any) {
     console.error(error);
-    c.json({ error }, status);
+    return c.json({ error }, status);
   }
 });
 
 nonAuth.post('/signin', async (c) => {
   try {
     const user = await c.req.json();
-    c.json(await signIn(user));
+    return c.json(await signIn(user));
   } catch ({ error, status }: any) {
     console.error(error);
-    c.json({ error }, status);
+    return c.json({ error }, status);
   }
 });
 

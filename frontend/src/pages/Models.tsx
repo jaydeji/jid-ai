@@ -51,12 +51,7 @@ export const ModelsPage = () => {
 
   if (!data) return null
 
-  // Flatten all providers into a single models array
-  const allModels = data.keys.flatMap((provider) =>
-    data.groupedModels[provider].map((m) => ({ ...m, provider })),
-  )
-
-  const filteredModels = allModels.filter((m) =>
+  const filteredModels = data.models.filter((m) =>
     m.id.toLowerCase().includes(search.toLowerCase()),
   )
 
@@ -105,7 +100,8 @@ export const ModelsPage = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="cursor-help underline decoration-dotted">
-                            {name}
+                            {/* {name} */}
+                            {id}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">

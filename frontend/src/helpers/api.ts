@@ -3,7 +3,7 @@ import type { GroupedModels, Model, Models } from '@/types'
 export const groupByProvider = async (
   models: Promise<Models>,
 ): Promise<{
-  models: Array<Model>
+  models: Array<Model & { provider: string }>
   groupedModels: GroupedModels
   keys: Array<string>
 }> => {
@@ -41,9 +41,9 @@ export const groupByProvider = async (
 
   return {
     groupedModels,
-    models: data.sort(
-      (a, b) => Number(a.pricing.prompt) - Number(b.pricing.completion),
-    ),
+    models: data
+      .sort((a, b) => Number(a.pricing.prompt) - Number(b.pricing.completion))
+      .map((e) => ({ ...e, provider: e.id.split('/')[0] || 'unknown' })),
     keys,
   }
 }

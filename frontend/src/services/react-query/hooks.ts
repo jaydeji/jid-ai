@@ -1,6 +1,9 @@
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { useChat as useReactChat } from '@ai-sdk/react'
+import { useEffect } from 'react'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
+import { useSharedChatContext } from '@/components/chat-context'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,11 +39,32 @@ export const useUser = () => {
 }
 
 export const useChat = (chatId?: string) => {
-  return useQuery({
+  const { chat, clearChat } = useSharedChatContext()
+  const chatOptions = useReactChat({
+    chat,
+  })
+
+  const options = useQuery({
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
     enabled: !!chatId,
   })
+
+  useEffect(() => {
+    // we need to clear the messages when we go to new chat
+    if (!chatId) clearChat()
+  }, [chatId])
+
+  useEffect(() => {
+    // this sets messages to [] when we send a new chat because we fetch immediately, and its still empty
+    // we need this to populate the chat when we refresh the page
+    // status should stop it from fetching when we have an ongoing request
+    if (options.data)
+      chatOptions.status === 'ready' &&
+        chatOptions.setMessages(options.data.messages)
+  }, [options.data])
+
+  return options
 }
 
 export const useSignUp = () => {

@@ -89,7 +89,7 @@ export class DB {
   };
 
   updateChat = async (data: any, tx?: PgTransaction<any>) => {
-    await (this.db || tx)
+    await (tx || this.db)
       .update(chatsTable)
       .set(data)
       .where(eq(chatsTable.id, data.id));
@@ -97,12 +97,12 @@ export class DB {
 
   createChat = async (chat: any, tx?: PgTransaction<any>) => {
     return (
-      await (this.db || tx).insert(chatsTable).values(chat).returning()
+      await (tx || this.db).insert(chatsTable).values(chat).returning()
     )?.[0];
   };
 
   createMessages = async (messages: any[], tx?: PgTransaction<any>) => {
-    return await (this.db || tx)
+    return await (tx || this.db)
       .insert(messagesTable)
       .values(messages)
       .returning();

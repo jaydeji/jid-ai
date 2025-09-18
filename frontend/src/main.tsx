@@ -7,6 +7,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import reportWebVitals from './reportWebVitals.ts'
 
+import { ChatProvider } from './components/chat-context.tsx'
 import { queryClient } from '@/services/react-query/hooks.ts'
 import { router } from '@/routes/index.tsx'
 
@@ -29,7 +30,10 @@ if (rootElement && !rootElement.innerHTML) {
           })
         }}
       >
-        <RouterProvider router={router} />
+        <ChatProvider>
+          <RouterProvider router={router} />
+        </ChatProvider>
+        ;
       </PersistQueryClientProvider>
     </StrictMode>,
   )

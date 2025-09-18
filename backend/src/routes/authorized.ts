@@ -5,7 +5,7 @@ import { config } from '../config';
 import { db } from '../db';
 import { jwt, type JwtVariables } from 'hono/jwt';
 import { getPayload } from '../helpers';
-import { postChat } from '../services/chat';
+import { postChat } from '../services/chatService';
 
 type Variables = JwtVariables;
 export const auth = new Hono<{ Variables: Variables }>();
@@ -24,7 +24,7 @@ auth.get('/models', async (c) => {
     return res;
   } catch (error) {
     console.error(error);
-    c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
 
@@ -38,7 +38,7 @@ auth.get('/spend', async (c) => {
     return res;
   } catch (error) {
     console.error(error);
-    c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
 
@@ -50,7 +50,7 @@ auth.get('/user', async (c) => {
     return c.json(user);
   } catch (error) {
     console.error(error);
-    c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
 
@@ -60,7 +60,7 @@ auth.get('/chats', async (c) => {
     return c.json(await db.getChats(userId));
   } catch (error) {
     console.error(error);
-    c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
 
@@ -72,7 +72,7 @@ auth.get('/chats/:id', async (c) => {
     return c.json(chat);
   } catch (error) {
     console.error(error);
-    c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
 
@@ -82,6 +82,6 @@ auth.post('/chat', async (c) => {
     return postChat({ ...(await c.req.json()), userId });
   } catch ({ error, status }: any) {
     console.error(error);
-    c.json({ error }, status);
+    return c.json({ error }, status);
   }
 });

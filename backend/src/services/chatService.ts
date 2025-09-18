@@ -61,7 +61,7 @@ export const postChat = async ({
       });
 
       const title = generateText({
-        model: openrouter('openai/gpt-oss-20b:free'),
+        model: openrouter('meta-llama/llama-3.2-1b-instruct'),
         messages: convertToModelMessages([message]),
         system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
       }).then((data) => {
@@ -89,12 +89,13 @@ export const postChat = async ({
 
       writer.write({
         type: 'data-generate-title',
-        data: { title: await title },
+        data: { title: await title, id: chatId },
         transient: true,
       });
 
       writer.merge(
         result.toUIMessageStream({
+          generateMessageId: () => crypto.randomUUID(),
           // originalMessages: allMessages,
           messageMetadata: ({ part }) => {
             if (part.type === 'finish') {
@@ -128,17 +129,17 @@ export const postChat = async ({
               );
 
               // create messages
-              await db.createMessages(
-                [
-                  { ...message, chatId, model },
-                  ...completedMessages.map((e) => ({
-                    ...e,
-                    chatId,
-                    model,
-                  })),
-                ],
-                tx
-              );
+
+              const _messages = [
+                { ...message, chatId, model },
+                ...completedMessages.map((e) => ({
+                  ...e,
+                  chatId,
+                  model,
+                })),
+              ];
+
+              await db.createMessages(_messages, tx);
             });
           },
         })
