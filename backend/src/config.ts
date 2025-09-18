@@ -8,6 +8,7 @@ const envSchema = z.object({
   OPEN_ROUTER_API_KEY: z.string(),
   AUTH_TOKEN: z.string(),
   DATABASE_URL: z.string(),
+  CORS_ORIGIN: z.string(),
   //   MARKDOWN_PATH: z.string(),
   //   NODE_ENV: z
   //     .enum(['development', 'production', 'test'])
