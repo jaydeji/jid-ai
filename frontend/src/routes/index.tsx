@@ -13,7 +13,7 @@ import App from '@/App'
 import { ModelsPage } from '@/pages/Models'
 import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
-import { Chat } from '@/pages/Chat'
+import { ChatPage } from '@/pages/Chat'
 import SignupPage from '@/pages/Signup'
 
 const rootRoute = createRootRouteWithContext<{
@@ -52,13 +52,13 @@ const indexRoute = createRoute({
 const newChatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/',
-  component: Chat,
+  component: ChatPage,
 })
 
 const chatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/chats/$chatId',
-  component: Chat,
+  component: ChatPage,
 })
 
 const modelsRoute = createRoute({

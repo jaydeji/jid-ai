@@ -2,22 +2,19 @@ import { useNavigate, useParams } from '@tanstack/react-router'
 import { DefaultChatTransport } from 'ai'
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useState } from 'react'
-import { nanoid } from 'nanoid'
-import type { MyUIMessage } from '@/types'
+import { useQueryClient } from '@tanstack/react-query'
+import type { Chat, MyUIMessage } from '@/types'
 import { MyChat } from '@/components/chat'
-import {
-  queryClient,
-  useChat as useChatHook,
-  useUser,
-} from '@/services/react-query/hooks'
+import { useChat as useChatHook, useUser } from '@/services/react-query/hooks'
 import { config } from '@/services'
 import { getAuthHeader } from '@/services/auth'
-import { chatsKey } from '@/services/react-query/keys'
+import { chatKey, chatsKey } from '@/services/react-query/keys'
 
-export const Chat = () => {
+export const ChatPage = () => {
   const { chatId } = useParams({ strict: false })
   const { data } = useChatHook(chatId)
   const { data: user } = useUser()
+  const queryClient = useQueryClient()
 
   const navigate = useNavigate()
 
@@ -39,11 +36,20 @@ export const Chat = () => {
       },
     }),
     onData: (dt) => {
+      console.log({ dt })
       if (dt.type === 'data-id') {
         navigate({
           to: '/chats/$chatId',
           params: { chatId: (dt.data as any).id },
         })
+      }
+      if (dt.type === 'data-generate-title') {
+        if (chatId) {
+          queryClient.setQueryData<Chat>(chatKey(chatId), (chat) => {
+            if (!chat) return chat
+            return { ...chat, title: (dt.data as any)?.title }
+          })
+        }
       }
     },
     generateId: () => crypto.randomUUID(),
@@ -61,19 +67,19 @@ export const Chat = () => {
   }, [user?.currentlySelectedModel])
 
   useEffect(() => {
-    if (chatId) {
-      console.log(data)
-      if (data) {
-        chatOptions.setMessages(data.messages)
-      }
-    } else {
+    if (!chatId) {
       chatOptions.setMessages([])
     }
-
     chatOptions.clearError()
 
-    // queryClient.invalidateQueries({ queryKey: chatsKey })
+    queryClient.invalidateQueries({ queryKey: chatsKey })
   }, [chatId])
+
+  useEffect(() => {
+    if (data) {
+      chatOptions.setMessages(data.messages)
+    }
+  }, [data, chatId])
 
   const handleSubmit = () => {
     chatOptions.sendMessage({ text }, { body: { model, chatId: data?.id } })

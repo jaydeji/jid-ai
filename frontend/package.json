@@ -44,7 +44,6 @@
     "ky": "^1.10.0",
     "lucide-react": "^0.542.0",
     "marked": "^16.2.1",
-    "nanoid": "^5.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",

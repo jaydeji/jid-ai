@@ -1,13 +1,9 @@
 import { sign } from 'hono/jwt';
-import { cache } from './cache';
 import { config } from './config';
 import type { Context } from 'hono';
 import { usersTable } from './schema';
-
-export const getUserById = (id: string) => {
-  const users: any[] = cache.getKey('users');
-  return users.find((user) => user.userId === id);
-};
+import { generateText } from 'ai';
+import { openrouter } from './constants';
 
 export const generateToken = async (user: any) => {
   const payload = {
@@ -29,3 +25,56 @@ export const getPayload = (c: Context) => {
     console.log(error);
   }
 };
+
+// export async function generateTitle(props: GenerateTitleProps) {
+//   const { chatId, firstMessage, writer } = props;
+
+//   let title = 'New Chat';
+
+//   // writer.write({
+//   //   type: 'data-generate-title',
+//   //   data: { text: title },
+//   //   transient: true,
+//   // });
+//   // await dbWrite
+//   //   .update(chatTable)
+//   //   .set({ name: title })
+//   // .where(eq(chatTable.id, chatId));
+
+//   const stream = createUIMessageStream({
+//     generateId: () => crypto.randomUUID(),
+//     execute: ({ writer }) => {
+//       try {
+//         const { text } = await generateText({
+//           model: openrouter('openai/gpt-oss-120b:free'),
+//           messages: [firstMessage],
+//           system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
+//         });
+
+//         // remove leading and trailing quotes
+//         title = text.replace(/^["']|["']$/g, '');
+//         title = title.length > 50 ? title.substring(0, 47) + '...' : title;
+//       } catch (error) {
+//         console.error('Failed to generate title:', error);
+//       }
+
+//       writer.merge(
+//         result.toUIMessageStream({
+//           messageMetadata: ({ part }) => {
+//             if (part.type === 'finish') {
+//               return {
+//                 totalTokens: part.totalUsage.totalTokens,
+//                 promptTokens: part.totalUsage.inputTokens,
+//                 completionTokens: part.totalUsage.outputTokens,
+//                 finishReason: part.finishReason,
+//               };
+//             }
+//           },
+//         })
+//       );
+//     },
+//     onFinish: async ({ messages: completedMessages }) => {},
+//   });
+
+//   return createUIMessageStreamResponse({ stream });
+// }
