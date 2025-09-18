@@ -46,7 +46,6 @@ export const Chat = () => {
         })
       }
     },
-    // generateId: crypto.randomUUID,
     generateId: () => crypto.randomUUID(),
   })
 
@@ -62,16 +61,19 @@ export const Chat = () => {
   }, [user?.currentlySelectedModel])
 
   useEffect(() => {
-    chatOptions.clearError()
-    // chatOptions.setMessages([])
-  }, [chatId])
+    if (chatId) {
+      console.log(data)
+      if (data) {
+        chatOptions.setMessages(data.messages)
+      }
+    } else {
+      chatOptions.setMessages([])
+    }
 
-  useEffect(() => {
-    // if (chatId && data) {
-    //   chatOptions.setMessages(data.messages)
-    // }
+    chatOptions.clearError()
+
     // queryClient.invalidateQueries({ queryKey: chatsKey })
-  }, [data])
+  }, [chatId])
 
   const handleSubmit = () => {
     chatOptions.sendMessage({ text }, { body: { model, chatId: data?.id } })

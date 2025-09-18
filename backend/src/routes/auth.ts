@@ -65,7 +65,7 @@ auth.get('/chats', async (c) => {
 
 auth.get('/chats/:id', async (c) => {
   const id = c.req.param('id');
-  const chat = await db.getChatAndMessagesById(id);
+  const chat = await db.getMessagesByChatId(id);
   if (!chat) return c.json({}, 404);
   return c.json(chat);
 });
@@ -118,7 +118,7 @@ auth.post('/chat', async (c) => {
   const chatExists = !!existingChat;
 
   if (!chatExists) {
-    existingChat = await db.createChat({ model });
+    existingChat = await db.createChat({ model, userId });
   }
 
   if (!existingChat) {
@@ -132,7 +132,7 @@ auth.post('/chat', async (c) => {
   let allMessages: UIMessage[];
 
   if (chatExists) {
-    const messageHistory = await db.getMessagesByChatById(chatId);
+    const messageHistory = await db.getMessages(chatId);
     if (messageHistory) {
       allMessages = [...messageHistory, message];
     } else allMessages = [];
@@ -152,15 +152,15 @@ auth.post('/chat', async (c) => {
         model: openrouter(model),
         messages: convertToModelMessages(allMessages),
 
-        // providerOptions: {
-        //   openai: {
-        //     reasoningEffort: 'high',
-        //   },
-        // },
-        // experimental_transform: smoothStream({
-        //   delayInMs: 20, // optional: defaults to 10ms
-        //   chunking: 'line', // optional: defaults to 'word'
-        // }),
+        providerOptions: {
+          openai: {
+            reasoningEffort: 'high',
+          },
+        },
+        experimental_transform: smoothStream({
+          delayInMs: 20, // optional: defaults to 10ms
+          chunking: 'word',
+        }),
       });
 
       writer.merge(

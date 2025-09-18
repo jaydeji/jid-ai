@@ -95,7 +95,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupLabel>Recent</SidebarGroupLabel>
             <SidebarMenu>
-              {(chats?.[0] ? chats : []).map((chat) => (
+              {(chats ?? []).map((chat) => (
                 <SidebarMenuItem key={chat.id}>
                   <Link
                     to="/chats/$chatId"

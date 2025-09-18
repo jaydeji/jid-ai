@@ -1,14 +1,15 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
 import { chatsTable, messagesTable, usersTable } from './schema';
-import { eq } from 'drizzle-orm';
+import { asc, desc, eq } from 'drizzle-orm';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
+import * as schema from './schema';
 
 export class DB {
   db;
 
   constructor() {
-    this.db = drizzle(config.DATABASE_URL);
+    this.db = drizzle(config.DATABASE_URL, { logger: false, schema });
   }
 
   getUserById = async (userId: string) => {
@@ -19,13 +20,6 @@ export class DB {
         .where(eq(usersTable.userId, userId))
         .limit(1)
     )?.[0];
-    // return (
-    //   await this.db
-    //     .select()
-    //     .from(usersTable)
-    //     .where(eq(usersTable.userId, userId))
-    //     .limit(1)
-    // )?.[0];
   };
 
   getUserByemail = async (email: string) => {
@@ -64,38 +58,34 @@ export class DB {
     }
   };
 
-  getChatAndMessagesById = async (id: string) => {
-    try {
-      return (
-        await this.db
-          .select()
-          .from(chatsTable)
-          .where(eq(chatsTable.id, id))
-          .limit(1)
-      )?.[0];
-    } catch (error) {
-      console.error('Chat not found');
-      return undefined;
-    }
-  };
-
   getChats = (userId: string) => {
     try {
       return this.db
         .select()
         .from(chatsTable)
-        .where(eq(chatsTable.userId, userId));
+        .where(eq(chatsTable.userId, userId))
+        .orderBy(desc(chatsTable.updatedAt));
     } catch (error) {
       console.error('User chats not found');
       return undefined;
     }
   };
 
-  getMessagesByChatById = async (id: string) => {
-    return await this.db
-      .select()
-      .from(messagesTable)
-      .where(eq(messagesTable.chatId, id));
+  getMessages = (id: string) => {
+    return this.db.query.messagesTable.findMany({
+      where: (message, { eq }) => eq(message.chatId, id),
+    });
+  };
+
+  getMessagesByChatId = async (id: string) => {
+    return await this.db.query.chatsTable.findFirst({
+      where: (chats, { eq }) => eq(chats.id, id),
+      with: {
+        messages: {
+          orderBy: (m, { asc }) => [asc(m.createdAt)],
+        },
+      },
+    });
   };
 
   updateChat = async (data: any, tx?: PgTransaction<any>) => {
