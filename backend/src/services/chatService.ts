@@ -46,29 +46,31 @@ export type OpenAICallResponse = {
   data: OpenAICallData;
 };
 
-export const postChat = async ({
-  message,
-  model,
-  chatId: _chatId,
-  userId,
-}: {
+export const postChat = async (data: {
   message: UIMessage;
   model: string;
   chatId: string;
   userId?: string;
 }) => {
-  if (!userId) throw { error: 'Unauthorized', status: 401 };
+  const { message, model, chatId: _chatId, userId } = data;
+  if (!userId) {
+    console.error('Unauthorized', data);
+    throw { error: 'Unauthorized', status: 401 };
+  }
 
   // If chat exists, we can diff messages later by id. If not, we will create it onFinish.
   let existingChat = await db.getChatById(_chatId);
 
   const chatExists = !!existingChat;
 
+  const chat = { model, userId };
+
   if (!chatExists) {
-    existingChat = await db.createChat({ model, userId });
+    existingChat = await db.createChat(chat);
   }
 
   if (!existingChat) {
+    console.error('Internal Server Error', chat);
     throw { error: 'Internal Server Error', status: 500 };
   }
 

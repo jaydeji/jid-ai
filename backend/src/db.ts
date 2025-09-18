@@ -1,9 +1,19 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
 import { chatsTable, messagesTable, usersTable } from './schema';
-import { asc, desc, eq } from 'drizzle-orm';
+import { asc, desc, DrizzleQueryError, eq } from 'drizzle-orm';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
 import * as schema from './schema';
+
+const handleConnectionError = (error: any) => {
+  if (
+    error instanceof DrizzleQueryError &&
+    (error?.cause as any)?.code === 'ECONNREFUSED'
+  ) {
+    console.error(error);
+    throw { error: 'Internal server error', status: 500 };
+  }
+};
 
 export class DB {
   db;
@@ -29,6 +39,12 @@ export class DB {
         .from(usersTable)
         .where(eq(usersTable.email, email))
         .limit(1)
+        .catch((error) => {
+          handleConnectionError(error);
+
+          console.error(error);
+          throw { error: 'User not found', status: 404 };
+        })
     )[0];
   };
 

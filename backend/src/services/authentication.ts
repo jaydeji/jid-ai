@@ -16,12 +16,7 @@ export const signIn = async (user: any) => {
     throw { error: 'Bad signin', status: 400 };
   }
 
-  try {
-    parsedUser = await db.getUserByemail(parsedUser.email);
-  } catch (error) {
-    console.error('Validation Error:', error);
-    throw { error: 'User not found', status: 404 };
-  }
+  parsedUser = await db.getUserByemail(parsedUser.email);
 
   const isMatch = await bcrypt.compare(
     user.password,
@@ -29,6 +24,7 @@ export const signIn = async (user: any) => {
   );
 
   if (!isMatch) {
+    console.error('User not found', user);
     throw { error: 'User not found', status: 404 };
   }
 
