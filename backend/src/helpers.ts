@@ -22,6 +22,6 @@ export const getPayload = (c: Context) => {
     const jwtPayload = c.get('jwtPayload') as any;
     return jwtPayload;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };

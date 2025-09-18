@@ -13,14 +13,14 @@ export const signIn = async (user: any) => {
     parsedUser = userSignInSchema.parse(user);
   } catch (error) {
     console.error('Validation Error:', error);
-    throw new HTTPException(400, { message: 'Bad signin', cause: error });
+    throw { error: 'Bad signin', status: 400 };
   }
 
   try {
     parsedUser = await db.getUserByemail(parsedUser.email);
   } catch (error) {
     console.error('Validation Error:', error);
-    throw new HTTPException(404, { message: 'User not found' });
+    throw { error: 'User not found', status: 404 };
   }
 
   const isMatch = await bcrypt.compare(
@@ -29,7 +29,7 @@ export const signIn = async (user: any) => {
   );
 
   if (!isMatch) {
-    throw new HTTPException(404, { message: 'User not found' });
+    throw { error: 'User not found', status: 404 };
   }
 
   return { user, token: await generateToken(parsedUser) };
@@ -42,7 +42,7 @@ export const signUp = async (user: any) => {
     parsedUser = userSignUpSchema.parse(user);
   } catch (error) {
     console.error('Validation Error:', error);
-    throw new HTTPException(400, { message: 'Bad user', cause: error });
+    throw { error: 'Bad user', status: 400 };
   }
 
   const hp = await bcrypt.hash(parsedUser.password, consts.SALT_ROUNDS);
