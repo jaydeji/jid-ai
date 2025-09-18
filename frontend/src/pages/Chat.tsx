@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { DefaultChatTransport } from 'ai'
 import { useChat } from '@ai-sdk/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Chat, MyUIMessage } from '@/types'
 import { MyChat } from '@/components/chat'
@@ -11,12 +11,16 @@ import { getAuthHeader } from '@/services/auth'
 import { chatKey, chatsKey } from '@/services/react-query/keys'
 
 export const ChatPage = () => {
-  const { chatId } = useParams({ strict: false })
-  const { data } = useChatHook(chatId)
+  const [text, setText] = useState<string>('')
   const { data: user } = useUser()
+  const [model, setModel] = useState<string>(
+    user?.currentlySelectedModel || '', // openai/gpt-5-mini:flex
+  )
+  const { chatId } = useParams({ strict: false })
   const queryClient = useQueryClient()
-
   const navigate = useNavigate()
+  const { data } = useChatHook(chatId)
+  const isNewChat = useRef(chatId ? false : true)
 
   const chatOptions = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({
@@ -56,31 +60,34 @@ export const ChatPage = () => {
     generateId: () => crypto.randomUUID(),
   })
 
-  const [text, setText] = useState<string>('')
-  const [model, setModel] = useState<string>(
-    user?.currentlySelectedModel || '', // openai/gpt-5-mini:flex
-  )
-
   useEffect(() => {
-    if (user?.currentlySelectedModel) {
-      setModel(user.currentlySelectedModel)
-    }
-  }, [user?.currentlySelectedModel])
-
-  useEffect(() => {
-    if (!chatId) {
-      chatOptions.setMessages([])
-    }
-    chatOptions.clearError()
-
-    queryClient.invalidateQueries({ queryKey: chatsKey })
+    isNewChat.current = !chatId
   }, [chatId])
 
   useEffect(() => {
-    if (data && chatId) {
-      chatOptions.setMessages(data.messages)
-    }
-  }, [data, chatId])
+    console.log(true)
+  }, [])
+
+  // useEffect(() => {
+  //   if (user?.currentlySelectedModel) {
+  //     setModel(user.currentlySelectedModel)
+  //   }
+  // }, [user?.currentlySelectedModel])
+
+  // useEffect(() => {
+  //   if (!chatId) {
+  //     chatOptions.setMessages([])
+  //   }
+  //   chatOptions.clearError()
+
+  //   queryClient.invalidateQueries({ queryKey: chatsKey })
+  // }, [chatId])
+
+  // useEffect(() => {
+  //   if (data && chatId) {
+  //     chatOptions.setMessages(data.messages)
+  //   }
+  // }, [data, chatId])
 
   const handleSubmit = () => {
     chatOptions.sendMessage({ text }, { body: { model, chatId: data?.id } })
