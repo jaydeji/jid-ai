@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { DefaultChatTransport, generateId } from 'ai'
+import { DefaultChatTransport } from 'ai'
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useState } from 'react'
+import { nanoid } from 'nanoid'
 import type { MyUIMessage } from '@/types'
 import { MyChat } from '@/components/chat'
 import {
@@ -18,6 +19,8 @@ export const Chat = () => {
   const { data } = useChatHook(chatId)
   const { data: user } = useUser()
 
+  const navigate = useNavigate()
+
   const chatOptions = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({
       api: config.VITE_API_URL + '/chat',
@@ -25,11 +28,27 @@ export const Chat = () => {
         const header = getAuthHeader()
         return header ? { Authorization: header } : {}
       })(),
+      prepareSendMessagesRequest: ({ id, messages, body }) => {
+        return {
+          body: {
+            id,
+            message: messages[messages.length - 1],
+            ...body,
+          },
+        }
+      },
     }),
-    onFinish: () => console.log('finished'),
+    onData: (dt) => {
+      if (dt.type === 'data-id') {
+        navigate({
+          to: '/chats/$chatId',
+          params: { chatId: (dt.data as any).id },
+        })
+      }
+    },
+    // generateId: crypto.randomUUID,
+    generateId: () => crypto.randomUUID(),
   })
-
-  const navigate = useNavigate()
 
   const [text, setText] = useState<string>('')
   const [model, setModel] = useState<string>(
@@ -43,29 +62,20 @@ export const Chat = () => {
   }, [user?.currentlySelectedModel])
 
   useEffect(() => {
-    if (!chatId) {
-      chatOptions.setMessages([])
-    }
+    chatOptions.clearError()
+    // chatOptions.setMessages([])
   }, [chatId])
 
   useEffect(() => {
-    if (chatId && data) {
-      chatOptions.setMessages(data.messages)
-    }
-
-    queryClient.invalidateQueries({ queryKey: chatsKey })
+    // if (chatId && data) {
+    //   chatOptions.setMessages(data.messages)
+    // }
+    // queryClient.invalidateQueries({ queryKey: chatsKey })
   }, [data])
 
   const handleSubmit = () => {
-    const chat_id = data?.id ? data.id : generateId()
-
-    chatOptions.sendMessage({ text }, { body: { model, chatId: chat_id } })
+    chatOptions.sendMessage({ text }, { body: { model, chatId: data?.id } })
     setText('')
-
-    navigate({
-      to: '/chats/$chatId',
-      params: { chatId: chat_id },
-    })
   }
 
   const isLoading = chatOptions.status === 'submitted'

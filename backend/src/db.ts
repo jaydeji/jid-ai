@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
 import { chatsTable, messagesTable, usersTable } from './schema';
 import { eq } from 'drizzle-orm';
+import type { PgTransaction } from 'drizzle-orm/pg-core';
 
 export class DB {
   db;
@@ -10,12 +11,21 @@ export class DB {
     this.db = drizzle(config.DATABASE_URL);
   }
 
-  getUserById = (userId: string) => {
-    return this.db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.userId, userId))
-      .limit(1);
+  getUserById = async (userId: string) => {
+    return (
+      await this.db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.userId, userId))
+        .limit(1)
+    )?.[0];
+    // return (
+    //   await this.db
+    //     .select()
+    //     .from(usersTable)
+    //     .where(eq(usersTable.userId, userId))
+    //     .limit(1)
+    // )?.[0];
   };
 
   getUserByemail = async (email: string) => {
@@ -40,13 +50,45 @@ export class DB {
   };
 
   getChatById = async (id: string) => {
-    return (
-      await this.db
+    try {
+      return (
+        await this.db
+          .select()
+          .from(chatsTable)
+          .where(eq(chatsTable.id, id))
+          .limit(1)
+      )?.[0];
+    } catch (error) {
+      console.error('Chat not found');
+      return undefined;
+    }
+  };
+
+  getChatAndMessagesById = async (id: string) => {
+    try {
+      return (
+        await this.db
+          .select()
+          .from(chatsTable)
+          .where(eq(chatsTable.id, id))
+          .limit(1)
+      )?.[0];
+    } catch (error) {
+      console.error('Chat not found');
+      return undefined;
+    }
+  };
+
+  getChats = (userId: string) => {
+    try {
+      return this.db
         .select()
         .from(chatsTable)
-        .where(eq(chatsTable.id, id))
-        .limit(1)
-    )?.[0];
+        .where(eq(chatsTable.userId, userId));
+    } catch (error) {
+      console.error('User chats not found');
+      return undefined;
+    }
   };
 
   getMessagesByChatById = async (id: string) => {
@@ -56,65 +98,54 @@ export class DB {
       .where(eq(messagesTable.chatId, id));
   };
 
-  updateChat = async (id: string, data: any) => {
-    await this.db.update(chatsTable).set(data).where(eq(chatsTable.id, id));
+  updateChat = async (data: any, tx?: PgTransaction<any>) => {
+    await (this.db || tx)
+      .update(chatsTable)
+      .set(data)
+      .where(eq(chatsTable.id, data.id));
   };
 
-  createChat = async (chat: any) => {
-    return (await this.db.insert(chatsTable).values(chat).returning())?.[0];
+  createChat = async (chat: any, tx?: PgTransaction<any>) => {
+    return (
+      await (this.db || tx).insert(chatsTable).values(chat).returning()
+    )?.[0];
   };
 
-  createMessages = async (messages: any[]) => {
-    return await this.db.insert(messagesTable).values(messages).returning();
+  createMessages = async (messages: any[], tx?: PgTransaction<any>) => {
+    return await (this.db || tx)
+      .insert(messagesTable)
+      .values(messages)
+      .returning();
   };
 
-  updateUser = async (email: string, data: any) => {
-    await this.db
+  updateUser = async (userId: string, data: any, tx?: PgTransaction<any>) => {
+    return await (tx || this.db)
       .update(usersTable)
       .set(data)
-      .where(eq(usersTable.email, email));
-  };
-
-  /**
-   * Persist messages for a chat.
-   * Strategy: delete existing messages for the chat, then bulk insert provided messages.
-   * Each message object should contain: id (uuid), role, content, createdAt (Date or ISO string)
-   */
-  saveMessagesForChat = async (chatId: string, messages: any[]) => {
-    // Remove existing messages for chat
-    await this.db.delete(messagesTable).where(eq(messagesTable.chatId, chatId));
-
-    if (!messages || messages.length === 0) return [];
-
-    const rows = messages.map((m: any) => {
-      const createdAt =
-        m.createdAt && !(m.createdAt instanceof Date)
-          ? new Date(m.createdAt)
-          : m.createdAt ?? new Date();
-      return {
-        id: m.id,
-        chatId,
-        role: m.role,
-        content:
-          typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
-        createdAt,
-      };
-    });
-
-    return await this.db.insert(messagesTable).values(rows).returning();
+      .where(eq(usersTable.userId, userId));
   };
 
   /**
    * Update a single message by id (if needed)
    */
-  updateMessageById = async (id: string, data: any) => {
-    return await this.db
-      .update(messagesTable)
-      .set(data)
-      .where(eq(messagesTable.id, id));
-  };
-  transaction = <T>(callback: (tx: any) => Promise<T>, options?: any) => {
-    return this.db.transaction(callback, options);
+  // updateMessageById = async (id: string, data: any) => {
+  //   return await this.db
+  //     .update(messagesTable)
+  //     .set(data)
+  //     .where(eq(messagesTable.id, id));
+  // };
+
+  // transaction = <T>(
+  //   callback: (tx: PgTransaction<any>) => Promise<T>,
+  //   options?: any
+  // ) => {
+  //   return this.db.transaction(callback, options);
+  // };
+
+  createOrUpdateChatTrans = <T>(cb: (tx: any) => Promise<T>) => {
+    return this.db.transaction(async (tx) => {
+      cb(tx);
+    });
   };
 }
 

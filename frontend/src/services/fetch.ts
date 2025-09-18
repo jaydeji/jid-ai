@@ -1,8 +1,9 @@
 import ky from 'ky'
 import { config } from './config'
-import { getAuthHeader } from './auth'
+import { clearAuth, getAuthHeader } from './auth'
 
 import type { KyInstance } from 'ky'
+// import { router } from '@/routes'
 
 class MyFetch {
   api: KyInstance
@@ -17,9 +18,15 @@ class MyFetch {
             const header = getAuthHeader()
             if (header) {
               request.headers.set('Authorization', header)
-            } else {
-              // ensure header is removed when not logged in
-              request.headers.delete('Authorization')
+            }
+          },
+        ],
+        afterResponse: [
+          async (_request, _options, response) => {
+            if (response.status === 401) {
+              const { router } = await import('@/routes')
+              clearAuth()
+              router.navigate({ to: '/login' })
             }
           },
         ],

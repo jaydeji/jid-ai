@@ -1,3 +1,4 @@
+import { UIMessage } from 'ai';
 import { sql } from 'drizzle-orm';
 import {
   pgTable,
@@ -58,6 +59,11 @@ export const chatsTable = pgTable('chats', {
   pinned: boolean('pinned').default(false).notNull(),
   // threadId: uuid("thread_id"), // uncomment if you need thread relation
   userSetTitle: boolean('user_set_title').default(false).notNull(),
+  userId: uuid('user_id')
+    .references(() => usersTable.userId, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
 });
 
 // -- Message table (separate, since messages are array-like)
@@ -66,9 +72,24 @@ export const messagesTable = pgTable('messages', {
   chatId: uuid('chat_id')
     .references(() => chatsTable.id, { onDelete: 'cascade' })
     .notNull(),
-  role: varchar('role', { length: 20 }).notNull(), // e.g. user, assistant, system
-  content: text('content').notNull(),
+  role: varchar('role', { length: 20 }).$type<UIMessage['role']>().notNull(), // e.g. user, assistant, system
+  parts: jsonb('content').$type<UIMessage['parts']>().notNull(),
+
+  // Additional metadata from AI SDK
+  metadata: jsonb('metadata').$type<{
+    totalTokens?: number;
+    promptTokens?: number;
+    completionTokens?: number;
+    finishReason?: string;
+    toolCalls?: Array<{
+      id: string;
+      name: string;
+      args: Record<string, any>;
+    }>;
+    [key: string]: any;
+  }>(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
 });

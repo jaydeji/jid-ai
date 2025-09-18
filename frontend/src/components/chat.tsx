@@ -53,14 +53,23 @@ export function MyChat({
                 variant="bubble"
                 type="outgoing"
               >
-                {message.parts.map((part, index) =>
-                  part.type === 'text' ? (
-                    <ChatMessageContent key={index} content={part.text} />
-                  ) : null,
-                )}
+                {message.parts.map((part, index) => {
+                  switch (part.type) {
+                    case 'text':
+                      return (
+                        <ChatMessageContent key={index} content={part.text} />
+                      )
+                    default:
+                      return null
+                  }
+                })}
               </ChatMessage>
             )
           })}
+
+          {chatOptions.error && (
+            <div className="text-red-400">An error occured</div>
+          )}
         </div>
       </ChatMessageArea>
       <div className="px-2 py-4 max-w-2xl mx-auto w-full">

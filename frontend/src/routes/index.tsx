@@ -1,4 +1,5 @@
 import {
+  Navigate,
   Outlet,
   createRootRouteWithContext,
   createRoute,
@@ -43,12 +44,7 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_pathlessLayout',
   component: function Index() {
-    const navigate = useNavigate()
-    if (!isLoggedIn()) {
-      // Redirect to login if not authenticated
-      navigate({ to: '/login' })
-      return null
-    }
+    if (!isLoggedIn()) return <Navigate to="/login" replace />
     return <App />
   },
 })

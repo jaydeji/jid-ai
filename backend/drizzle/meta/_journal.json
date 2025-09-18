@@ -8,6 +8,34 @@
       "when": 1758083963412,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758088507841,
+      "tag": "0001_changemessage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758152654350,
+      "tag": "0002_update-schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758155043112,
+      "tag": "0003_adduserid",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758155186250,
+      "tag": "0004_useridnotnull",
+      "breakpoints": true
     }
   ]
 }

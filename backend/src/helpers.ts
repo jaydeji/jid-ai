@@ -2,6 +2,7 @@ import { sign } from 'hono/jwt';
 import { cache } from './cache';
 import { config } from './config';
 import type { Context } from 'hono';
+import { usersTable } from './schema';
 
 export const getUserById = (id: string) => {
   const users: any[] = cache.getKey('users');
@@ -10,7 +11,7 @@ export const getUserById = (id: string) => {
 
 export const generateToken = async (user: any) => {
   const payload = {
-    sub: user.email,
+    sub: user.userId,
     role: 'user',
     exp: Math.floor(Date.now() / 1000) + 60 * 60, // Token expires in 1 hr
   };

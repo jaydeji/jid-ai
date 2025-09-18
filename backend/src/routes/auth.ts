@@ -1,7 +1,8 @@
 import 'dotenv-defaults/config';
 import {
   convertToModelMessages,
-  createIdGenerator,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
   smoothStream,
   streamText,
   type UIMessage,
@@ -51,22 +52,20 @@ auth.get('/spend', async (c) => {
 });
 
 auth.get('/user', async (c) => {
-  // jwt payload may provide the subject as `sub` (where we store the email)
-  // or an `email` field depending on how the token was generated.
-  const email = getPayload(c)?.email;
-  if (!email) return c.json({}, 404);
-  const user = await db.getUserByemail(email);
+  const userId = getPayload(c)?.sub;
+  if (!userId) return c.json({}, 404);
+  const { hashedPassword, ...user } = await db.getUserById(userId);
   return c.json(user);
 });
 
-auth.get('/chats', (c) => {
-  const chats: any[] = cache.getKey('chats');
-  return c.json(chats.map((e) => ({ id: e.id, title: e.title })));
+auth.get('/chats', async (c) => {
+  const userId = getPayload(c)?.sub;
+  return c.json(await db.getChats(userId));
 });
 
 auth.get('/chats/:id', async (c) => {
   const id = c.req.param('id');
-  const chat = await db.getChatById(id);
+  const chat = await db.getChatAndMessagesById(id);
   if (!chat) return c.json({}, 404);
   return c.json(chat);
 });
@@ -105,106 +104,112 @@ auth.post('/chat/:id', async (c) => {
 
 auth.post('/chat', async (c) => {
   const {
-    messages,
+    message,
     model,
-    chatId,
-  }: { messages: UIMessage[]; model: string; chatId: string } =
-    await c.req.json();
+    chatId: _chatId,
+  }: { message: UIMessage; model: string; chatId: string } = await c.req.json();
 
-  // load chat from db (drizzle)
-  let chat: any = await db.getChatById(chatId);
+  const userId = getPayload(c).sub;
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
 
-  const chatExists = !!chat;
+  // If chat exists, we can diff messages later by id. If not, we will create it onFinish.
+  let existingChat = await db.getChatById(_chatId);
 
-  // if chat exists in DB, load its messages from messages table
-  if (chatExists) {
-    const dbMessages = await db.getMessagesByChatById(chatId);
-    chat.messages = (dbMessages || []).map((m: any) => ({
-      id: m.id,
-      role: m.role,
-      content: m.content,
-      createdAt: m.createdAt,
-    }));
-  }
-
-  const now = new Date();
+  const chatExists = !!existingChat;
 
   if (!chatExists) {
-    chat.updatedAt = now;
-    chat.messages.push(...messages);
-  } else {
-    // create an in-memory chat object (will be persisted elsewhere)
-    chat = {
-      id: chatId,
-      createdAt: now,
-      updatedAt: now,
-      title: 'New Chat',
-      model,
-      // generationStatus: 'completed' as const,
-      // branchParent: null,
-      // pinned: false,
-      //   threadId: '5e9c32dc-d336-45a9-bd02-fe2cadfe1ca7',
-      // userSetTitle: false,
-      messages: [...messages],
-    } as any;
+    existingChat = await db.createChat({ model });
   }
 
-  // console.log(convertToModelMessages(messages));//[ { role: 'user', content: [ [Object] ] } ]
+  if (!existingChat) {
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
 
-  const result = streamText({
-    // model: provider('openai/gpt-5-mini'),
-    model: openrouter(model),
-    // system: 'You are a helpful assistant.',
-    messages: convertToModelMessages(chat.messages),
-    providerOptions: {
-      openai: {
-        reasoningEffort: 'high', // make dynamic
-      },
+  const chatId = existingChat.id;
+
+  // You can pass just the latest user message in "messages".
+  // If you want to include full history from DB, fetch and merge here.
+  let allMessages: UIMessage[];
+
+  if (chatExists) {
+    const messageHistory = await db.getMessagesByChatById(chatId);
+    if (messageHistory) {
+      allMessages = [...messageHistory, message];
+    } else allMessages = [];
+  } else allMessages = [message];
+
+  const stream = createUIMessageStream({
+    generateId: () => crypto.randomUUID(),
+    execute: ({ writer }) => {
+      // 1. Send initial status (transient - won't be added to message history)
+      writer.write({
+        type: 'data-id',
+        data: { id: chatId },
+        transient: true, // This part won't be added to message history
+      });
+
+      const result = streamText({
+        model: openrouter(model),
+        messages: convertToModelMessages(allMessages),
+
+        // providerOptions: {
+        //   openai: {
+        //     reasoningEffort: 'high',
+        //   },
+        // },
+        // experimental_transform: smoothStream({
+        //   delayInMs: 20, // optional: defaults to 10ms
+        //   chunking: 'line', // optional: defaults to 'word'
+        // }),
+      });
+
+      writer.merge(
+        result.toUIMessageStream({
+          messageMetadata: ({ part }) => {
+            if (part.type === 'finish') {
+              return {
+                totalTokens: part.totalUsage.totalTokens,
+                promptTokens: part.totalUsage.inputTokens,
+                completionTokens: part.totalUsage.outputTokens,
+                finishReason: part.finishReason,
+              };
+            }
+          },
+        })
+      );
+    },
+    // originalMessages: allMessages,
+    onFinish: async ({ messages: completedMessages }) => {
+      const now = new Date();
+
+      db.createOrUpdateChatTrans(async (tx) => {
+        // update user
+        await db.updateUser(userId, { currentlySelectedModel: model }, tx);
+
+        await db.updateChat(
+          {
+            id: chatId,
+            updatedAt: now,
+            model,
+          },
+          tx
+        );
+
+        // create messages
+        await db.createMessages(
+          [
+            { ...message, chatId, model },
+            ...completedMessages.map((e) => ({
+              ...e,
+              chatId,
+              model,
+            })),
+          ],
+          tx
+        );
+      });
     },
   });
 
-  return result.toUIMessageStreamResponse({
-    messageMetadata: ({ part }) => {
-      if (part.type === 'finish') {
-        return {
-          totalTokens: part.totalUsage.totalTokens,
-        };
-      }
-    },
-    originalMessages: messages,
-    generateMessageId: createIdGenerator({
-      // prefix: 'msg',
-      size: 16,
-    }),
-    onFinish: async ({ messages }) => {
-      // keep updatedAt as Date
-      chat.messages = messages;
-
-      const email = getPayload(c).email;
-
-      if (!chatExists) {
-        await db.transaction(async (tx) => {
-          await tx.updateUser(email, { currentlySelectedModel: model });
-          await tx.createChat({
-            id: chat.id,
-            createdAt: chat.createdAt,
-            updatedAt: chat.updatedAt,
-            title: chat.title,
-            model: chat.model,
-          });
-          await tx.createMessages(
-            messages.map((m) => ({ ...m, chatId: chat.id }))
-          );
-        });
-      } else {
-        await db.transaction(async (tx) => {
-          await tx.updateUser(email, { currentlySelectedModel: model });
-          await tx.updateChat(chat.id, {
-            updatedAt: new Date(),
-            model: chat.model,
-          });
-        });
-      }
-    },
-  });
+  return createUIMessageStreamResponse({ stream });
 });

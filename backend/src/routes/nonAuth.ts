@@ -69,7 +69,7 @@ nonAuth.post('/signin', async (c) => {
     throw new HTTPException(404, { message: 'User not found' });
   }
 
-  return c.json({ user, token: await generateToken(user) });
+  return c.json({ user, token: await generateToken(parsedUser) });
 });
 
 nonAuth.get('/', async (c) => {

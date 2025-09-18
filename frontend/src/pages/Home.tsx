@@ -24,34 +24,43 @@ import { config } from '@/services'
 import { getAuthHeader } from '@/services/auth'
 import { chatsKey } from '@/services/react-query/keys'
 
-export default function Main() {
+export function Home() {
   const { chatId } = useParams({ strict: false })
   const { data } = useChatHook(chatId)
 
-  const chatOptions = useChat<MyUIMessage>({
-    transport: new DefaultChatTransport({
-      api: config.VITE_API_URL + '/chat',
-      headers: ((): Record<string, string> => {
-        const header = getAuthHeader()
-        return header ? { Authorization: header } : {}
-      })(),
-    }),
-    onFinish: () => console.log('finished'),
-  })
+  // const chatOptions = useChat<MyUIMessage>({
+  //   transport: new DefaultChatTransport({
+  //     api: config.VITE_API_URL + '/chat',
+  //     headers: ((): Record<string, string> => {
+  //       const header = getAuthHeader()
+  //       return header ? { Authorization: header } : {}
+  //     })(),
+  //     // prepareSendMessagesRequest: ({ id, messages, body }) => {
+  //     //   return {
+  //     //     body: {
+  //     //       id,
+  //     //       message: messages[messages.length - 1],
+  //     //       ...body,
+  //     //     },
+  //     //   }
+  //     // },
+  //   }),
+  //   onFinish: () => console.log('finished'),
+  // })
 
-  useEffect(() => {
-    if (!chatId) {
-      chatOptions.setMessages([])
-    }
-  }, [chatId])
+  // useEffect(() => {
+  //   if (!chatId) {
+  //     chatOptions.setMessages([])
+  //   }
+  // }, [chatId])
 
-  useEffect(() => {
-    if (chatId && data) {
-      chatOptions.setMessages(data.messages)
-    }
+  // useEffect(() => {
+  //   if (chatId && data) {
+  //     chatOptions.setMessages(data.messages)
+  //   }
 
-    queryClient.invalidateQueries({ queryKey: chatsKey })
-  }, [data])
+  //   queryClient.invalidateQueries({ queryKey: chatsKey })
+  // }, [data])
 
   return (
     <SidebarProvider>
