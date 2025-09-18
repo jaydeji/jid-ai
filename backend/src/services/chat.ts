@@ -70,17 +70,6 @@ export const postChat = async ({
         title = title.length > 50 ? title.substring(0, 47) + '...' : title;
 
         return title;
-
-        writer.write({
-          type: 'data-generate-title',
-          data: { title },
-          transient: true,
-        });
-
-        // db.updateChat({
-        //   id: chatId,
-        //   title,
-        // });
       });
 
       const result = streamText({
@@ -98,6 +87,12 @@ export const postChat = async ({
         }),
       });
 
+      writer.write({
+        type: 'data-generate-title',
+        data: { title: await title },
+        transient: true,
+      });
+
       writer.merge(
         result.toUIMessageStream({
           // originalMessages: allMessages,
@@ -113,11 +108,6 @@ export const postChat = async ({
           },
           onFinish: async ({ messages: completedMessages }) => {
             const now = new Date();
-            writer.write({
-              type: 'data-generate-title',
-              data: { title },
-              transient: true,
-            });
 
             db.createOrUpdateChatTrans(async (tx) => {
               // update user

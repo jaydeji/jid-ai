@@ -1,6 +1,6 @@
 import 'dotenv-defaults/config';
 import { Hono } from 'hono';
-import { signIn, signUp } from '../services/auth';
+import { signIn, signUp } from '../services/authentication';
 
 export const nonAuth = new Hono();
 
