@@ -9,7 +9,7 @@ export const generateToken = async (user: any) => {
   const payload = {
     sub: user.userId,
     role: 'user',
-    exp: Math.floor(Date.now() / 1000) + 60 * 60, // Token expires in 1 hr
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 3, // Token expires in 3 hrs
   };
 
   const token = await sign(payload, config.AUTH_TOKEN);

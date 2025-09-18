@@ -46,6 +46,7 @@ export const ChatPage = () => {
       if (dt.type === 'data-generate-title') {
         if (chatId) {
           queryClient.setQueryData<Chat>(chatKey(chatId), (chat) => {
+            console.log(chat)
             if (!chat) return chat
             return { ...chat, title: (dt.data as any)?.title }
           })
@@ -76,7 +77,7 @@ export const ChatPage = () => {
   }, [chatId])
 
   useEffect(() => {
-    if (data) {
+    if (data && chatId) {
       chatOptions.setMessages(data.messages)
     }
   }, [data, chatId])

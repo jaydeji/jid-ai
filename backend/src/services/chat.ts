@@ -60,7 +60,7 @@ export const postChat = async ({
         transient: true,
       });
 
-      await generateText({
+      const title = generateText({
         model: openrouter('openai/gpt-oss-20b:free'),
         messages: convertToModelMessages([message]),
         system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
@@ -68,17 +68,19 @@ export const postChat = async ({
         // remove leading and trailing quotes
         let title = data.text.replace(/^["']|["']$/g, '');
         title = title.length > 50 ? title.substring(0, 47) + '...' : title;
-        console.log(title);
+
+        return title;
+
         writer.write({
           type: 'data-generate-title',
           data: { title },
           transient: true,
         });
 
-        db.updateChat({
-          id: chatId,
-          title,
-        });
+        // db.updateChat({
+        //   id: chatId,
+        //   title,
+        // });
       });
 
       const result = streamText({
@@ -98,6 +100,7 @@ export const postChat = async ({
 
       writer.merge(
         result.toUIMessageStream({
+          // originalMessages: allMessages,
           messageMetadata: ({ part }) => {
             if (part.type === 'finish') {
               return {
@@ -108,39 +111,48 @@ export const postChat = async ({
               };
             }
           },
+          onFinish: async ({ messages: completedMessages }) => {
+            const now = new Date();
+            writer.write({
+              type: 'data-generate-title',
+              data: { title },
+              transient: true,
+            });
+
+            db.createOrUpdateChatTrans(async (tx) => {
+              // update user
+              await db.updateUser(
+                userId,
+                { currentlySelectedModel: model },
+                tx
+              );
+
+              await db.updateChat(
+                {
+                  id: chatId,
+                  updatedAt: now,
+                  model,
+                  title: await title,
+                },
+                tx
+              );
+
+              // create messages
+              await db.createMessages(
+                [
+                  { ...message, chatId, model },
+                  ...completedMessages.map((e) => ({
+                    ...e,
+                    chatId,
+                    model,
+                  })),
+                ],
+                tx
+              );
+            });
+          },
         })
       );
-    },
-    // originalMessages: allMessages,
-    onFinish: async ({ messages: completedMessages }) => {
-      const now = new Date();
-
-      db.createOrUpdateChatTrans(async (tx) => {
-        // update user
-        await db.updateUser(userId, { currentlySelectedModel: model }, tx);
-
-        await db.updateChat(
-          {
-            id: chatId,
-            updatedAt: now,
-            model,
-          },
-          tx
-        );
-
-        // create messages
-        await db.createMessages(
-          [
-            { ...message, chatId, model },
-            ...completedMessages.map((e) => ({
-              ...e,
-              chatId,
-              model,
-            })),
-          ],
-          tx
-        );
-      });
     },
   });
 
