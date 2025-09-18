@@ -1,9 +1,6 @@
 import { sign } from 'hono/jwt';
 import { config } from './config';
 import type { Context } from 'hono';
-import { usersTable } from './schema';
-import { generateText } from 'ai';
-import { openrouter } from './constants';
 
 export const generateToken = async (user: any) => {
   const payload = {
