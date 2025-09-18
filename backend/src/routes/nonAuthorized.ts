@@ -1,6 +1,7 @@
 import 'dotenv-defaults/config';
 import { Hono } from 'hono';
 import { signIn, signUp } from '../services/authentication';
+import { getStats } from '../services/chatService';
 
 export const nonAuth = new Hono();
 
@@ -25,5 +26,7 @@ nonAuth.post('/signin', async (c) => {
 });
 
 nonAuth.get('/', async (c) => {
+  const x = await getStats('0acc67fb-bd5f-4b99-bed3-237d65920314');
+  console.log(x);
   return c.text('Hello Hono!');
 });

@@ -10,6 +10,41 @@ import {
 } from 'ai';
 import { db } from '../db';
 import { openrouter } from '../constants';
+import { config } from '../config';
+
+export type OpenAICallData = {
+  id: string;
+  total_cost: number;
+  created_at: string;
+  model: string;
+  origin: string;
+  usage: number; // This might be total_tokens, or a derived usage metric
+  is_byok: boolean;
+  upstream_id: string;
+  cache_discount: number;
+  upstream_inference_cost: number;
+  app_id: number;
+  streamed: boolean;
+  cancelled: boolean;
+  provider_name: string;
+  latency: number; // In milliseconds or seconds, depending on the source
+  moderation_latency: number; // In milliseconds or seconds
+  generation_time: number; // In milliseconds or seconds
+  finish_reason: string; // e.g., "stop", "length", "content_filter"
+  native_finish_reason: string;
+  tokens_prompt: number;
+  tokens_completion: number;
+  native_tokens_prompt: number;
+  native_tokens_completion: number;
+  native_tokens_reasoning: number;
+  num_media_prompt: number; // e.g., for vision models
+  num_media_completion: number;
+  num_search_results: number;
+};
+
+export type OpenAICallResponse = {
+  data: OpenAICallData;
+};
 
 export const postChat = async ({
   message,
@@ -98,6 +133,7 @@ export const postChat = async ({
           generateMessageId: () => crypto.randomUUID(),
           // originalMessages: allMessages,
           messageMetadata: ({ part }) => {
+            console.log(part);
             if (part.type === 'finish') {
               return {
                 totalTokens: part.totalUsage.totalTokens,
@@ -148,4 +184,15 @@ export const postChat = async ({
   });
 
   return createUIMessageStreamResponse({ stream });
+};
+
+export const getStats = async (id: string) => {
+  const generation = await fetch(
+    `${config.OPEN_ROUTER_BASE_URL}/generation?id=${id}`,
+    { headers: { Authorization: `Bearer ${config.OPEN_ROUTER_API_KEY}` } }
+  );
+
+  const stats: OpenAICallData = await generation.json();
+
+  console.log(stats);
 };
