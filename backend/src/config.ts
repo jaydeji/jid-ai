@@ -10,9 +10,9 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   CORS_ORIGIN: z.string(),
   //   MARKDOWN_PATH: z.string(),
-  //   NODE_ENV: z
-  //     .enum(['development', 'production', 'test'])
-  //     .default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   //   PORT: z.string().transform(Number).default('3000'),
   //   CHROMA_HOST: z.string().default('localhost'),
   //   CHROMA_PORT: z.string().transform(Number).default('8000'),

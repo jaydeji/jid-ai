@@ -49,12 +49,7 @@ export const signUp = async (user: any) => {
 
   let savedUser;
 
-  try {
-    savedUser = await db.addUser(passwordUser);
-    console.log('Successfully saved user');
-  } catch (error) {
-    console.log(error);
-  }
+  savedUser = await db.addUser(passwordUser);
 
   const { hashedPassword, ...returnedUser } = savedUser!;
 

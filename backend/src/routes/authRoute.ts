@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { signIn, signUp } from '../services/authentication';
 import { getStats } from '../services/chatService';
 import { AppError } from '../exception';
+import { logger } from '../logger';
 
 export const authRoute = new Hono();
 

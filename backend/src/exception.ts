@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { logger } from './logger';
 
 /**
  * Business Logic Error Class
@@ -52,8 +53,7 @@ const getMessage = ({
 };
 
 export const errorHandler = (error: Error, c: Context) => {
-  //   console.error(error);
-  console.log(c.req.path);
+  logger.error(error);
 
   if (error instanceof AppError) {
     const status = error.status as StatusType;
@@ -72,6 +72,5 @@ export const errorHandler = (error: Error, c: Context) => {
   }
 
   // For unhandled errors
-  // logging error.message important! here
   return c.json({ message: 'Internal Server Error' }, 500);
 };

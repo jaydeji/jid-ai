@@ -1,17 +1,58 @@
 import 'dotenv-defaults/config';
 
 import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 import { config } from './config';
-import { logger } from 'hono/logger';
-import { AppError, errorHandler } from './exception';
+import { errorHandler } from './exception';
 import { authRoute, chatRoute, otherRoute } from './routes';
 import { HTTPException } from 'hono/http-exception';
+import { requestId } from 'hono/request-id';
+import { logger } from './logger';
+
+const pinoLoggerMiddleware = (): MiddlewareHandler => {
+  return async function pinoLogger(c, next) {
+    const requestId = c.var.requestId;
+    const { method } = c.req;
+    const path = new URL(c.req.url).pathname;
+
+    // Log incoming request
+    logger.info({
+      requestId,
+      method,
+      path,
+      type: 'request',
+    });
+
+    const start = Date.now();
+
+    await next();
+
+    const duration = Date.now() - start;
+    const status = c.res.status;
+
+    // Log outgoing response
+    const logLevel = status >= 400 ? 'error' : status >= 300 ? 'warn' : 'info';
+
+    logger[logLevel]({
+      requestId,
+      method,
+      path,
+      status,
+      duration: `${duration}ms`,
+      type: 'response',
+    });
+  };
+};
 
 const app = new Hono();
 
-// app.use(logger());
+// important its before logger
+app.use(requestId());
+
+// app.use(honoLogger(customLogger));
+// app.use(loggerMiddleware());
+app.use(pinoLoggerMiddleware());
 
 app.use(
   cors({
@@ -37,6 +78,6 @@ serve(
     port: 3001,
   },
   (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
+    logger.info(`Server is running on http://localhost:${info.port}`);
   }
 );

@@ -135,7 +135,6 @@ export const postChat = async (data: {
           generateMessageId: () => crypto.randomUUID(),
           // originalMessages: allMessages,
           messageMetadata: ({ part }) => {
-            console.log(part);
             if (part.type === 'finish') {
               return {
                 totalTokens: part.totalUsage.totalTokens,
