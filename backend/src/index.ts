@@ -3,11 +3,15 @@ import 'dotenv-defaults/config';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { auth } from './routes/authorized';
-import { nonAuth } from './routes/nonAuthorized';
 import { config } from './config';
+import { logger } from 'hono/logger';
+import { AppError, errorHandler } from './exception';
+import { authRoute, chatRoute, otherRoute } from './routes';
+import { HTTPException } from 'hono/http-exception';
 
 const app = new Hono();
+
+// app.use(logger());
 
 app.use(
   cors({
@@ -17,8 +21,15 @@ app.use(
   })
 );
 
-app.route('/', nonAuth);
-app.route('/', auth);
+app.route('/', authRoute);
+app.route('/', chatRoute);
+app.route('/', otherRoute);
+
+app.notFound(() => {
+  throw new HTTPException(404, { message: 'Not Found' });
+});
+
+app.onError(errorHandler);
 
 serve(
   {

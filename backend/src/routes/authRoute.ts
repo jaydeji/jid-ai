@@ -2,10 +2,11 @@ import 'dotenv-defaults/config';
 import { Hono } from 'hono';
 import { signIn, signUp } from '../services/authentication';
 import { getStats } from '../services/chatService';
+import { AppError } from '../exception';
 
-export const nonAuth = new Hono();
+export const authRoute = new Hono();
 
-nonAuth.post('/signup', async (c) => {
+authRoute.post('/signup', async (c) => {
   try {
     const user = await c.req.json();
     return c.json(await signUp(user));
@@ -15,7 +16,7 @@ nonAuth.post('/signup', async (c) => {
   }
 });
 
-nonAuth.post('/signin', async (c) => {
+authRoute.post('/signin', async (c) => {
   try {
     const user = await c.req.json();
     return c.json(await signIn(user));
@@ -25,7 +26,7 @@ nonAuth.post('/signin', async (c) => {
   }
 });
 
-nonAuth.get('/', async (c) => {
+authRoute.get('/', async (c) => {
   const x = await getStats('0acc67fb-bd5f-4b99-bed3-237d65920314');
   console.log(x);
   return c.text('Hello Hono!');

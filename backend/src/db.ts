@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
 import { chatsTable, messagesTable, usersTable } from './schema';
 import { asc, desc, DrizzleQueryError, eq } from 'drizzle-orm';
-import type { PgTransaction } from 'drizzle-orm/pg-core';
+import { type PgTransaction } from 'drizzle-orm/pg-core';
 import * as schema from './schema';
 
 const handleConnectionError = (error: any) => {

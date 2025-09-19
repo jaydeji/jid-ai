@@ -1,6 +1,6 @@
-import { sign } from 'hono/jwt';
+import { jwt, sign } from 'hono/jwt';
 import { config } from './config';
-import type { Context } from 'hono';
+import { type Context } from 'hono';
 
 export const generateToken = async (user: any) => {
   const payload = {
@@ -22,3 +22,7 @@ export const getPayload = (c: Context) => {
     console.error(error);
   }
 };
+
+export const jwtMiddleware = jwt({
+  secret: config.AUTH_TOKEN,
+});
