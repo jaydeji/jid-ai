@@ -1,8 +1,17 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { queryClient, useSignUp } from '@/services/react-query/hooks'
 import { setAuth } from '@/services/auth'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -44,70 +53,93 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen p-4">
-      <div className="w-full max-w-md rounded-lg border bg-background p-6">
-        <h2 className="mb-4 text-xl font-semibold">Sign in</h2>
-        <form onSubmit={handleSubmit} className="grid gap-3">
-          <label className="grid gap-1 text-sm">
-            <span>Firstname</span>
-            <input
-              className="input"
-              placeholder="Firstname"
-              type="text"
-              name="firstname"
-              value={firstName}
-              onChange={(e) => setFirstname(e.target.value)}
-              required
-              autoFocus
-            />
-          </label>
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Create an account</CardTitle>
+              <CardDescription>
+                Enter your email below to create your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="grid gap-3">
+                <div className="flex flex-col gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="firstname">Firstname</Label>
+                    <Input
+                      className="input"
+                      placeholder="Firstname"
+                      type="text"
+                      name="firstname"
+                      value={firstName}
+                      onChange={(e) => setFirstname(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                  </div>
 
-          <label className="grid gap-1 text-sm">
-            <span>Lastname</span>
-            <input
-              className="input"
-              placeholder="Lastname"
-              type="text"
-              name="lastname"
-              value={lastName}
-              onChange={(e) => setLastname(e.target.value)}
-              required
-            />
-          </label>
+                  <div className="grid gap-3">
+                    <Label htmlFor="lastname">Lastname</Label>
+                    <Input
+                      className="input"
+                      placeholder="Lastname"
+                      type="text"
+                      name="lastname"
+                      value={lastName}
+                      onChange={(e) => setLastname(e.target.value)}
+                      required
+                    />
+                  </div>
 
-          <label className="grid gap-1 text-sm">
-            <span>Email</span>
-            <input
-              className="input"
-              placeholder="Email"
-              type="text"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
-          <label className="grid gap-1 text-sm">
-            <span>Password</span>
-            <input
-              className="input"
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
+                  <div className="grid gap-3">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      className="input"
+                      placeholder="Email"
+                      type="text"
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <div className="flex items-center">
+                      <Label htmlFor="password">Password</Label>
+                    </div>
+                    <Input
+                      className="input"
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
 
-          {error && <div className="text-sm text-destructive">{error}</div>}
+                  {error && (
+                    <div className="text-sm text-destructive">{error}</div>
+                  )}
 
-          <div className="mt-3 flex items-center justify-end gap-2">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Signing up...' : 'Sign up'}
-            </Button>
-          </div>
-        </form>
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Signing up...' : 'Sign up'}
+                    </Button>
+                  </div>
+                </div>
+                <div className="text-center text-sm">
+                  Already have an account?{' '}
+                  <Link to="/login" className="underline underline-offset-4">
+                    Login
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

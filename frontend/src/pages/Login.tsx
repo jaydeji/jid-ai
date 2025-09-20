@@ -99,7 +99,7 @@ export default function LoginPage() {
                   )}
 
                   <div className="mt-3 flex items-center justify-end gap-2">
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? 'Logging in...' : 'Login'}
                     </Button>
                   </div>
