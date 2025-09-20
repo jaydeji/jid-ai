@@ -1,6 +1,8 @@
 import { jwt, sign } from 'hono/jwt';
 import { config } from './config';
 import { type Context } from 'hono';
+import { AppError } from './exception';
+import { logger } from './logger';
 
 export const generateToken = async (user: any) => {
   const payload = {
@@ -19,7 +21,8 @@ export const getPayload = (c: Context) => {
     const jwtPayload = c.get('jwtPayload') as any;
     return jwtPayload;
   } catch (error) {
-    console.error(error);
+    logger.error('Error parsing jwt');
+    throw new AppError('INTERNAL_ERROR');
   }
 };
 

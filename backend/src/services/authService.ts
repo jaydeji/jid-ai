@@ -5,6 +5,8 @@ import { userSignUpSchema, userSignInSchema } from '../schemas/user';
 import { HTTPException } from 'hono/http-exception';
 import bcrypt from 'bcrypt';
 import { consts } from '../constants';
+import { AppError } from '../exception';
+import { logger } from '../logger';
 
 export const signIn = async (user: any) => {
   let parsedUser;
@@ -12,8 +14,7 @@ export const signIn = async (user: any) => {
   try {
     parsedUser = userSignInSchema.parse(user);
   } catch (error) {
-    console.error('Validation Error:', error);
-    throw { error: 'Bad signin', status: 400 };
+    throw new AppError('BAD_REQUEST');
   }
 
   parsedUser = await db.getUserByemail(parsedUser.email);
@@ -24,8 +25,8 @@ export const signIn = async (user: any) => {
   );
 
   if (!isMatch) {
-    console.error('User not found', user);
-    throw { error: 'User not found', status: 404 };
+    logger.error({ id: user.userId });
+    throw new AppError('USER_NOT_FOUND');
   }
 
   return { user, token: await generateToken(parsedUser) };
@@ -37,8 +38,7 @@ export const signUp = async (user: any) => {
   try {
     parsedUser = userSignUpSchema.parse(user);
   } catch (error) {
-    console.error('Validation Error:', error);
-    throw { error: 'Bad user', status: 400 };
+    throw new AppError('BAD_REQUEST');
   }
 
   const hp = await bcrypt.hash(parsedUser.password, consts.SALT_ROUNDS);

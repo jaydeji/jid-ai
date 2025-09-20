@@ -1,6 +1,7 @@
 import { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from './logger';
+import { DrizzleQueryError } from 'drizzle-orm';
 
 /**
  * Business Logic Error Class
@@ -12,7 +13,9 @@ export class AppError extends Error {
   status: number;
   isOperational: boolean;
 
-  constructor(message: string, status: number, isOperational = true) {
+  constructor(key: AppErrorKey, isOperational = true) {
+    const { message, status } = AppErrors[key];
+
     super(message);
     this.status = status;
     this.isOperational = isOperational;
@@ -73,4 +76,13 @@ export const errorHandler = (error: Error, c: Context) => {
 
   // For unhandled errors
   return c.json({ message: 'Internal Server Error' }, 500);
+};
+
+export const handleConnectionError = (error: any) => {
+  if (
+    error instanceof DrizzleQueryError &&
+    (error?.cause as any)?.code === 'ECONNREFUSED'
+  ) {
+    throw new AppError('INTERNAL_ERROR');
+  }
 };

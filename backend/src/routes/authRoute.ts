@@ -1,34 +1,22 @@
 import 'dotenv-defaults/config';
 import { Hono } from 'hono';
-import { signIn, signUp } from '../services/authentication';
+import { signIn, signUp } from '../services/authService';
 import { getStats } from '../services/chatService';
-import { AppError } from '../exception';
-import { logger } from '../logger';
 
 export const authRoute = new Hono();
 
 authRoute.post('/signup', async (c) => {
-  try {
-    const user = await c.req.json();
-    return c.json(await signUp(user));
-  } catch ({ error, status }: any) {
-    console.error(error);
-    return c.json({ error }, status);
-  }
+  const user = await c.req.json();
+  return c.json(await signUp(user));
 });
 
 authRoute.post('/signin', async (c) => {
-  try {
-    const user = await c.req.json();
-    return c.json(await signIn(user));
-  } catch ({ error, status }: any) {
-    console.error(error);
-    return c.json({ error }, status);
-  }
+  const user = await c.req.json();
+  return c.json(await signIn(user));
 });
 
-authRoute.get('/', async (c) => {
-  const x = await getStats('0acc67fb-bd5f-4b99-bed3-237d65920314');
-  console.log(x);
-  return c.text('Hello Hono!');
-});
+// authRoute.get('/', async (c) => {
+//   const x = await getStats('gen-1758261973-SUodVR1KlTXZ3ipd6hub');
+//   const { total_cost, usage } = x;
+//   return c.json({ total_cost, usage });
+// });

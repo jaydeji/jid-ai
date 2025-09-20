@@ -4,16 +4,8 @@ import { chatsTable, messagesTable, usersTable } from './schema';
 import { asc, desc, DrizzleQueryError, eq } from 'drizzle-orm';
 import { type PgTransaction } from 'drizzle-orm/pg-core';
 import * as schema from './schema';
-
-const handleConnectionError = (error: any) => {
-  if (
-    error instanceof DrizzleQueryError &&
-    (error?.cause as any)?.code === 'ECONNREFUSED'
-  ) {
-    console.error(error);
-    throw { error: 'Internal server error', status: 500 };
-  }
-};
+import { AppError, handleConnectionError } from './exception';
+import { logger } from './logger';
 
 export class DB {
   db;
@@ -42,8 +34,7 @@ export class DB {
         .catch((error) => {
           handleConnectionError(error);
 
-          console.error(error);
-          throw { error: 'User not found', status: 404 };
+          throw new AppError('USER_NOT_FOUND');
         })
     )[0];
   };
@@ -61,30 +52,29 @@ export class DB {
 
   getChatById = async (id: string) => {
     try {
-      return (
-        await this.db
-          .select()
-          .from(chatsTable)
-          .where(eq(chatsTable.id, id))
-          .limit(1)
-      )?.[0];
+      const chatById = await this.db
+        .select()
+        .from(chatsTable)
+        .where(eq(chatsTable.id, id))
+        .limit(1);
+
+      if (!chatById.length) {
+        logger.error({ id }, `chat id not found`);
+        throw new AppError('INTERNAL_ERROR');
+      }
+
+      return chatById?.[0];
     } catch (error) {
-      console.error('Chat not found');
-      return undefined;
+      throw new AppError('CHAT_NOT_FOUND');
     }
   };
 
   getChats = (userId: string) => {
-    try {
-      return this.db
-        .select()
-        .from(chatsTable)
-        .where(eq(chatsTable.userId, userId))
-        .orderBy(desc(chatsTable.updatedAt));
-    } catch (error) {
-      console.error('User chats not found');
-      return undefined;
-    }
+    return this.db
+      .select()
+      .from(chatsTable)
+      .where(eq(chatsTable.userId, userId))
+      .orderBy(desc(chatsTable.updatedAt));
   };
 
   getMessages = (id: string) => {
@@ -94,14 +84,19 @@ export class DB {
   };
 
   getMessagesByChatId = async (id: string) => {
-    return await this.db.query.chatsTable.findFirst({
-      where: (chats, { eq }) => eq(chats.id, id),
-      with: {
-        messages: {
-          orderBy: (m, { asc }) => [asc(m.createdAt)],
+    try {
+      return await this.db.query.chatsTable.findFirst({
+        where: (chats, { eq }) => eq(chats.id, id),
+        with: {
+          messages: {
+            orderBy: (m, { asc }) => [asc(m.createdAt)],
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      handleConnectionError(error);
+      throw new AppError('CHAT_NOT_FOUND');
+    }
   };
 
   updateChat = async (data: any, tx?: PgTransaction<any>) => {
