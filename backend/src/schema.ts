@@ -11,6 +11,8 @@ import {
   timestamp,
   boolean,
   index,
+  numeric,
+  decimal,
 } from 'drizzle-orm/pg-core';
 
 // Users
@@ -33,8 +35,14 @@ export const usersTable = pgTable(
       length: 256,
     }),
     favoriteModels: jsonb('favorite_models').$type<string[]>(),
-    aiCreditsCents: integer('ai_credits_cents').default(0).notNull(),
+    credits: decimal('input_cost', { precision: 15, scale: 9 })
+      .notNull()
+      .default('0'),
     hashedPassword: text('hashed_password').notNull(),
+    role: varchar('role', { length: 50 })
+      .$type<'user' | 'admin'>()
+      .default('user')
+      .notNull(),
   },
   (table) => [index('email_idx').on(table.email)]
 );
@@ -52,7 +60,7 @@ export const chatsTable = pgTable('chats', {
   model: varchar('model', { length: 100 }).notNull(),
   generationStatus: varchar('generation_status', { length: 50 })
     .$type<'completed' | 'pending' | 'failed'>()
-    .default('completed')
+    .default('pending')
     .notNull(),
   // Optional self reference to a parent chat
   branchParent: uuid('branch_parent'),
@@ -63,6 +71,21 @@ export const chatsTable = pgTable('chats', {
       onDelete: 'cascade',
     })
     .notNull(),
+  inputTokens: integer('input_tokens').default(0),
+  outputTokens: integer('output_tokens').default(0),
+  totalTokens: integer('total_tokens').default(0),
+  inputCost: decimal('input_cost', { precision: 15, scale: 9 }).default('0'),
+  outputCost: decimal('output_cost', { precision: 15, scale: 9 }).default('0'),
+  totalCost: decimal('total_cost', { precision: 15, scale: 9 }).default('0'),
+  metadata: jsonb('metadata').$type<{
+    finishReason?: string;
+    toolCalls?: Array<{
+      id: string;
+      name: string;
+      args: Record<string, any>;
+    }>;
+    [key: string]: any;
+  }>(),
 });
 
 // Messages
@@ -73,18 +96,7 @@ export const messagesTable = pgTable('messages', {
     .notNull(),
   role: varchar('role', { length: 20 }).$type<UIMessage['role']>().notNull(),
   parts: jsonb('content').$type<UIMessage['parts']>().notNull(),
-  metadata: jsonb('metadata').$type<{
-    totalTokens?: number;
-    promptTokens?: number;
-    completionTokens?: number;
-    finishReason?: string;
-    toolCalls?: Array<{
-      id: string;
-      name: string;
-      args: Record<string, any>;
-    }>;
-    [key: string]: any;
-  }>(),
+
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

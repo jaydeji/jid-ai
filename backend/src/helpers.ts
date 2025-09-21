@@ -3,6 +3,8 @@ import { config } from './config';
 import { type Context } from 'hono';
 import { AppError } from './exception';
 import { logger } from './logger';
+import { openrouter } from './constants';
+import { AnyColumn, sql } from 'drizzle-orm';
 
 export const generateToken = async (user: any) => {
   const payload = {
@@ -29,3 +31,21 @@ export const getPayload = (c: Context) => {
 export const jwtMiddleware = jwt({
   secret: config.AUTH_TOKEN,
 });
+
+export const getModel = ({
+  model,
+  userId,
+}: {
+  model: string;
+  userId?: string;
+}) => {
+  return openrouter(model, { usage: { include: true }, user: userId });
+};
+
+export const decrement = (column: AnyColumn, value = 1) => {
+  return sql`${column} - ${value}`;
+};
+
+export const increment = (column: AnyColumn, value = 1) => {
+  return sql`${column} + ${value}`;
+};

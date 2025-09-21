@@ -1,4 +1,4 @@
-type OpenAICallData = {
+export type OpenAICallData = {
   id: string;
   total_cost: number;
   created_at: string;
@@ -28,11 +28,28 @@ type OpenAICallData = {
   num_search_results: number;
 };
 
-type OpenAICallResponse = {
+export type Usage = {
+  completion_tokens: number;
+  completion_tokens_details: {
+    reasoning_tokens: number;
+  };
+  cost: number;
+  cost_details: {
+    upstream_inference_cost: number;
+  };
+  prompt_tokens: number;
+  prompt_tokens_details: {
+    cached_tokens: number;
+    audio_tokens: number;
+  };
+  total_tokens: number;
+};
+
+export type OpenAICallResponse = {
   data: OpenAICallData;
 };
 
-const AppErrors = {
+export const AppErrors = {
   CHAT_NOT_FOUND: {
     message: 'chat not found',
     status: 404,
@@ -55,4 +72,4 @@ const AppErrors = {
   },
 } as const;
 
-type AppErrorKey = keyof typeof AppErrors;
+export type AppErrorKey = keyof typeof AppErrors;

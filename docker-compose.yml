@@ -54,7 +54,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - CORS_ORIGIN=${CORS_ORIGIN}
     depends_on:
-      postgres: # Fixed: was 'db', should be 'postgres'
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     networks:

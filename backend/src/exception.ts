@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from './logger';
 import { DrizzleQueryError } from 'drizzle-orm';
+import { type AppErrorKey, AppErrors } from './types';
 
 /**
  * Business Logic Error Class

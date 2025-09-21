@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ALTER COLUMN "generation_status" SET DEFAULT 'pending';

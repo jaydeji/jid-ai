@@ -9,10 +9,13 @@ import {
   type UIMessage,
 } from 'ai';
 import { db } from '../db';
-import { openrouter } from '../constants';
 import { config } from '../config';
 import { logger } from '../logger';
 import { AppError } from '../exception';
+import { OpenAICallData } from '../types';
+import { decrement, getModel } from '../helpers';
+import { usersTable } from '../schema';
+import { consts } from '../constants';
 
 export const postChat = async (data: {
   message: UIMessage;
@@ -33,12 +36,7 @@ export const postChat = async (data: {
   try {
     existingChat = await db.getChatById(_chatId);
   } catch (error) {
-    if (
-      !(
-        error instanceof AppError &&
-        (error.message as AppErrorKey) === 'CHAT_NOT_FOUND'
-      )
-    ) {
+    if (!(error instanceof AppError && error.status === 404)) {
       throw error;
     }
   }
@@ -79,48 +77,58 @@ export const postChat = async (data: {
         transient: true,
       });
 
-      const title = generateText({
-        model: openrouter('meta-llama/llama-3.2-1b-instruct', {
-          usage: { include: true },
-        }),
-        messages: convertToModelMessages([message]),
-        system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
-      }).then((data) => {
-        logger.debug(data);
-        // getStats(data.response.id).then((e) => logger.debug(e));
-        // remove leading and trailing quotes
-        let title = data.text.replace(/^["']|["']$/g, '');
-        title = title.length > 50 ? title.substring(0, 47) + '...' : title;
+      if (allMessages.length === 1) {
+        generateText({
+          model: getModel({
+            model: consts.TITLE_GEN_MODEL,
+            userId,
+          }),
+          messages: convertToModelMessages([message]),
+          system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
+        }).then((data) => {
+          // logger.debug(data.response.id);
+          // logger.debug(data.providerMetadata?.openrouter?.usage);
+          // remove leading and trailing quotes
+          let title = data.text.replace(/^["']|["']$/g, '');
+          title = title.length > 50 ? title.substring(0, 47) + '...' : title;
 
-        return title;
-      });
+          writer.write({
+            type: 'data-generate-title',
+            data: { title, id: chatId },
+            transient: true,
+          });
+
+          db.updateChat({
+            id: chatId,
+            title,
+          });
+        });
+      }
 
       const result = streamText({
-        model: openrouter(model, { usage: { include: true } }),
+        model: getModel({ model, userId }),
         messages: convertToModelMessages(allMessages),
-
         providerOptions: {
           openai: {
             reasoningEffort: 'high',
-            usage: { include: true },
           },
         },
         experimental_transform: smoothStream({
           delayInMs: 20, // optional: defaults to 10ms
           chunking: 'word',
         }),
+        onFinish: async ({ usage, providerMetadata, response }) => {
+          // logger.debug({ providerMetadata });
+          // logger.debug(response.messages);
+        },
       });
 
       // getStats((await result.response).id).then((e) => logger.debug(e));
-
-      writer.write({
-        type: 'data-generate-title',
-        data: { title: await title, id: chatId },
-        transient: true,
-      });
+      // logger.debug(result.providerMetadata)
 
       writer.merge(
         result.toUIMessageStream({
+          sendReasoning: true,
           generateMessageId: () => crypto.randomUUID(),
           // originalMessages: allMessages,
           messageMetadata: ({ part }) => {
@@ -134,31 +142,19 @@ export const postChat = async (data: {
             }
           },
           onFinish: async ({ messages: completedMessages }) => {
-            const now = new Date();
-
+            // logger.debug(completedMessages);
             db.createOrUpdateChatTrans(async (tx) => {
-              // update user
               await db.updateUser(
-                userId,
-                { currentlySelectedModel: model },
-                tx
-              );
-
-              await db.updateChat(
                 {
-                  id: chatId,
-                  updatedAt: now,
-                  model,
-                  title: await title,
+                  userId,
+                  currentlySelectedModel: model,
+                  credits: decrement(usersTable.credits, 10),
                 },
                 tx
               );
-
-              // create messages
-
               const _messages = [
                 { ...message, chatId, model },
-                ...completedMessages.map((e) => ({
+                ...allMessages.map((e) => ({
                   ...e,
                   chatId,
                   model,
@@ -166,6 +162,25 @@ export const postChat = async (data: {
               ];
 
               await db.createMessages(_messages, tx);
+
+              const usage = (await result.providerMetadata)?.openrouter
+                ?.usage as {
+                promptTokens?: string;
+                completionTokens?: string;
+                totalTokens?: string;
+                cost?: string;
+              };
+
+              await db.updateChat(
+                {
+                  id: chatId,
+                  inputTokens: usage?.promptTokens,
+                  outputTokens: usage.completionTokens,
+                  totalTokens: usage?.totalTokens,
+                  totalCost: usage?.cost,
+                },
+                tx
+              );
             });
           },
         })

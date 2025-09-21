@@ -113,17 +113,23 @@ export class DB {
   };
 
   createMessages = async (messages: any[], tx?: PgTransaction<any>) => {
-    return await (tx || this.db)
-      .insert(messagesTable)
-      .values(messages)
-      .returning();
+    try {
+      return await (tx || this.db)
+        .insert(messagesTable)
+        .values(messages)
+        .returning();
+    } catch (error) {
+      handleConnectionError(error);
+
+      throw error;
+    }
   };
 
-  updateUser = async (userId: string, data: any, tx?: PgTransaction<any>) => {
+  updateUser = async (data: any, tx?: PgTransaction<any>) => {
     return await (tx || this.db)
       .update(usersTable)
       .set(data)
-      .where(eq(usersTable.userId, userId));
+      .where(eq(usersTable.userId, data.userId));
   };
 
   /**
