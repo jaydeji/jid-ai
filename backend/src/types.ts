@@ -29,20 +29,16 @@ export type OpenAICallData = {
 };
 
 export type Usage = {
-  completion_tokens: number;
-  completion_tokens_details: {
-    reasoning_tokens: number;
+  promptTokens: number;
+  promptTokensDetails: {
+    cachedTokens: number;
+  };
+  completionTokens: number;
+  completionTokensDetails: {
+    reasoningTokens: number;
   };
   cost: number;
-  cost_details: {
-    upstream_inference_cost: number;
-  };
-  prompt_tokens: number;
-  prompt_tokens_details: {
-    cached_tokens: number;
-    audio_tokens: number;
-  };
-  total_tokens: number;
+  totalTokens: number;
 };
 
 export type OpenAICallResponse = {
