@@ -117,9 +117,8 @@ export const postChat = async (data: {
           delayInMs: 20, // optional: defaults to 10ms
           chunking: 'word',
         }),
-        onFinish: async ({ usage, providerMetadata, response }) => {
-          // logger.debug({ providerMetadata });
-          // logger.debug(response.messages);
+        onFinish: async ({ usage, providerMetadata }) => {
+          // Optional: Log or handle raw finish if needed
         },
       });
 
@@ -142,6 +141,16 @@ export const postChat = async (data: {
             }
           },
           onFinish: async ({ messages: completedMessages }) => {
+            // Use metadata from the assistant message for usage (no await needed)
+            const assistantMessage = completedMessages[0];
+            const metadata = assistantMessage as any; // To access metadata added by messageMetadata
+            const usage = {
+              promptTokens: metadata.promptTokens,
+              completionTokens: metadata.completionTokens,
+              totalTokens: metadata.totalTokens,
+              // cost omitted as not available in metadata; can add separately if needed
+            };
+
             db.createOrUpdateChatTrans(async (tx) => {
               await db.updateUser(
                 {
@@ -162,21 +171,13 @@ export const postChat = async (data: {
 
               await db.createMessages(_messages, tx);
 
-              const usage = (await result.providerMetadata)?.openrouter
-                ?.usage as {
-                promptTokens?: string;
-                completionTokens?: string;
-                totalTokens?: string;
-                cost?: string;
-              };
-
               await db.updateChat(
                 {
                   id: chatId,
-                  inputTokens: usage?.promptTokens,
-                  outputTokens: usage.completionTokens,
-                  totalTokens: usage?.totalTokens,
-                  totalCost: usage?.cost,
+                  inputTokens: usage.promptTokens?.toString(),
+                  outputTokens: usage.completionTokens?.toString(),
+                  totalTokens: usage.totalTokens?.toString(),
+                  // totalCost: undefined, // Omitted; add logic if needed
                 },
                 tx
               );
