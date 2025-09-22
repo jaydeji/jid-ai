@@ -1,6 +1,7 @@
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { useChat as useReactChat } from '@ai-sdk/react'
 import { useEffect } from 'react'
+import { config } from '../config'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
 import { useSharedChatContext } from '@/components/chat-context'
@@ -11,6 +12,7 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
       staleTime: 2000,
       retry: false,
+      refetchOnWindowFocus: !config.DEV,
     },
   },
 })
