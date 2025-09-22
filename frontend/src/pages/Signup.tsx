@@ -33,10 +33,10 @@ export default function SignupPage() {
       // Store credentials (basic auth token). Backend will verify on first request.
 
       const { token }: any = await mutateAsync({
-        email,
+        email: email.trim(),
         password,
-        firstName,
-        lastName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
       })
 
       setAuth(token)
