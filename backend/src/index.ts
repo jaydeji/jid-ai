@@ -16,7 +16,6 @@ const pinoLoggerMiddleware = (): MiddlewareHandler => {
     const { method } = c.req;
     const path = new URL(c.req.url).pathname;
 
-    // Log incoming request
     logger.info({
       requestId,
       method,
@@ -31,7 +30,6 @@ const pinoLoggerMiddleware = (): MiddlewareHandler => {
     const duration = Date.now() - start;
     const status = c.res.status;
 
-    // Log outgoing response
     const logLevel = status >= 400 ? 'error' : status >= 300 ? 'warn' : 'info';
 
     logger[logLevel]({
@@ -47,11 +45,9 @@ const pinoLoggerMiddleware = (): MiddlewareHandler => {
 
 const app = new Hono();
 
-// important its before logger
+// important its before logger middleware
 app.use(requestId());
 
-// app.use(honoLogger(customLogger));
-// app.use(loggerMiddleware());
 app.use(pinoLoggerMiddleware());
 
 app.use(
@@ -81,3 +77,13 @@ serve(
     logger.info(`Server is running on http://localhost:${info.port}`);
   }
 );
+
+// Global error handlers to prevent crashes from uncaught async errors
+process.on('unhandledRejection', (error) => {
+  logger.error(error);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error(error);
+  // process.exit(1); // Optional: exit if critical, or just log
+});
