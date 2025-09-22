@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import { useParams } from '@tanstack/react-router'
 import { MyChat } from '@/components/chat'
 import { useMyChat, useUser } from '@/services/react-query/hooks'
+import { useSharedChatContext } from '@/components/chat-context'
 
 export function ChatPage() {
   const [text, setText] = useState<string>('')

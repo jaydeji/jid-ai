@@ -73,12 +73,25 @@ export const useUser = () => {
 //   return { options, chatOptions, chatId }
 // }
 
+// export const useMyChat = () => {
+//   // streaming works here
+//   const { chatId } = useParams({ strict: false })
+
+//   const { messages, error, stop, sendMessage, status } = useChat({
+//     ...getOptions(),
+//   })
+
+//   return { messages, error, stop, sendMessage, status, chatId }
+// }
+
+// slow but works
 export const useMyChat = () => {
-  // streaming works here
+  const { chat } = useSharedChatContext()
+
   const { chatId } = useParams({ strict: false })
 
   const { messages, error, stop, sendMessage, status } = useChat({
-    ...getOptions(),
+    chat,
   })
 
   return { messages, error, stop, sendMessage, status, chatId }
