@@ -150,8 +150,8 @@ export class DB {
   // };
 
   createOrUpdateChatTrans = <T>(cb: (tx: any) => Promise<T>) => {
-    return this.db.transaction(async (tx) => {
-      cb(tx);
+    return this.db.transaction((tx) => {
+      return cb(tx);
     });
   };
 }
