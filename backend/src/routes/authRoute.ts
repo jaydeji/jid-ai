@@ -1,7 +1,6 @@
 import 'dotenv-defaults/config';
 import { Hono } from 'hono';
 import { signIn, signUp } from '../services/authService';
-import { getStats } from '../services/chatService';
 
 export const authRoute = new Hono();
 
