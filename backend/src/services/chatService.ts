@@ -142,7 +142,6 @@ export const postChat = async (data: {
             }
           },
           onFinish: async ({ messages: completedMessages }) => {
-            // logger.debug(completedMessages);
             db.createOrUpdateChatTrans(async (tx) => {
               await db.updateUser(
                 {
@@ -154,7 +153,7 @@ export const postChat = async (data: {
               );
               const _messages = [
                 { ...message, chatId, model },
-                ...allMessages.map((e) => ({
+                ...completedMessages.map((e) => ({
                   ...e,
                   chatId,
                   model,
