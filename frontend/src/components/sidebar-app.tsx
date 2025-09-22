@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
+import { useSharedChatContext } from './chat-context'
 import type { ComponentProps } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -56,9 +57,11 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
 
   // if (!user || !chats) return null
 
+  const { clearChat } = useSharedChatContext()
+
   return (
     <Sidebar className="border-r-0" {...props}>
-      <Link to={'/'} className="w-full">
+      <Link to={'/'} className="w-full" onClick={() => clearChat()}>
         <SidebarHeader>
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">

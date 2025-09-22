@@ -97,49 +97,22 @@ export const useUser = () => {
 //   return { messages, error, stop, sendMessage, status, chatId }
 // }
 
-function usePrevious(value: any) {
-  const ref = useRef(undefined)
-  useEffect(() => {
-    ref.current = value
-  })
-  return ref.current
-}
+// function usePrevious(value: any) {
+//   const ref = useRef(undefined)
+//   useEffect(() => {
+//     ref.current = value
+//   })
+//   return ref.current
+// }
 
 export const useMyChat = () => {
-  const { chat, clearChat } = useSharedChatContext()
+  const { chat } = useSharedChatContext()
 
   const { chatId } = useParams({ strict: false })
 
   const { messages, error, stop, sendMessage, status } = useChat({
     chat,
   })
-
-  const options = useQuery({
-    queryKey: chatKey(chatId!),
-    queryFn: () => api.getChat(chatId!),
-    enabled: !!chatId,
-  })
-
-  const prevChatId = usePrevious(chatId)
-
-  // The commented out useeffects brings back streaming
-  // useEffect(() => {
-  //   // we need to clear the messages when we go to new chat
-  //   if (!chatId) {
-  //     // we start new Chat and new message and his no run. Good
-  //     console.log('no chat id')
-  //     clearChat(undefined)
-  //   }
-  // }, [chatId])
-  // console.log({ status, messages })
-
-  // useEffect(() => {
-  //   if (status === 'ready' && options.data && chatId) {
-  //     console.log(options.data, 'cls')
-  //     clearChat(options.data.messages || [])
-  //   }
-  //   //   chatOptions.setMessages(options.data.messages)
-  // }, [options.data])
 
   return { messages, error, stop, sendMessage, status, chatId }
 }

@@ -49,9 +49,9 @@ export const onData = (
   }
 }
 
-export const getOptions = (
-  initMessage: any,
-): ConstructorParameters<typeof ReactChat<MyUIMessage>>[0] => ({
+export const getOptions = (): ConstructorParameters<
+  typeof ReactChat<MyUIMessage>
+>[0] => ({
   transport: new DefaultChatTransport({
     api: config.VITE_API_URL + '/chat',
     headers: ((): Record<string, string> => {
@@ -68,11 +68,10 @@ export const getOptions = (
       }
     },
   }),
-  messages: initMessage,
   onData: (dt: Data) => onData(dt, router, queryClient),
   generateId: () => crypto.randomUUID(),
 })
 
-export const createChat = (initMessage: any) => {
-  return new ReactChat<MyUIMessage>(getOptions(initMessage))
+export const createChat = () => {
+  return new ReactChat<MyUIMessage>(getOptions())
 }
