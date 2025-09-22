@@ -89,3 +89,4 @@ declare module '@tanstack/react-router' {
 }
 
 export { router }
+export type AppRouter = typeof router
