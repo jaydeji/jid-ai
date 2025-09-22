@@ -9,13 +9,35 @@ import {
   type UIMessage,
 } from 'ai';
 import { db } from '../db';
-import { config } from '../config';
 import { logger } from '../logger';
 import { AppError } from '../exception';
-import { OpenAICallData } from '../types';
+import { Usage } from '../types';
 import { decrement, getModel } from '../helpers';
 import { usersTable } from '../schema';
 import { consts } from '../constants';
+
+const generateTitle = async ({
+  message,
+  userId,
+}: {
+  message: UIMessage;
+  userId: string;
+}) => {
+  const result = await generateText({
+    model: getModel({
+      model: consts.TITLE_GEN_MODEL,
+      userId,
+    }),
+    messages: convertToModelMessages([message]),
+    system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
+  });
+
+  // remove leading and trailing quotes
+  let title = result.text.replace(/^["']|["']$/g, '');
+  title = title.length > 50 ? title.substring(0, 47) + '...' : title;
+
+  return title;
+};
 
 export const postChat = async (data: {
   message: UIMessage;
@@ -77,31 +99,12 @@ export const postChat = async (data: {
         transient: true,
       });
 
+      let titlePromise: Promise<string>;
+
       if (allMessages.length === 1) {
-        generateText({
-          model: getModel({
-            model: consts.TITLE_GEN_MODEL,
-            userId,
-          }),
-          messages: convertToModelMessages([message]),
-          system: `Generate a concise, descriptive title (3-8 words) for this chat based on the user's first message. Focus on the main topic or question being asked.`,
-        }).then((data) => {
-          // logger.debug(data.response.id);
-          // logger.debug(data.providerMetadata?.openrouter?.usage);
-          // remove leading and trailing quotes
-          let title = data.text.replace(/^["']|["']$/g, '');
-          title = title.length > 50 ? title.substring(0, 47) + '...' : title;
-
-          writer.write({
-            type: 'data-generate-title',
-            data: { title, id: chatId },
-            transient: true,
-          });
-
-          db.updateChat({
-            id: chatId,
-            title,
-          });
+        titlePromise = generateTitle({
+          message,
+          userId,
         });
       }
 
@@ -117,71 +120,90 @@ export const postChat = async (data: {
           delayInMs: 20, // optional: defaults to 10ms
           chunking: 'word',
         }),
-        onFinish: async ({ usage, providerMetadata }) => {
-          // Optional: Log or handle raw finish if needed
+        async onFinish(event) {
+          const title = await titlePromise;
+
+          writer.write({
+            type: 'data-generate-title',
+            data: { title, id: chatId },
+            transient: true,
+          });
+
+          const usage = event.providerMetadata?.openrouter?.usage as
+            | Usage
+            | undefined;
+
+          let meta:
+            | {
+                inputTokens: number;
+                outputTokens: number;
+                totalTokens: number;
+                totalCost: number;
+              }
+            | undefined;
+
+          if (usage) {
+            meta = {
+              inputTokens: usage.promptTokens,
+              outputTokens: usage.completionTokens,
+              totalTokens: usage.totalTokens,
+              totalCost: usage.cost,
+            };
+          }
+
+          if (meta) {
+            writer.write({
+              type: 'data-usage',
+              data: {
+                id: chatId,
+                totalTokens: meta?.totalTokens,
+                promptTokens: meta?.inputTokens,
+                completionTokens: meta?.outputTokens,
+                cost: meta?.totalCost,
+              },
+              transient: true,
+            });
+          }
+
+          db.updateChat({
+            id: chatId,
+            title,
+          });
+
+          db.createOrUpdateChatTrans(async (tx) => {
+            await db.updateUser(
+              {
+                userId,
+                currentlySelectedModel: model,
+                credits: decrement(usersTable.credits, 10),
+              },
+              tx
+            );
+
+            await db.updateChat(
+              {
+                id: chatId,
+                ...(meta ?? {}),
+              },
+              tx
+            );
+          });
         },
       });
 
-      // getStats((await result.response).id).then((e) => logger.debug(e));
-      // logger.debug(result.providerMetadata)
-
       writer.merge(
         result.toUIMessageStream({
-          sendReasoning: true,
           generateMessageId: () => crypto.randomUUID(),
-          // originalMessages: allMessages,
-          messageMetadata: ({ part }) => {
-            if (part.type === 'finish') {
-              return {
-                totalTokens: part.totalUsage.totalTokens,
-                promptTokens: part.totalUsage.inputTokens,
-                completionTokens: part.totalUsage.outputTokens,
-                finishReason: part.finishReason,
-              };
-            }
-          },
-          onFinish: async ({ messages: completedMessages }) => {
-            // Use metadata from the assistant message for usage (no await needed)
-            const assistantMessage = completedMessages[0];
-            const metadata = assistantMessage as any; // To access metadata added by messageMetadata
-            const usage = {
-              promptTokens: metadata.promptTokens,
-              completionTokens: metadata.completionTokens,
-              totalTokens: metadata.totalTokens,
-              // cost omitted as not available in metadata; can add separately if needed
-            };
-
-            db.createOrUpdateChatTrans(async (tx) => {
-              await db.updateUser(
-                {
-                  userId,
-                  currentlySelectedModel: model,
-                  credits: decrement(usersTable.credits, 10),
-                },
-                tx
-              );
-              const _messages = [
-                { ...message, chatId, model },
-                ...completedMessages.map((e) => ({
-                  ...e,
-                  chatId,
-                  model,
-                })),
-              ];
-
-              await db.createMessages(_messages, tx);
-
-              await db.updateChat(
-                {
-                  id: chatId,
-                  inputTokens: usage.promptTokens?.toString(),
-                  outputTokens: usage.completionTokens?.toString(),
-                  totalTokens: usage.totalTokens?.toString(),
-                  // totalCost: undefined, // Omitted; add logic if needed
-                },
-                tx
-              );
-            });
+          onFinish: ({ messages: completedMessages }) => {
+            const _messages = [
+              { ...message, chatId, model },
+              ...completedMessages.map((e) => ({
+                ...e,
+                chatId,
+                model,
+              })),
+            ];
+            db.createMessages(_messages);
           },
         })
       );
@@ -189,20 +211,4 @@ export const postChat = async (data: {
   });
 
   return createUIMessageStreamResponse({ stream });
-};
-
-export const getStats = async (id: string) => {
-  try {
-    const generation = await fetch(
-      `${config.OPEN_ROUTER_BASE_URL}/generation?id=${id}`,
-      { headers: { Authorization: `Bearer ${config.OPEN_ROUTER_API_KEY}` } }
-    );
-
-    const stats: OpenAICallData = await generation.json();
-
-    return stats;
-  } catch (error) {
-    logger.error(error);
-    return {};
-  }
 };
