@@ -7,16 +7,16 @@ import { createChat } from '@/helpers/ai'
 interface ChatContextValue {
   // replace with your custom message type
   chat: ReactChat<MyUIMessage>
-  clearChat: () => void
+  clearChat: (initMessage: any) => void
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined)
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  const [chat, setChat] = useState(() => createChat())
+  const [chat, setChat] = useState(() => createChat([]))
 
-  const clearChat = () => {
-    setChat(createChat())
+  const clearChat = (initMessage: any) => {
+    setChat(createChat(initMessage))
   }
 
   return (
