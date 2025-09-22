@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.32",
-    "@ai-sdk/react": "^2.0.34",
+    "@ai-sdk/react": "^2.0.48",
     "@auth/core": "^0.37.0",
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -36,7 +36,7 @@
     "@tanstack/react-query-persist-client": "^5.87.4",
     "@tanstack/react-router": "^1.131.35",
     "@tanstack/react-router-devtools": "^1.131.35",
-    "ai": "^5.0.34",
+    "ai": "^5.0.48",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
