@@ -89,6 +89,8 @@ export const postChat = async (data: {
     } else allMessages = [];
   } else allMessages = [message];
 
+  db.createMessages([{ ...message, chatId, model }]);
+
   const stream = createUIMessageStream({
     generateId: () => crypto.randomUUID(),
     execute: async ({ writer }) => {
@@ -196,7 +198,6 @@ export const postChat = async (data: {
           generateMessageId: () => crypto.randomUUID(),
           onFinish: ({ messages: completedMessages }) => {
             const _messages = [
-              { ...message, chatId, model },
               ...completedMessages.map((e) => ({
                 ...e,
                 chatId,
