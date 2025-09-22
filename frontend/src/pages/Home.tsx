@@ -15,18 +15,14 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { SidebarApp } from '@/components/sidebar-app'
-import {
-  queryClient,
-  useChat,
-  useChat as useChatHook,
-} from '@/services/react-query/hooks'
+import { queryClient } from '@/services/react-query/hooks'
 import { config } from '@/services'
 import { getAuthHeader } from '@/services/auth'
 import { chatsKey } from '@/services/react-query/keys'
 
 export function Home() {
   const { chatId } = useParams({ strict: false })
-  const { chatOptions } = useChat()
+  // const { chatOptions } = useChat()
 
   // const chatOptions = useChat<MyUIMessage>({
   //   transport: new DefaultChatTransport({

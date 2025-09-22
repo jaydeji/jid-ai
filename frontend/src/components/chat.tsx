@@ -1,6 +1,5 @@
-import type { Chat, UseChatHelpers } from '@ai-sdk/react'
+import type { UIMessage } from '@ai-sdk/react'
 import type { ComponentPropsWithoutRef } from 'react'
-import type { MyUIMessage } from '@/types'
 import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
 import {
   ChatMessage,
@@ -11,29 +10,30 @@ import { ChatMessageArea } from '@/components/ui/chat-message-area'
 import { BottomBar } from '@/templates/BottomBar'
 
 export function MyChat({
-  className,
-  chatOptions,
   text,
   setText,
   setModel,
   model,
   isLoading,
   handleSubmitMessage,
-  ...props
+  messages,
+  error,
 }: ComponentPropsWithoutRef<'div'> & {
-  chatOptions: UseChatHelpers<MyUIMessage>
   text: string
   setText: (e: string) => void
   handleSubmitMessage: any
   isLoading: any
   model: any
   setModel: any
+  messages: Array<UIMessage>
+  error?: Error
+  stop: () => Promise<void>
 }) {
   return (
     <>
       <ChatMessageArea scrollButtonAlignment="center">
         <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-4">
-          {chatOptions.messages.map((message) => {
+          {messages.map((message) => {
             if (message.role !== 'user') {
               return (
                 <ChatMessage key={message.id} id={message.id}>
@@ -67,9 +67,7 @@ export function MyChat({
             )
           })}
 
-          {chatOptions.error && (
-            <div className="text-red-400">An error occured</div>
-          )}
+          {error && <div className="text-red-400">An error occured</div>}
         </div>
       </ChatMessageArea>
       <div className="px-2 py-4 max-w-2xl mx-auto w-full">
@@ -78,7 +76,7 @@ export function MyChat({
           onChange={(e) => setText(e.target.value)}
           onSubmit={handleSubmitMessage}
           loading={isLoading}
-          onStop={chatOptions.stop}
+          onStop={stop}
         >
           <ChatInputTextArea placeholder="Type a message..." />
           <BottomBar model={model} setModel={setModel} />

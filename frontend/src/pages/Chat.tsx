@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MyChat } from '@/components/chat'
-import { useChat as useChatHook, useUser } from '@/services/react-query/hooks'
+import { useMyChat, useUser } from '@/services/react-query/hooks'
 
 export function ChatPage() {
   const [text, setText] = useState<string>('')
@@ -9,7 +9,7 @@ export function ChatPage() {
     user?.currentlySelectedModel || '', // openai/gpt-5-mini:flex
   )
 
-  const { chatOptions, chatId } = useChatHook()
+  const { messages, error, stop, sendMessage, status, chatId } = useMyChat()
 
   useEffect(() => {
     if (!model && user?.currentlySelectedModel) {
@@ -18,11 +18,11 @@ export function ChatPage() {
   }, [user?.currentlySelectedModel])
 
   const handleSubmit = () => {
-    chatOptions.sendMessage({ text }, { body: { model, chatId } })
+    sendMessage({ text }, { body: { model, chatId } })
     setText('')
   }
 
-  const isLoading = chatOptions.status === 'submitted'
+  const isLoading = status === 'submitted'
 
   const handleSubmitMessage = () => {
     if (isLoading) {
@@ -33,13 +33,15 @@ export function ChatPage() {
 
   return (
     <MyChat
-      chatOptions={chatOptions}
       setModel={setModel}
       model={model}
       isLoading={isLoading}
       handleSubmitMessage={handleSubmitMessage}
       setText={setText}
       text={text}
+      error={error}
+      messages={messages}
+      stop={stop}
     />
   )
 }

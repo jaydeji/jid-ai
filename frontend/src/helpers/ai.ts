@@ -8,12 +8,14 @@ import { chatsKey } from '@/services/react-query/keys'
 import { getAuthHeader } from '@/services/auth'
 import { config, queryClient } from '@/services'
 
+type Data = {
+  type: `data-${string}`
+  id?: string | undefined
+  data: unknown
+}
+
 export const onData = (
-  dt: {
-    type: `data-${string}`
-    id?: string | undefined
-    data: unknown
-  },
+  dt: Data,
   router: AppRouter,
   queryClient: QueryClient,
 ) => {
@@ -47,25 +49,27 @@ export const onData = (
   }
 }
 
+export const getOptions = () => ({
+  transport: new DefaultChatTransport({
+    api: config.VITE_API_URL + '/chat',
+    headers: ((): Record<string, string> => {
+      const header = getAuthHeader()
+      return header ? { Authorization: header } : {}
+    })(),
+    prepareSendMessagesRequest: ({ id, messages, body }) => {
+      return {
+        body: {
+          id,
+          message: messages[messages.length - 1],
+          ...body,
+        },
+      }
+    },
+  }),
+  onData: (dt: Data) => onData(dt, router, queryClient),
+  generateId: () => crypto.randomUUID(),
+})
+
 export const createChat = () => {
-  return new ReactChat<MyUIMessage>({
-    transport: new DefaultChatTransport({
-      api: config.VITE_API_URL + '/chat',
-      headers: ((): Record<string, string> => {
-        const header = getAuthHeader()
-        return header ? { Authorization: header } : {}
-      })(),
-      prepareSendMessagesRequest: ({ id, messages, body }) => {
-        return {
-          body: {
-            id,
-            message: messages[messages.length - 1],
-            ...body,
-          },
-        }
-      },
-    }),
-    onData: (dt) => onData(dt, router, queryClient),
-    generateId: () => crypto.randomUUID(),
-  })
+  return new ReactChat<MyUIMessage>(getOptions())
 }
