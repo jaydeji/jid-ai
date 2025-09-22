@@ -54,10 +54,10 @@ export const getOptions = (): ConstructorParameters<
 >[0] => ({
   transport: new DefaultChatTransport({
     api: config.VITE_API_URL + '/chat',
-    headers: ((): Record<string, string> => {
+    headers: (): Record<string, string> => {
       const header = getAuthHeader()
       return header ? { Authorization: header } : {}
-    })(),
+    },
     prepareSendMessagesRequest: ({ id, messages, body }) => {
       return {
         body: {

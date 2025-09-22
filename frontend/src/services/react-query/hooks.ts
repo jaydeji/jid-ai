@@ -112,6 +112,7 @@ export const useMyChat = () => {
 
   const { messages, error, stop, sendMessage, status } = useChat({
     chat,
+    id: chatId, // fixed non streaming
   })
 
   return { messages, error, stop, sendMessage, status, chatId }
