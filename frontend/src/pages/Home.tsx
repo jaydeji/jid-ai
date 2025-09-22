@@ -1,6 +1,5 @@
 import { Outlet, useParams } from '@tanstack/react-router'
 import { DefaultChatTransport } from 'ai'
-import { useChat } from '@ai-sdk/react'
 import { useEffect } from 'react'
 import type { MyUIMessage } from '@/types'
 import {
@@ -18,6 +17,7 @@ import {
 import { SidebarApp } from '@/components/sidebar-app'
 import {
   queryClient,
+  useChat,
   useChat as useChatHook,
 } from '@/services/react-query/hooks'
 import { config } from '@/services'
@@ -26,7 +26,7 @@ import { chatsKey } from '@/services/react-query/keys'
 
 export function Home() {
   const { chatId } = useParams({ strict: false })
-  const { data } = useChatHook(chatId)
+  const { chatOptions } = useChat()
 
   // const chatOptions = useChat<MyUIMessage>({
   //   transport: new DefaultChatTransport({
@@ -73,11 +73,11 @@ export function Home() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  {data && (
+                  {/* {data && (
                     <BreadcrumbPage className="line-clamp-1">
                       {data.title}
                     </BreadcrumbPage>
-                  )}
+                  )} */}
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

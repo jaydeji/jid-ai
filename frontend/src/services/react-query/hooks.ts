@@ -1,6 +1,7 @@
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { useChat as useReactChat } from '@ai-sdk/react'
 import { useEffect } from 'react'
+import { useParams } from '@tanstack/react-router'
 import { config } from '../config'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
@@ -40,7 +41,9 @@ export const useUser = () => {
   })
 }
 
-export const useChat = (chatId?: string) => {
+export const useChat = () => {
+  const { chatId } = useParams({ strict: false })
+
   const { chat, clearChat } = useSharedChatContext()
   const chatOptions = useReactChat({
     chat,
@@ -57,6 +60,8 @@ export const useChat = (chatId?: string) => {
     if (!chatId) clearChat()
   }, [chatId])
 
+  console.log(chatOptions)
+
   useEffect(() => {
     // this sets messages to [] when we send a new chat because we fetch immediately, and its still empty
     // we need this to populate the chat when we refresh the page
@@ -66,7 +71,7 @@ export const useChat = (chatId?: string) => {
         chatOptions.setMessages(options.data.messages)
   }, [options.data])
 
-  return options
+  return { options, chatOptions, chatId }
 }
 
 export const useSignUp = () => {

@@ -1,9 +1,6 @@
-import { useParams } from '@tanstack/react-router'
-import { useChat } from '@ai-sdk/react'
 import { useEffect, useState } from 'react'
 import { MyChat } from '@/components/chat'
 import { useChat as useChatHook, useUser } from '@/services/react-query/hooks'
-import { useSharedChatContext } from '@/components/chat-context'
 
 export function ChatPage() {
   const [text, setText] = useState<string>('')
@@ -11,14 +8,8 @@ export function ChatPage() {
   const [model, setModel] = useState<string>(
     user?.currentlySelectedModel || '', // openai/gpt-5-mini:flex
   )
-  const { chatId } = useParams({ strict: false })
 
-  const { data } = useChatHook(chatId)
-
-  const { chat } = useSharedChatContext()
-  const chatOptions = useChat({
-    chat,
-  })
+  const { chatOptions, chatId } = useChatHook()
 
   useEffect(() => {
     if (!model && user?.currentlySelectedModel) {
@@ -27,7 +18,7 @@ export function ChatPage() {
   }, [user?.currentlySelectedModel])
 
   const handleSubmit = () => {
-    chatOptions.sendMessage({ text }, { body: { model, chatId: data?.id } })
+    chatOptions.sendMessage({ text }, { body: { model, chatId } })
     setText('')
   }
 

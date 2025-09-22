@@ -48,16 +48,17 @@ function createChat() {
           { queryKey: chatsKey },
           (data) => {
             if (data === undefined) return
+            const title = (dt.data as any)?.title
             if (Array.isArray(data)) {
               return [
                 {
                   id: (dt.data as any)?.id,
-                  title: "I'm glad you're looking for a conversation to g...",
+                  title,
                 } as Chat,
                 ...data,
               ]
             }
-            return { ...data, title: (dt.data as any)?.title }
+            return { ...data, title }
           },
         )
       }
