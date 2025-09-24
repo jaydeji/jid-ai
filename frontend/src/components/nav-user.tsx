@@ -27,7 +27,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { clearAuth } from '@/services/auth'
-import { queryClient, useUser } from '@/services/react-query/hooks'
+import { queryClient } from '@/services/react-query/queryClient'
+import { useUser } from '@/services/react-query/hooks'
 
 export function NavUser() {
   const navigate = useNavigate()

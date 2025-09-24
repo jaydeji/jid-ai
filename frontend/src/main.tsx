@@ -6,21 +6,22 @@ import './styles.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import reportWebVitals from './reportWebVitals.ts'
 
-import { ChatProvider } from './components/chat-context.tsx'
-import { queryClient } from '@/services/react-query/hooks.ts'
+import { TooltipProvider } from './components/ui/tooltip.tsx'
+import { queryClient } from '@/services/react-query/queryClient.ts'
 import { router } from '@/routes/index.tsx'
+import { Toaster } from '@/components/ui/sonner'
 
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ChatProvider>
+      <TooltipProvider>
+        <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
-        </ChatProvider>
-        ;
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </TooltipProvider>
+      <Toaster richColors />
     </StrictMode>,
   )
 }

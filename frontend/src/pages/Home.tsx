@@ -1,7 +1,4 @@
-import { Outlet, useParams } from '@tanstack/react-router'
-import { DefaultChatTransport } from 'ai'
-import { useEffect } from 'react'
-import type { MyUIMessage } from '@/types'
+import { Outlet } from '@tanstack/react-router'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,48 +12,10 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { SidebarApp } from '@/components/sidebar-app'
-import { queryClient } from '@/services/react-query/hooks'
-import { config } from '@/services'
-import { getAuthHeader } from '@/services/auth'
-import { chatsKey } from '@/services/react-query/keys'
+import { useMyChat } from '@/services/react-query/hooks'
 
 export function Home() {
-  const { chatId } = useParams({ strict: false })
-  // const { chatOptions } = useChat()
-
-  // const chatOptions = useChat<MyUIMessage>({
-  //   transport: new DefaultChatTransport({
-  //     api: config.VITE_API_URL + '/chat',
-  //     headers: ((): Record<string, string> => {
-  //       const header = getAuthHeader()
-  //       return header ? { Authorization: header } : {}
-  //     })(),
-  //     // prepareSendMessagesRequest: ({ id, messages, body }) => {
-  //     //   return {
-  //     //     body: {
-  //     //       id,
-  //     //       message: messages[messages.length - 1],
-  //     //       ...body,
-  //     //     },
-  //     //   }
-  //     // },
-  //   }),
-  //   onFinish: () => console.log('finished'),
-  // })
-
-  // useEffect(() => {
-  //   if (!chatId) {
-  //     chatOptions.setMessages([])
-  //   }
-  // }, [chatId])
-
-  // useEffect(() => {
-  //   if (chatId && data) {
-  //     chatOptions.setMessages(data.messages)
-  //   }
-
-  //   queryClient.invalidateQueries({ queryKey: chatsKey })
-  // }, [data])
+  const { title } = useMyChat()
 
   return (
     <SidebarProvider>
@@ -69,11 +28,11 @@ export function Home() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  {/* {data && (
+                  {title && (
                     <BreadcrumbPage className="line-clamp-1">
-                      {data.title}
+                      {title}
                     </BreadcrumbPage>
-                  )} */}
+                  )}
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

@@ -27,7 +27,11 @@ class MyFetch {
               const { router } = await import('@/routes')
               clearAuth()
               router.navigate({ to: '/login' })
+
+              return response
             }
+
+            return response
           },
         ],
       },

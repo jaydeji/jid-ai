@@ -13,7 +13,7 @@ import { logger } from '../logger';
 import { AppError } from '../exception';
 import { Usage } from '../types';
 import { decrement, getModel } from '../helpers';
-import { usersTable } from '../schema';
+import { usersTable } from '../schemas/schema';
 import { consts } from '../constants';
 
 const generateTitle = async ({
@@ -51,6 +51,12 @@ export const postChat = async (data: {
     logger.error(data);
     throw new AppError('UNAUTHORIZED');
   }
+
+  // cache this in reddis
+  const user = await db.getUserById(userId);
+
+  if (user.role !== 'admin' && parseFloat(user.credits) <= 0)
+    throw new AppError('CREDITS_EXPIRED');
 
   // If chat exists, we can diff messages later by id. If not, we will create it onFinish.
   let existingChat;
@@ -160,10 +166,7 @@ export const postChat = async (data: {
               type: 'data-usage',
               data: {
                 id: chatId,
-                totalTokens: meta?.totalTokens,
-                promptTokens: meta?.inputTokens,
-                completionTokens: meta?.outputTokens,
-                cost: meta?.totalCost,
+                ...meta,
               },
               transient: true,
             });
@@ -172,6 +175,7 @@ export const postChat = async (data: {
           db.updateChat({
             id: chatId,
             title,
+            ...meta,
           });
 
           db.createOrUpdateChatTrans(async (tx) => {
@@ -179,7 +183,7 @@ export const postChat = async (data: {
               {
                 userId,
                 currentlySelectedModel: model,
-                credits: decrement(usersTable.credits, 10),
+                credits: decrement(usersTable.credits, meta?.totalCost ?? 0),
               },
               tx
             );

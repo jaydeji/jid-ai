@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { config } from './config';
-import { chatsTable, messagesTable, usersTable } from './schema';
+import { chatsTable, messagesTable, usersTable } from './schemas/schema';
 import { asc, desc, DrizzleQueryError, eq } from 'drizzle-orm';
 import { type PgTransaction } from 'drizzle-orm/pg-core';
-import * as schema from './schema';
+import * as schema from './schemas/schema';
 import { AppError, handleConnectionError } from './exception';
 import { logger } from './logger';
 

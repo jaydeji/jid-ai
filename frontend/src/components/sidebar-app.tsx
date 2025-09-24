@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
-import { useSharedChatContext } from './chat-context'
+import { PriceCard } from './price-card'
 import type { ComponentProps } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,18 +18,15 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { NavUser } from '@/components/nav-user'
 import { useChats, useUser } from '@/services/react-query/hooks'
-import { isLoggedIn } from '@/services/auth'
+import { useStore } from '@/store'
 
 export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   const { data: user } = useUser()
   const { data: chats } = useChats({ enabled: !!user })
-
-  const loggedIn = isLoggedIn()
 
   // if (!loggedIn) {
   //   return (
@@ -57,7 +54,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
 
   // if (!user || !chats) return null
 
-  const { clearChat } = useSharedChatContext()
+  const { clearChat } = useStore()
 
   return (
     <Sidebar className="border-r-0" {...props}>
@@ -69,25 +66,19 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                 <MessageCircle className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-lg font-semibold">jid AI</span>
+              <PriceCard />
             </div>
-            {/* New Chat Button */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="cursor-pointer"
-                  >
-                    <SquarePen className="h-5 w-5 " />
-                    <span className="sr-only">New Chat</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>New Chat</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="ghost" className="cursor-pointer">
+                  <SquarePen className="h-5 w-5 " />
+                  <span className="sr-only">New Chat</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>New Chat</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </SidebarHeader>
       </Link>
@@ -167,7 +158,9 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarContent>
       <SidebarRail />
-      <SidebarFooter>{user && <NavUser />}</SidebarFooter>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   )
 }

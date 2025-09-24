@@ -66,6 +66,10 @@ export const AppErrors = {
     message: 'Unauthorized',
     status: 401,
   },
+  CREDITS_EXPIRED: {
+    message: 'You have run out of credits',
+    status: 403,
+  },
 } as const;
 
 export type AppErrorKey = keyof typeof AppErrors;

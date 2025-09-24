@@ -9,6 +9,8 @@ export type User = {
   avatar: string
   currentlySelectedModel: string
   favoriteModels: Array<string>
+  credits: string
+  role: 'user' | 'admin'
 }
 
 export interface ModelArchitecture {
@@ -74,25 +76,35 @@ export type Models = {
   data: Array<Model>
 }
 
-export type Chat = {
+export type Usage = {
+  inputTokens: number
+  outputTokens: number
+  totalTokens: number
+  totalCost: number
+}
+
+export type Chat = Usage & {
   id: string
   createdAt: number
   title: string
   updatedAt: number
   userSetTitle: boolean
-  messages?: any
+  messages?: Array<any>
+  outputCost: string
+  model: string
 }
 
 export type GroupedModels = Record<string, Array<Model>>
 
 // Define your metadata schema
 export const messageMetadataSchema = z.object({
-  // createdAt: z.number().optional(),
-  // model: z.string().optional(),
-  totalTokens: z.number().optional(),
+  model: z.string(),
+  createdAt: z.date().optional(),
+  id: z.string(),
+  chatId: z.string(),
 })
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>
 
 // Create a typed UIMessage
-export type MyUIMessage = UIMessage<MessageMetadata>
+export type MyUIMessage = UIMessage & MessageMetadata

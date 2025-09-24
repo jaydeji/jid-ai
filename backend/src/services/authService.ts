@@ -2,7 +2,6 @@ import 'dotenv-defaults/config';
 import { generateToken } from '../helpers';
 import { db } from '../db';
 import { userSignUpSchema, userSignInSchema } from '../schemas/user';
-import { HTTPException } from 'hono/http-exception';
 import bcrypt from 'bcrypt';
 import { consts } from '../constants';
 import { AppError } from '../exception';
@@ -29,7 +28,7 @@ export const signIn = async (user: any) => {
     throw new AppError('USER_NOT_FOUND');
   }
 
-  return { user, token: await generateToken(parsedUser) };
+  return { user, token: await generateToken(parsedUser!) };
 };
 
 export const signUp = async (user: any) => {

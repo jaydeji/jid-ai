@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
-import { queryClient, useSignUp } from '@/services/react-query/hooks'
+import { useSignUp } from '@/services/react-query/hooks'
+import { queryClient } from '@/services/react-query/queryClient'
 import { setAuth } from '@/services/auth'
 import {
   Card,

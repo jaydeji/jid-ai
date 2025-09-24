@@ -1,22 +1,11 @@
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useChat } from '@ai-sdk/react'
 import { useEffect } from 'react'
 import { useParams } from '@tanstack/react-router'
-import { config } from '../config'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
-import { useSharedChatContext } from '@/components/chat-context'
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-      staleTime: 2000,
-      retry: false,
-      refetchOnWindowFocus: !config.DEV,
-    },
-  },
-})
+import { useStore } from '@/store'
+import { reconcileMessages } from '@/helpers/ai'
 
 export const useChats = ({ enabled }: { enabled: boolean }) => {
   return useQuery({
@@ -35,15 +24,25 @@ export const useModels = () => {
 }
 
 export const useUser = () => {
-  return useQuery({
+  const { setModel, model } = useStore()
+  const query = useQuery({
     queryKey: userKey,
     queryFn: api.getUser,
   })
+
+  useEffect(() => {
+    if (!model && query.isSuccess) {
+      setModel(query.data.currentlySelectedModel)
+    }
+  }, [query.isSuccess])
+
+  return query
 }
 
 export const useMyChat = () => {
-  const { chat, clearChat } = useSharedChatContext()
   const { chatId } = useParams({ strict: false })
+
+  const { chat, setModel } = useStore()
 
   const { messages, error, stop, sendMessage, status, setMessages } = useChat({
     chat,
@@ -53,20 +52,29 @@ export const useMyChat = () => {
   // Only fetch when we have a chatId and haven't loaded this chat yet
   const shouldFetch = !!chatId
 
-  const chatQuery = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: chatKey(chatId!),
-    queryFn: async () => {
-      const data = await api.getChat(chatId!)
-      setMessages(data.messages)
-      return data
-    },
+    queryFn: () => api.getChat(chatId!),
     enabled: shouldFetch,
-    staleTime: Infinity, // Don't refetch once loaded
   })
 
   useEffect(() => {
-    return () => setMessages([])
-  }, [])
+    if (data) {
+      setMessages(
+        reconcileMessages({
+          chatId,
+          prevMessages: messages,
+          serverMessages: data.messages,
+        }),
+      )
+
+      setModel(data.model)
+    }
+
+    if (!data && !chatId) {
+      setMessages([])
+    }
+  }, [data])
 
   return {
     messages,
@@ -75,7 +83,8 @@ export const useMyChat = () => {
     sendMessage,
     status,
     chatId,
-    isLoadingInitialData: chatQuery.isLoading,
+    isLoadingInitialData: isLoading,
+    data,
   }
 }
 

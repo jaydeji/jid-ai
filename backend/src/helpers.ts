@@ -5,11 +5,12 @@ import { AppError } from './exception';
 import { logger } from './logger';
 import { openrouter } from './constants';
 import { AnyColumn, sql } from 'drizzle-orm';
+import { User } from './schemas/types';
 
-export const generateToken = async (user: any) => {
+export const generateToken = async (user: User) => {
   const payload = {
     sub: user.userId,
-    role: 'user',
+    role: user.role,
     exp: Math.floor(Date.now() / 1000) + 60 * 60 * 72, // Token expires in 3 days
   };
 

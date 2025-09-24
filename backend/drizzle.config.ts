@@ -5,7 +5,7 @@ import { config } from './src/config';
 
 export default defineConfig({
   out: './drizzle',
-  schema: './src/schema.ts',
+  schema: './src/schemas/schema.ts',
   dbCredentials: {
     url: config.DATABASE_URL,
     // Alternative: individual connection params
