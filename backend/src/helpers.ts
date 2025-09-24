@@ -6,6 +6,7 @@ import { logger } from './logger';
 import { openrouter } from './constants';
 import { AnyColumn, sql } from 'drizzle-orm';
 import { User } from './schemas/types';
+import { OpenRouterModelInfo, UserRole } from './types';
 
 export const generateToken = async (user: User) => {
   const payload = {
@@ -49,4 +50,12 @@ export const decrement = (column: AnyColumn, value = 1) => {
 
 export const increment = (column: AnyColumn, value = 1) => {
   return sql`${column} + ${value}`;
+};
+
+export const filterModels = (
+  models: OpenRouterModelInfo[],
+  role: UserRole
+): OpenRouterModelInfo[] => {
+  if (role === 'admin') return models;
+  return models.filter((e) => e.id !== 'openrouter/auto' && !e.id.includes(":free"));
 };

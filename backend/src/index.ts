@@ -9,6 +9,7 @@ import { authRoute, chatRoute, otherRoute } from './routes';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
 import { logger } from './logger';
+import { compress } from 'hono/compress';
 
 const pinoLoggerMiddleware = (): MiddlewareHandler => {
   return async function pinoLogger(c, next) {
@@ -44,6 +45,8 @@ const pinoLoggerMiddleware = (): MiddlewareHandler => {
 };
 
 const app = new Hono();
+
+app.use(compress());
 
 // important its before logger middleware
 app.use(requestId());

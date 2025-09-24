@@ -4,14 +4,67 @@ import { proxy } from 'hono/proxy';
 import { config } from '../config';
 import { db } from '../db';
 import { type JwtVariables } from 'hono/jwt';
-import { getPayload, jwtMiddleware } from '../helpers';
+import { filterModels, getPayload, jwtMiddleware } from '../helpers';
+import { AppError } from '../exception';
 
 export const otherRoute = new Hono<{ Variables: JwtVariables }>();
 
+let lastModelFetchDate: Date | undefined;
+
+let modelsCache: {
+  filteredData: any;
+  lastFetched: Date | null;
+} = {
+  filteredData: null,
+  lastFetched: null,
+};
+
 otherRoute.get('/models', jwtMiddleware, async (c) => {
-  const res = await proxy(`${config.OPEN_ROUTER_BASE_URL}/models`);
-  res.headers.append('Cache-Control', 'public, max-age=3600');
-  return res;
+  const role = getPayload(c)?.role;
+
+  const ONE_HOUR_MS = 60 * 60 * 1000; // 1 hour in mls
+  const now = new Date();
+
+  const isStale =
+    !modelsCache.filteredData ||
+    (modelsCache.lastFetched &&
+      now.getTime() - modelsCache.lastFetched.getTime() > ONE_HOUR_MS);
+
+  if (!isStale) {
+    return new Response(JSON.stringify(modelsCache.filteredData), {
+      status: 200,
+      headers: {
+        'Cache-Control': 'public, max-age=3600', //1 hr
+        'X-Cache': 'HIT',
+      },
+    });
+  }
+
+  const res = await fetch(`${config.OPEN_ROUTER_BASE_URL}/models`);
+
+  if (!res.ok) {
+    throw new AppError('INTERNAL_ERROR');
+  }
+
+  const upstreamDateHeader = res.headers.get('Date') || '';
+
+  let lastFetched = new Date(upstreamDateHeader);
+
+  const rawData = await res.json();
+
+  const filteredData = { data: filterModels(rawData.data, role) };
+
+  // Update cache
+  modelsCache = {
+    filteredData,
+    lastFetched,
+  };
+
+  return c.json(filteredData, 200, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=3600', // 1hr
+    'X-Cache': 'MISS',
+  });
 });
 
 // otherRoute.get('/spend', jwtMiddleware, async (c) => {

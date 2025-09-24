@@ -42,7 +42,13 @@ export const groupByProvider = async (
   return {
     groupedModels,
     models: data
-      .sort((a, b) => Number(a.pricing.prompt) - Number(b.pricing.completion))
+      .sort((a, b) => {
+        const promptDiff = Number(a.pricing.prompt) - Number(b.pricing.prompt)
+        if (promptDiff !== 0) {
+          return promptDiff
+        }
+        return Number(a.pricing.completion) - Number(b.pricing.completion)
+      })
       .map((e) => ({ ...e, provider: e.id.split('/')[0] || 'unknown' })),
     keys,
   }
@@ -60,5 +66,5 @@ export const formatNumber = ({
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(Number(price) * 100)
-    : `$${(Number(price) * 1_000_000).toFixed(2)}/M`
+    : `$${(Number(price) * 1_000_000).toFixed(3)}/M`
 }

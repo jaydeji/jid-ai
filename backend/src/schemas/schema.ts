@@ -14,6 +14,7 @@ import {
   numeric,
   decimal,
 } from 'drizzle-orm/pg-core';
+import { UserRole } from '../types';
 
 // Users
 export const usersTable = pgTable(
@@ -40,7 +41,7 @@ export const usersTable = pgTable(
       .default('0'),
     hashedPassword: text('hashed_password').notNull(),
     role: varchar('role', { length: 50 })
-      .$type<'user' | 'admin'>()
+      .$type<UserRole>()
       .default('user')
       .notNull(),
   },
