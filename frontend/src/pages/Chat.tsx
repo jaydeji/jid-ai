@@ -73,19 +73,7 @@ export function ChatPage() {
           {error && <div className="text-red-400">An error occured</div>}
         </div>
       </ChatMessageArea>
-      <UsageStats
-        data={
-          data
-            ? {
-                inputTokens: data.inputTokens,
-                outputTokens: data.outputTokens,
-                totalTokens: data.totalTokens,
-                totalCost: data.totalCost,
-              }
-            : undefined
-        }
-        className="max-w-2xl mx-auto w-full px-4 my-2"
-      />
+      <UsageStats data={data} />
       <div className="px-2 py-4 max-w-2xl mx-auto w-full">
         <ChatInput
           value={text}
