@@ -1,10 +1,7 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import { Badge } from '@/components/ui/badge'
+import { formatPrice } from '@/helpers/other'
 import { useUser } from '@/services/react-query/hooks'
-
-const formatPrice = (n: string) => {
-  return (Math.floor(Number(n) * 10) / 10).toFixed(1)
-}
 
 export function PriceCard({ currency = '$' }: { currency?: string }) {
   const data = useUser()
