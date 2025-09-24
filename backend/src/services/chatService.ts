@@ -123,13 +123,15 @@ export const postChat = async (data: {
           chunking: 'word',
         }),
         async onFinish(event) {
-          const title = await titlePromise;
+          let title;
 
-          writer.write({
-            type: 'data-generate-title',
-            data: { title, id: chatId },
-            transient: true,
-          });
+          if ((title = await titlePromise)) {
+            writer.write({
+              type: 'data-generate-title',
+              data: { title, id: chatId },
+              transient: true,
+            });
+          }
 
           const usage = event.providerMetadata?.openrouter?.usage as
             | Usage
