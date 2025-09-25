@@ -15,28 +15,37 @@ export class DB {
   }
 
   getUserById = async (userId: string) => {
-    return (
-      await this.db
-        .select()
-        .from(usersTable)
-        .where(eq(usersTable.userId, userId))
-        .limit(1)
-    )?.[0];
+    const result = await this.db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.userId, userId))
+      .limit(1)
+      .catch((error) => {
+        handleConnectionError(error);
+
+        throw new AppError('USER_NOT_FOUND');
+      });
+
+    if (!result.length) throw new AppError('USER_NOT_FOUND');
+
+    return result[0];
   };
 
   getUserByemail = async (email: string) => {
-    return (
-      await this.db
-        .select()
-        .from(usersTable)
-        .where(eq(usersTable.email, email))
-        .limit(1)
-        .catch((error) => {
-          handleConnectionError(error);
+    const result = await this.db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1)
+      .catch((error) => {
+        handleConnectionError(error);
 
-          throw new AppError('USER_NOT_FOUND');
-        })
-    )[0];
+        throw new AppError('USER_NOT_FOUND');
+      });
+
+    if (!result.length) throw new AppError('USER_NOT_FOUND');
+
+    return result[0];
   };
 
   addUser = async (user: any) => {
