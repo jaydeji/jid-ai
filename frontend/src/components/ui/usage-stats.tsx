@@ -4,6 +4,7 @@ import { Card, CardContent } from './card'
 import type { Chat } from '@/types'
 import { cn } from '@/lib/utils'
 import { extractTextFromParts } from '@/helpers/other'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface UsageStatsProps extends React.HTMLAttributes<HTMLDivElement> {
   data?: Partial<Chat>
@@ -15,15 +16,27 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
 
   const { inputTokens, outputTokens, totalTokens, totalCost } = data
 
+  console.log(typeof totalCost)
+
+  const isMobile = useIsMobile()
+
   return (
     <div className={cn('w-full max-w-2xl mx-auto mb-1')} {...props}>
       <Card className=" border-0 py-1 bg-transparent">
         <CardContent className="px-2 py-0 flex justify-between items-center">
-          <div className="flex items-center justify-between text-xs text-foreground">
+          <div
+            className={cn(
+              'flex items-center justify-between text-xs text-foreground',
+            )}
+          >
             <span>
-              {`Input ${inputTokens} | Output ${outputTokens} | Total ${totalTokens} tokens`}
+              {!isMobile && `Input ${inputTokens} | Output ${outputTokens} | `}
+              {`Total ${totalTokens} tokens`}
             </span>
-            <span>Cost: ${totalCost}</span>
+            <span className="whitespace-pre">
+              {isMobile && ` | `}
+              Cost: ${isMobile ? `${Number(totalCost).toFixed(3)}` : totalCost}
+            </span>
           </div>
           <Copy
             full

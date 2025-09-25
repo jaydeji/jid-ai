@@ -80,7 +80,7 @@ export type Usage = {
   inputTokens: number
   outputTokens: number
   totalTokens: number
-  totalCost: number
+  totalCost: string
 }
 
 export type Chat = Usage & {
