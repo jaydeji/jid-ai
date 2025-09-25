@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
 import { PriceCard } from './price-card'
 import type { ComponentProps } from 'react'
@@ -23,10 +23,13 @@ import {
 import { NavUser } from '@/components/nav-user'
 import { useChats, useUser } from '@/services/react-query/hooks'
 import { useStore } from '@/store'
+import { cn } from '@/lib/utils'
 
 export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   const { data: user } = useUser()
   const { data: chats } = useChats({ enabled: !!user })
+
+  const { chatId } = useParams({ strict: false })
 
   // if (!loggedIn) {
   //   return (
@@ -96,7 +99,12 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                     params={{ chatId: chat.id }}
                     className="w-full"
                   >
-                    <SidebarMenuButton className="w-full flex items-center justify-start gap-2">
+                    <SidebarMenuButton
+                      className={cn(
+                        'w-full flex items-center justify-start gap-2',
+                        chatId === chat.id && 'bg-card',
+                      )}
+                    >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       <span
                         className="flex-1 min-w-0 truncate"
