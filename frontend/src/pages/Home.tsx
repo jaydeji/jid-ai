@@ -15,7 +15,7 @@ import { SidebarApp } from '@/components/sidebar-app'
 import { useMyChat } from '@/services/react-query/hooks'
 
 export function Home() {
-  const { title } = useMyChat()
+  const { data } = useMyChat()
 
   return (
     <SidebarProvider>
@@ -28,9 +28,9 @@ export function Home() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  {title && (
+                  {data?.title && (
                     <BreadcrumbPage className="line-clamp-1">
-                      {title}
+                      {data.title}
                     </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>
