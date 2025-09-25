@@ -16,8 +16,6 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
 
   const { inputTokens, outputTokens, totalTokens, totalCost } = data
 
-  console.log(typeof totalCost)
-
   const isMobile = useIsMobile()
 
   return (
