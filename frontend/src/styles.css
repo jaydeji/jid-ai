@@ -170,3 +170,39 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile/touch: hide custom Radix scrollbars and native scrollbars inside ScrollArea viewport */
+@media (hover: none), (pointer: coarse) {
+  [data-slot='scroll-area-scrollbar'] {
+    display: none !important;
+  }
+}
+
+/* Normalize viewport scrolling across iOS/Android and hide native scrollbars */
+[data-slot='scroll-area-viewport'] {
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none; /* IE/Edge legacy */
+  scrollbar-width: none; /* Firefox */
+}
+[data-slot='scroll-area-viewport']::-webkit-scrollbar {
+  display: none; /* Safari/Chrome */
+}
+
+/* Ensure viewport is app-controlled and not body-scrolling on mobile */
+html,
+body,
+#app {
+  height: 100%;
+  min-height: 100dvh;
+}
+body {
+  overflow: hidden; /* prevent body scrollbar on mobile */
+  overscroll-behavior: none; /* prevent scroll chaining/bounce where supported */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Stronger WebKit scrollbar suppression as some devices ignore display:none */
+[data-slot='scroll-area-viewport']::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}

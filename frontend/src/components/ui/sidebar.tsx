@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports, sort-imports, import/consistent-type-specifier-style
+// eslint-disable-next-line sort-imports, import/consistent-type-specifier-style
 import { cva, type VariantProps } from 'class-variance-authority'
 import { PanelLeftIcon } from 'lucide-react'
 
@@ -138,7 +138,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full',
+            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex h-[100dvh] min-h-0 w-full overflow-hidden',
             className,
           )}
           {...props}

@@ -9,7 +9,7 @@ export function PriceCard({ currency = '$' }: { currency?: string }) {
   return data.data ? (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Badge>{`${currency}${formatPrice(data.data.credits)}`}</Badge>
+        <Badge className="bg-muted">{`${currency}${formatPrice(data.data.credits)}`}</Badge>
       </TooltipTrigger>
       <TooltipContent>
         <p>{data.data.credits}</p>

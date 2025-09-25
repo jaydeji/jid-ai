@@ -32,7 +32,7 @@ import { useUser } from '@/services/react-query/hooks'
 
 export function NavUser() {
   const navigate = useNavigate()
-  const { isMobile } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
 
   const { data: user } = useUser()
 
@@ -79,7 +79,12 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link to="/models">
+            <Link
+              to="/models"
+              onClick={() => {
+                if (isMobile) setOpenMobile(false)
+              }}
+            >
               <DropdownMenuItem>
                 <VectorSquare />
                 Models

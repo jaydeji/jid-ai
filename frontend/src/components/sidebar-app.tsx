@@ -137,36 +137,40 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
     )
   }
 
+  const handleNewChat = () => {
+    clearChat()
+    if (isMobile) setOpenMobile(false)
+  }
+
   return (
     <Sidebar className="border-r-0" {...props}>
-      <SidebarHeader>
-        <div className="flex items-center justify-between p-2">
-          <Link
-            to={'/'}
-            className="flex items-center gap-3"
-            onClick={() => clearChat()}
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <MessageCircle className="h-5 w-5 text-primary-foreground" />
+      <Link to={'/'} className="" onClick={handleNewChat}>
+        <SidebarHeader className="p-4">
+          <div className="flex items-center justify-between ">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary-foreground">
+                <MessageCircle
+                  size={18}
+                  strokeWidth={3}
+                  className="text-primary"
+                />
+              </div>
+              <span className="text-lg font-semibold">jid Ai</span>
+              <PriceCard />
             </div>
-            <span className="text-lg font-semibold">jid AI</span>
-            <PriceCard />
-          </Link>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link to={'/'} onClick={() => clearChat()}>
-                <Button size="icon" variant="ghost" className="cursor-pointer">
-                  <SquarePen className="h-5 w-5" />
-                  <span className="sr-only">New Chat</span>
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>New Chat</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </SidebarHeader>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SquarePen size={18} className="cursor-pointer text-chart-2" />
+              </TooltipTrigger>
+              {!isMobile && (
+                <TooltipContent>
+                  <p>New Chat</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </div>
+        </SidebarHeader>
+      </Link>
 
       <SidebarContent>
         <div className="flex flex-col">

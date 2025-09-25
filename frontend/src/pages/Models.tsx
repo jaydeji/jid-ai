@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/tooltip'
 import { formatNumber } from '@/helpers/api'
 import { Copy } from '@/components/Copy'
+import { cn } from '@/lib/utils'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 type KnownModality = 'text' | 'image' | 'file' | 'audio'
 type ModalityType = KnownModality | (string & {})
@@ -51,6 +53,9 @@ const Modality = ({ modality }: { modality: Array<ModalityType> }) => {
 export const ModelsPage = () => {
   const [search, setSearch] = useState('')
   const { data } = useModels()
+  const isMobile = useIsMobile()
+
+  console.log({ isMobile })
 
   if (!data) return null
 
@@ -59,9 +64,9 @@ export const ModelsPage = () => {
   )
 
   return (
-    <main className="p-6 h-screen overflow-scroll">
+    <main className="p-6 flex-1 min-h-0 flex flex-col">
       {/* Header + Search */}
-      <div className="mb-4 flex items-center justify-between sticky top-0 z-20 bg-background">
+      <div className="mb-4 flex items-center justify-between sticky top-0 z-10 bg-background">
         <h1 className="text-xl font-bold">All Models</h1>
         <Input
           placeholder="Search models..."
@@ -116,7 +121,13 @@ export const ModelsPage = () => {
                           name
                         )}
                       </span>
-                      <Copy className="hidden group-hover:block" text={id} />
+                      <Copy
+                        className={cn(
+                          'group-hover:block',
+                          !isMobile && 'hidden',
+                        )}
+                        text={id}
+                      />
                     </div>
                   </TableCell>
                   <TableCell>{context_length.toLocaleString()}</TableCell>
