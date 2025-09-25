@@ -148,7 +148,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
         <SidebarHeader className="p-4">
           <div className="flex items-center justify-between ">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary-foreground">
+              <div className="flex items-center justify-center rounded-lg bg-transparent">
                 <MessageCircle
                   size={18}
                   strokeWidth={3}
@@ -160,7 +160,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <SquarePen size={18} className="cursor-pointer text-chart-2" />
+                <SquarePen size={20} className="cursor-pointer text-chart-2" />
               </TooltipTrigger>
               {!isMobile && (
                 <TooltipContent>
