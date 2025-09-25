@@ -38,7 +38,7 @@ export function ChatPage() {
   }
 
   return (
-    <>
+    <div className="flex-1 flex flex-col h-full bg-background overflow-auto">
       <ChatMessageArea scrollButtonAlignment="center">
         <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-4">
           {messages.length === 0 ? (
@@ -112,6 +112,6 @@ export function ChatPage() {
           <BottomBar model={model} setModel={setModel} />
         </ChatInput>
       </div>
-    </>
+    </div>
   )
 }

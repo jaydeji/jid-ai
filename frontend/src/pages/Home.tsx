@@ -38,9 +38,7 @@ export function Home() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex-1 flex flex-col h-full overflow-y-auto bg-background">
-          <Outlet />
-        </div>
+        <Outlet />
       </SidebarInset>
     </SidebarProvider>
   )
