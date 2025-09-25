@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare } from 'lucide-react'
+import { CopyIcon, MessageSquare, RefreshCcwIcon } from 'lucide-react'
 import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
 import {
   ChatMessage,
@@ -12,6 +12,9 @@ import { BottomBar } from '@/templates/BottomBar'
 import { useMyChat } from '@/services/react-query/hooks'
 import { useStore } from '@/store'
 import { ConversationEmptyState } from '@/components/ai-elements/conversation'
+import { Action, Actions } from '@/components/ai-elements/actions'
+import { Copy } from '@/components/Copy'
+import { extractTextFromParts } from '@/helpers/other'
 
 export function ChatPage() {
   const [text, setText] = useState<string>('')
@@ -67,7 +70,23 @@ export function ChatPage() {
                       // no reasoning or tool calls here
                       case 'text':
                         return (
-                          <ChatMessageContent key={index} content={part.text} />
+                          <div>
+                            <ChatMessageContent
+                              key={index}
+                              content={part.text}
+                            />
+                            <div>
+                              {!isUserMessage && (
+                                <Actions className="mt-1.5 gap-2">
+                                  {/* <RefreshCcwIcon size={12} /> */}
+                                  <Copy
+                                    text={extractTextFromParts(message.parts)}
+                                    title="copy"
+                                  />
+                                </Actions>
+                              )}
+                            </div>
+                          </div>
                         )
                       default:
                         return null
