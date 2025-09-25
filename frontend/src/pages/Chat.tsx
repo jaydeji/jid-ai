@@ -70,11 +70,8 @@ export function ChatPage() {
                       // no reasoning or tool calls here
                       case 'text':
                         return (
-                          <div>
-                            <ChatMessageContent
-                              key={index}
-                              content={part.text}
-                            />
+                          <div key={index}>
+                            <ChatMessageContent content={part.text} />
                             <div>
                               {!isUserMessage && (
                                 <Actions className="mt-1.5 gap-2">
