@@ -1,14 +1,12 @@
 import { Chat as ReactChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { toast } from 'sonner'
-import type { ChatOnFinishCallback } from 'ai'
+import { v4 as uuidv4 } from 'uuid'
 import type { Chat, MyUIMessage, Usage } from '@/types'
-import type { QueryClient } from '@tanstack/react-query'
-import type { AppRouter } from '@/routes'
 import { router } from '@/routes'
 import { chatKey, chatsKey } from '@/services/react-query/keys'
 import { getAuthHeader } from '@/services/auth'
-import { MyFetch, config, queryClient } from '@/services'
+import { config, queryClient } from '@/services'
 
 type Event = {
   type: `data-${string}`
@@ -105,7 +103,7 @@ export const getOptions = (): ConstructorParameters<
       toast.error(JSON.parse(event.message)?.message)
     }
   },
-  generateId: () => crypto.randomUUID(),
+  generateId: () => uuidv4(),
 })
 
 export const createChat = () => {
