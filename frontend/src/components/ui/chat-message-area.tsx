@@ -55,7 +55,7 @@ export function ChatMessageArea({
     useScrollToBottom<HTMLDivElement>()
 
   return (
-    <ScrollArea className="flex-1 relative">
+    <ScrollArea className="flex-1 min-h-0 relative">
       <div ref={containerRef}>
         <div className={cn(className, 'min-h-0')}>{children}</div>
       </div>

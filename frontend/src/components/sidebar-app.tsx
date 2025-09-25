@@ -102,7 +102,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       className={cn(
                         'w-full flex items-center justify-start gap-2',
-                        chatId === chat.id && 'bg-card',
+                        chatId === chat.id && 'bg-card text-chart-2',
                       )}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />

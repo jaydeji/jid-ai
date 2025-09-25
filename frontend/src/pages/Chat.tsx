@@ -38,7 +38,7 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-background overflow-auto">
+    <div className="flex-1 flex flex-col h-full min-h-0 bg-background overflow-hidden">
       <ChatMessageArea scrollButtonAlignment="center">
         <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-4">
           {messages.length === 0 ? (
@@ -99,7 +99,7 @@ export function ChatPage() {
           {error && <div className="text-red-400">An error occured</div>}
         </div>
       </ChatMessageArea>
-      <div className="px-2 py-4 max-w-2xl mx-auto w-full">
+      <div className="px-2 py-4 max-w-2xl mx-auto w-full shrink-0">
         <ChatInput
           value={text}
           onChange={(e) => setText(e.target.value)}
