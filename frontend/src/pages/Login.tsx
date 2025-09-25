@@ -30,7 +30,7 @@ export default function LoginPage() {
 
     try {
       const { token }: any = await mutateAsync({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       })
 
@@ -73,6 +73,9 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       autoFocus
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                     />
                   </div>
                   <div className="grid gap-3">

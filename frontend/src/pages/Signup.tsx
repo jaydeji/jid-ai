@@ -34,10 +34,10 @@ export default function SignupPage() {
       // Store credentials (basic auth token). Backend will verify on first request.
 
       const { token }: any = await mutateAsync({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: firstName.trim().toLowerCase(),
+        lastName: lastName.trim().toLowerCase(),
       })
 
       setAuth(token)
@@ -78,6 +78,9 @@ export default function SignupPage() {
                       onChange={(e) => setFirstname(e.target.value)}
                       required
                       autoFocus
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                     />
                   </div>
 
@@ -91,6 +94,9 @@ export default function SignupPage() {
                       value={lastName}
                       onChange={(e) => setLastname(e.target.value)}
                       required
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                     />
                   </div>
 
@@ -104,6 +110,9 @@ export default function SignupPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                     />
                   </div>
                   <div className="grid gap-3">
