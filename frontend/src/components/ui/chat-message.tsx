@@ -1,9 +1,10 @@
 import { cva } from 'class-variance-authority'
 import { SparklesIcon, UserIcon } from 'lucide-react'
 import React from 'react'
+import remarkGfm from 'remark-gfm'
+import { Response } from '../ai-elements/response'
 import type { VariantProps } from 'class-variance-authority'
 import type { ReactNode } from 'react'
-import { MarkdownContent } from '@/components/ui/markdown-content'
 import { cn } from '@/lib/utils'
 
 const chatMessageVariants = cva('flex gap-4 w-full', {
@@ -187,7 +188,11 @@ const ChatMessageContent = React.forwardRef<
       className={cn(chatMessageContentVariants({ variant, type, className }))}
       {...props}
     >
-      {content.length > 0 && <MarkdownContent id={id} content={content} />}
+      {content.length > 0 && (
+        <Response remarkPlugins={[remarkGfm]} key={`${id}`}>
+          {content}
+        </Response>
+      )}
       {children}
     </div>
   )
