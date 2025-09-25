@@ -16,9 +16,9 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
   const { inputTokens, outputTokens, totalTokens, totalCost } = data
 
   return (
-    <div className={cn('w-full max-w-2xl mx-auto px-4')} {...props}>
-      <Card className="bg-muted/50 border-0 py-3">
-        <CardContent className="px-4 py-0 flex justify-between items-center">
+    <div className={cn('w-full max-w-2xl mx-auto mb-1')} {...props}>
+      <Card className=" border-0 py-1 bg-transparent">
+        <CardContent className="px-2 py-0 flex justify-between items-center">
           <div className="flex items-center justify-between text-xs text-foreground">
             <span>
               {`Input ${inputTokens} | Output ${outputTokens} | Total ${totalTokens} tokens`}

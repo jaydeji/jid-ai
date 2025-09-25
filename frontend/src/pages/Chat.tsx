@@ -99,7 +99,6 @@ export function ChatPage() {
           {error && <div className="text-red-400">An error occured</div>}
         </div>
       </ChatMessageArea>
-      <UsageStats data={data} />
       <div className="px-2 py-4 max-w-2xl mx-auto w-full">
         <ChatInput
           value={text}
@@ -108,6 +107,7 @@ export function ChatPage() {
           loading={isLoading}
           onStop={stop}
         >
+          <UsageStats data={data} />
           <ChatInputTextArea placeholder="Type a message..." />
           <BottomBar model={model} setModel={setModel} />
         </ChatInput>
