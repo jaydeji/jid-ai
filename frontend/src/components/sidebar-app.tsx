@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import {
   Tooltip,
@@ -30,6 +31,8 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   const { data: chats } = useChats({ enabled: !!user })
 
   const { chatId } = useParams({ strict: false })
+
+  const { isMobile, setOpenMobile } = useSidebar()
 
   // if (!loggedIn) {
   //   return (
@@ -108,6 +111,9 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                 to="/chats/$chatId"
                 params={{ chatId: chat.id }}
                 className="w-full"
+                onClick={() => {
+                  if (isMobile) setOpenMobile(false)
+                }}
               >
                 <SidebarMenuButton
                   className={cn(
