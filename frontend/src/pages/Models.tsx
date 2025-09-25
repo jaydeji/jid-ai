@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatNumber } from '@/helpers/api'
+import { Copy } from '@/components/Copy'
 
 type KnownModality = 'text' | 'image' | 'file' | 'audio'
 type ModalityType = KnownModality | (string & {})
@@ -93,24 +94,28 @@ export const ModelsPage = () => {
                 architecture,
                 provider,
               }) => (
-                <TableRow key={id}>
+                <TableRow key={id} className="group">
                   <TableCell className="font-medium">{provider}</TableCell>
                   <TableCell>
-                    {description.length ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="cursor-help underline decoration-dotted">
-                            {/* {name} */}
-                            {id}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p>{description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      id
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span id={`${id}`}>
+                        {description.length ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help underline decoration-dotted">
+                                {name}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p>{description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          name
+                        )}
+                      </span>
+                      <Copy className="hidden group-hover:block" text={id} />
+                    </div>
                   </TableCell>
                   <TableCell>{context_length.toLocaleString()}</TableCell>
                   <TableCell>

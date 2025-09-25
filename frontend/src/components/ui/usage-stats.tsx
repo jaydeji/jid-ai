@@ -1,10 +1,11 @@
 import * as React from 'react'
+import { Copy } from '../Copy'
 import { Card, CardContent } from './card'
-import type { Usage } from '@/types'
+import type { Chat } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface UsageStatsProps extends React.HTMLAttributes<HTMLDivElement> {
-  data?: Partial<Usage>
+  data?: Partial<Chat>
   showEmpty?: boolean
 }
 
@@ -23,6 +24,7 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
             </span>
             <span>Cost: ${totalCost}</span>
           </div>
+          <Copy text={JSON.stringify(data.messages)} />
         </CardContent>
       </Card>
     </div>
