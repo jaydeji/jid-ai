@@ -52,11 +52,10 @@ app.use(compress());
 app.use(requestId());
 
 app.use(pinoLoggerMiddleware());
-
 app.use(
   cors({
-    origin: [config.CORS_ORIGIN], // Your frontend origin
-    allowHeaders: ['Content-Type', 'Authorization'], // Allow these headers from the client
+    origin: config.CORS_ORIGIN, // Your frontend origin
+    allowHeaders: ['Content-Type', 'Authorization', 'User-Agent'], // Allow these headers from the client
     credentials: true, // Allow cookies, authorization headers, etc.
   })
 );
