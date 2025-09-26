@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Info } from 'lucide-react'
 import { Modality } from './models-modality'
 import type { OpenModel } from '@/types'
 import {
@@ -9,6 +10,19 @@ import {
 import { formatNumber } from '@/helpers/api'
 import { Copy } from '@/components/Copy'
 import { cn } from '@/lib/utils'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+
+const ModelName = ({ name }: { name: string }) => {
+  return (
+    <span className="md:cursor-help md:underline md:decoration-dotted">
+      {name}
+    </span>
+  )
+}
 
 export const CellContent = ({
   model,
@@ -37,16 +51,38 @@ export const CellContent = ({
         <div className="flex items-center gap-2">
           <span id={`${id}`}>
             {description.length ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help no-underline md:underline md:decoration-dotted">
-                    {name}
+              <>
+                <span className="hidden md:inline">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <ModelName name={name} />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>{description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+                <span className="inline md:hidden">
+                  <span className="flex items-center gap-1">
+                    <ModelName name={name} />
+
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="More info"
+                          className="md:hidden p-1 rounded-full hover:bg-muted"
+                        >
+                          <Info size={12} className="text-foreground" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="max-w-xs">
+                        <span className="text-xs ">{description}</span>
+                      </PopoverContent>
+                    </Popover>
                   </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p>{description}</p>
-                </TooltipContent>
-              </Tooltip>
+                </span>
+              </>
             ) : (
               name
             )}

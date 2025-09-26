@@ -33,7 +33,7 @@ export const Copy = ({
       <TooltipTrigger asChild>
         <Comp
           size={12}
-          className={cn('cursor-pointer', className)}
+          className={cn('md:cursor-pointer', className)}
           onClick={() => (state ? null : copy(text, onDone))}
         />
       </TooltipTrigger>

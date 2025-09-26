@@ -9,7 +9,7 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient } from '@/services'
 import App from '@/App'
-import { ModelsPage } from '@/pages/Models'
+import { ModelsPage } from '@/pages'
 import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
 import { ChatPage } from '@/pages/Chat'
