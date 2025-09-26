@@ -107,3 +107,7 @@ export type OpenRouterModelInfo = {
 };
 
 export type UserRole = 'user' | 'admin';
+export type ModelParameters = {
+  includeSearch: boolean;
+  reasoningEffort: 'low' | 'medium' | 'high';
+};

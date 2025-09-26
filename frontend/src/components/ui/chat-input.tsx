@@ -1,4 +1,4 @@
-import { ArrowUpIcon } from 'lucide-react'
+import { ArrowUpIcon, GlobeIcon } from 'lucide-react'
 import { createContext, useContext } from 'react'
 import type React from 'react'
 import { Button } from '@/components/ui/button'

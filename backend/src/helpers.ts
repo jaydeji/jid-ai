@@ -6,7 +6,7 @@ import { logger } from './logger';
 import { openrouter } from './constants';
 import { AnyColumn, sql } from 'drizzle-orm';
 import { User } from './schemas/types';
-import { OpenRouterModelInfo, UserRole } from './types';
+import { ModelParameters, OpenRouterModelInfo, UserRole } from './types';
 
 export const generateToken = async (user: User) => {
   const payload = {
@@ -37,11 +37,19 @@ export const jwtMiddleware = jwt({
 export const getModel = ({
   model,
   userId,
+  modelParameters = null,
 }: {
   model: string;
   userId?: string;
+  modelParameters?: ModelParameters | null;
 }) => {
-  return openrouter(model, { usage: { include: true }, user: userId });
+  let m = model;
+
+  if (modelParameters?.includeSearch) {
+    m += ':online';
+  }
+
+  return openrouter(m, { usage: { include: true }, user: userId });
 };
 
 export const decrement = (column: AnyColumn, value = 1) => {
@@ -57,5 +65,7 @@ export const filterModels = (
   role: UserRole
 ): OpenRouterModelInfo[] => {
   if (role === 'admin') return models;
-  return models.filter((e) => e.id !== 'openrouter/auto' && !e.id.includes(":free"));
+  return models.filter(
+    (e) => e.id !== 'openrouter/auto' && !e.id.includes(':free')
+  );
 };

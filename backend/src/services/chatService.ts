@@ -11,7 +11,7 @@ import {
 import { db } from '../db';
 import { logger } from '../logger';
 import { AppError } from '../exception';
-import { Usage } from '../types';
+import { ModelParameters, Usage } from '../types';
 import { decrement, getModel } from '../helpers';
 import { usersTable } from '../schemas/schema';
 import { consts } from '../constants';
@@ -44,8 +44,9 @@ export const postChat = async (data: {
   model: string;
   chatId: string;
   userId?: string;
+  modelParameters: ModelParameters | null;
 }) => {
-  const { message, model, chatId: _chatId, userId } = data;
+  const { message, model, chatId: _chatId, userId, modelParameters } = data;
 
   if (!userId) {
     logger.error(data);
@@ -71,7 +72,7 @@ export const postChat = async (data: {
 
   const chatExists = !!existingChat;
 
-  const chat = { model, userId };
+  const chat = { model, userId, modelParameters };
 
   if (!chatExists) {
     existingChat = await db.createChat(chat);
@@ -117,7 +118,7 @@ export const postChat = async (data: {
       }
 
       const result = streamText({
-        model: getModel({ model, userId }),
+        model: getModel({ model, userId, modelParameters }),
         messages: convertToModelMessages(allMessages),
         providerOptions: {
           openai: {
@@ -183,6 +184,7 @@ export const postChat = async (data: {
               {
                 userId,
                 currentlySelectedModel: model,
+                currentModelParameters: modelParameters,
                 credits: decrement(usersTable.credits, meta?.totalCost ?? 0),
               },
               tx

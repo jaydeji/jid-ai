@@ -12,7 +12,7 @@ import App from '@/App'
 import { ModelsPage } from '@/pages'
 import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
-import { ChatPage } from '@/pages/Chat'
+import { ChatPage } from '@/pages/chat/Chat'
 import SignupPage from '@/pages/Signup'
 import { NotFound } from '@/components/not-found'
 

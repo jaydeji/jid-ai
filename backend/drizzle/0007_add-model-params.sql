@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ADD COLUMN "current_model_parameters" jsonb;

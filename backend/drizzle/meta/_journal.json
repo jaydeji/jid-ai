@@ -50,6 +50,20 @@
       "when": 1758420514642,
       "tag": "0006_change-defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1758861190938,
+      "tag": "0007_add-model-params",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758862180774,
+      "tag": "0008_rename-model-params",
+      "breakpoints": true
     }
   ]
 }

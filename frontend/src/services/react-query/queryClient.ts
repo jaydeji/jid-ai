@@ -9,6 +9,7 @@ export const queryClient = new QueryClient({
       retry: false,
       refetchOnWindowFocus: !config.DEV,
       refetchOnReconnect: !config.DEV,
+      notifyOnChangeProps: ['data', 'isLoading'],
       // refetchInterval: isMutating ? false : 30000,
     },
   },

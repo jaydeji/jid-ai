@@ -1,22 +1,28 @@
-import * as React from 'react'
+import { memo, useMemo } from 'react'
 import { Copy } from '../Copy'
 import { Card, CardContent } from './card'
-import type { Chat } from '@/types'
 import { cn } from '@/lib/utils'
 import { extractTextFromParts } from '@/helpers/other'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useMyChat } from '@/services/react-query/hooks'
 
 interface UsageStatsProps extends React.HTMLAttributes<HTMLDivElement> {
-  data?: Partial<Chat>
   showEmpty?: boolean
 }
 
-export function UsageStats({ data, className, ...props }: UsageStatsProps) {
-  if (!data) return null
-
-  const { inputTokens, outputTokens, totalTokens, totalCost } = data
-
+const Cost = memo(() => {
   const isMobile = useIsMobile()
+  const { totalCost } = useMyChat()
+
+  return (
+    <span>
+      Cost: ${isMobile ? `${Number(totalCost).toFixed(3)}` : totalCost}
+    </span>
+  )
+})
+
+export function UsageStats({ className, ...props }: UsageStatsProps) {
+  const { serverMessages, inputTokens, outputTokens, totalTokens } = useMyChat()
 
   return (
     <div className={cn('w-full max-w-2xl mx-auto mb-1')} {...props}>
@@ -33,14 +39,12 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
               </span>
               {`Total ${totalTokens} tokens | `}
             </span>
-            <span>
-              Cost: ${isMobile ? `${Number(totalCost).toFixed(3)}` : totalCost}
-            </span>
+            <Cost />
           </div>
           <Copy
             full
             text={
-              data.messages
+              serverMessages
                 ?.map((m) => {
                   const textContent = extractTextFromParts(m.parts)
                   if (!textContent) return null
@@ -60,3 +64,5 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
     </div>
   )
 }
+
+// UsageStats.whyDidYouRender = true

@@ -1,0 +1,1 @@
+ALTER TABLE "chats" RENAME COLUMN "current_model_parameters" TO "model_parameters";

@@ -6,6 +6,7 @@ import { type PgTransaction } from 'drizzle-orm/pg-core';
 import * as schema from './schemas/schema';
 import { AppError, handleConnectionError } from './exception';
 import { logger } from './logger';
+import { CreateChat, UpdateUser } from './schemas/types';
 
 export class DB {
   db;
@@ -115,7 +116,7 @@ export class DB {
       .where(eq(chatsTable.id, data.id));
   };
 
-  createChat = async (chat: any, tx?: PgTransaction<any>) => {
+  createChat = async (chat: CreateChat, tx?: PgTransaction<any>) => {
     return (
       await (tx || this.db).insert(chatsTable).values(chat).returning()
     )?.[0];

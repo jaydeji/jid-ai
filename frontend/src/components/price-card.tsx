@@ -1,9 +1,10 @@
+import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice } from '@/helpers/other'
 import { useUser } from '@/services/react-query/hooks'
 
-export function PriceCard({ currency = '$' }: { currency?: string }) {
+export const PriceCard = memo(({ currency = '$' }: { currency?: string }) => {
   const data = useUser()
 
   return data.data ? (
@@ -16,4 +17,4 @@ export function PriceCard({ currency = '$' }: { currency?: string }) {
       </TooltipContent>
     </Tooltip>
   ) : null
-}
+})

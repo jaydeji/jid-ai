@@ -1,16 +1,21 @@
 import { z } from 'zod'
 import type { UIMessage } from 'ai'
 
+export type ModelParameters = {
+  includeSearch?: boolean
+  reasoningEffort?: 'low' | 'medium' | 'high'
+}
+
 export type User = {
   userId: string
   firstName: string
   lastName: string
-  email: string
   avatar: string
   currentlySelectedModel: string
   favoriteModels: Array<string>
   credits: string
   role: 'user' | 'admin'
+  currentModelParameters: null | ModelParameters
 }
 
 export interface ModelArchitecture {
@@ -92,6 +97,7 @@ export type Chat = Usage & {
   messages?: Array<any>
   outputCost: string
   model: string
+  modelParameters: ModelParameters | null
 }
 
 export type GroupedModels = Record<string, Array<Model>>

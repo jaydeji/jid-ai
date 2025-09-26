@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useChat } from '@ai-sdk/react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
@@ -85,6 +85,11 @@ export const useMyChat = () => {
     chatId,
     isLoadingInitialData: isLoading,
     data,
+    inputTokens: data?.inputTokens,
+    outputTokens: data?.outputTokens,
+    totalTokens: data?.totalTokens,
+    totalCost: data?.totalCost,
+    serverMessages: data?.messages,
   }
 }
 

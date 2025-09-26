@@ -14,7 +14,7 @@ import {
   numeric,
   decimal,
 } from 'drizzle-orm/pg-core';
-import { UserRole } from '../types';
+import { ModelParameters, UserRole } from '../types';
 
 // Users
 export const usersTable = pgTable(
@@ -28,10 +28,9 @@ export const usersTable = pgTable(
     email: varchar('email', { length: 256 }).notNull().unique(),
     avatar: text('avatar'),
     additionalInfo: text('additional_info'),
-    currentModelParameters: jsonb('current_model_parameters').$type<{
-      includeSearch: boolean;
-      reasoningEffort: 'low' | 'medium' | 'high';
-    }>(),
+    currentModelParameters: jsonb(
+      'current_model_parameters'
+    ).$type<ModelParameters>(),
     currentlySelectedModel: varchar('currently_selected_model', {
       length: 256,
     }),
@@ -59,6 +58,7 @@ export const chatsTable = pgTable('chats', {
     .notNull(),
   title: varchar('title', { length: 255 }).default('New Chat').notNull(),
   model: varchar('model', { length: 100 }).notNull(),
+  modelParameters: jsonb('model_parameters').$type<ModelParameters>(),
   generationStatus: varchar('generation_status', { length: 50 })
     .$type<'completed' | 'pending' | 'failed'>()
     .default('pending')
