@@ -68,7 +68,7 @@ function Cell({
   if (isHeader) {
     return (
       <div
-        className="text-foreground h-10 text-left align-middle font-medium whitespace-nowrap flex items-center   border-b border-border  bg-background sticky top-0 z-10"
+        className="text-foreground h-10 text-left align-middle font-medium whitespace-nowrap flex items-center border-b border-border bg-background sticky top-0 z-10"
         style={style}
       >
         {headers[columnIndex]}
@@ -132,7 +132,7 @@ function Cell({
     }
   }
   return (
-    <div className="truncate border-b" style={style}>
+    <div className="truncate border-b flex items-center" style={style}>
       {getContent()}
     </div>
   )
