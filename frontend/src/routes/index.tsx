@@ -14,6 +14,7 @@ import LoginPage from '@/pages/Login'
 import { isLoggedIn } from '@/services/auth'
 import { ChatPage } from '@/pages/Chat'
 import SignupPage from '@/pages/Signup'
+import { NotFound } from '@/components/not-found'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -25,6 +26,7 @@ const rootRoute = createRootRouteWithContext<{
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </>
   ),
+  notFoundComponent: NotFound,
 })
 
 const loginRoute = createRoute({
