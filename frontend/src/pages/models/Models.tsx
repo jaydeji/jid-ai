@@ -52,6 +52,46 @@ const headers = [
   'Output Price',
 ]
 
+const Header = ({
+  columnIndex,
+  style,
+}: {
+  columnIndex: number
+  style: CellComponentProps['style']
+}) => {
+  return (
+    <div
+      className="text-foreground h-10 text-left align-middle font-medium whitespace-nowrap flex items-center border-b border-border bg-background sticky top-0 z-10"
+      style={style}
+    >
+      {headers[columnIndex]}
+    </div>
+  )
+}
+
+const columnWidth = (index: number): number => {
+  switch (index) {
+    case 0:
+      return 225
+    case 1:
+      return 443
+    case 2:
+      return 113
+    case 3:
+      return 222
+    case 4:
+      return 122
+    case 5:
+      return 182
+    case 6:
+      return 182
+    default:
+      return 100
+  }
+}
+
+const CellContent = () => {}
+
 function Cell({
   models,
   columnIndex,
@@ -60,17 +100,10 @@ function Cell({
 }: CellComponentProps<{
   models: Array<OpenModel & { provider: string }>
 }>) {
-  const isHeader = rowIndex === 0
+  const [open, setOpen] = useState(false)
 
-  if (isHeader) {
-    return (
-      <div
-        className="text-foreground h-10 text-left align-middle font-medium whitespace-nowrap flex items-center border-b border-border bg-background sticky top-0 z-10"
-        style={style}
-      >
-        {headers[columnIndex]}
-      </div>
-    )
+  if (rowIndex === 0) {
+    return <Header columnIndex={columnIndex} style={style} />
   }
 
   const model = models[rowIndex - 1]
@@ -95,7 +128,7 @@ function Cell({
               {description.length ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="cursor-help underline decoration-dotted">
+                    <span className="cursor-help no-underline md:underline md:decoration-dotted">
                       {name}
                     </span>
                   </TooltipTrigger>
@@ -136,27 +169,6 @@ function Cell({
       {getContent()}
     </div>
   )
-}
-
-const columnWidth = (index: number): number => {
-  switch (index) {
-    case 0:
-      return 225
-    case 1:
-      return 443
-    case 2:
-      return 113
-    case 3:
-      return 222
-    case 4:
-      return 122
-    case 5:
-      return 182
-    case 6:
-      return 182
-    default:
-      return 100
-  }
 }
 
 export const ModelsPage = () => {
