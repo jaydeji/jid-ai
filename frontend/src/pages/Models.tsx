@@ -13,7 +13,6 @@ import {
 import { formatNumber } from '@/helpers/api'
 import { Copy } from '@/components/Copy'
 import { cn } from '@/lib/utils'
-import { useIsMobile } from '@/hooks/use-mobile'
 
 type KnownModality = 'text' | 'image' | 'file' | 'audio'
 type ModalityType = KnownModality | (string & {})
@@ -58,10 +57,8 @@ function Cell({
   columnIndex,
   rowIndex,
   style,
-  isMobile,
 }: CellComponentProps<{
   models: Array<OpenModel & { provider: string }>
-  isMobile: boolean
 }>) {
   const isHeader = rowIndex === 0
 
@@ -110,10 +107,7 @@ function Cell({
                 name
               )}
             </span>
-            <Copy
-              className={cn('group-hover:block', !isMobile && 'hidden')}
-              text={id}
-            />
+            <Copy className={cn('group-hover:block')} text={id} />
           </div>
         )
       case 2:
@@ -168,7 +162,6 @@ const columnWidth = (index: number): number => {
 export const ModelsPage = () => {
   const [search, setSearch] = useState('')
   const { data } = useModels()
-  const isMobile = useIsMobile()
 
   const filteredModels = useMemo(() => {
     if (!data) return []
@@ -195,7 +188,7 @@ export const ModelsPage = () => {
         <div className="h-full">
           <Grid
             cellComponent={Cell}
-            cellProps={{ models: filteredModels, isMobile }}
+            cellProps={{ models: filteredModels }}
             columnCount={7}
             columnWidth={columnWidth}
             rowCount={filteredModels.length + 1} // +1 for header row

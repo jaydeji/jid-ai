@@ -28,7 +28,9 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
             )}
           >
             <span className="whitespace-pre">
-              {!isMobile && `Input ${inputTokens} | Output ${outputTokens} | `}
+              <span className="hidden md:inline">
+                Input {inputTokens} | Output {outputTokens} |{' '}
+              </span>
               {`Total ${totalTokens} tokens | `}
             </span>
             <span>
