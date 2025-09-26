@@ -27,12 +27,11 @@ export function UsageStats({ data, className, ...props }: UsageStatsProps) {
               'flex items-center justify-between text-xs text-foreground',
             )}
           >
-            <span>
-              {!isMobile && `Input ${inputTokens} | Output ${outputTokens} | `}
-              {`Total ${totalTokens} tokens`}
-            </span>
             <span className="whitespace-pre">
-              {isMobile && ` | `}
+              {!isMobile && `Input ${inputTokens} | Output ${outputTokens} | `}
+              {`Total ${totalTokens} tokens | `}
+            </span>
+            <span>
               Cost: ${isMobile ? `${Number(totalCost).toFixed(3)}` : totalCost}
             </span>
           </div>
