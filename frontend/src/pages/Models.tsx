@@ -132,7 +132,13 @@ function Cell({
     }
   }
   return (
-    <div className="truncate border-b flex items-center" style={style}>
+    <div
+      className={cn(
+        'truncate border-b flex items-center',
+        rowIndex % 2 !== 0 && 'bg-card',
+      )}
+      style={style}
+    >
       {getContent()}
     </div>
   )
