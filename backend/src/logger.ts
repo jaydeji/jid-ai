@@ -1,7 +1,8 @@
 import pino from 'pino';
 import { config } from './config';
+import type { PrettyOptions } from 'pino-pretty';
 
-const options = {
+const options: pino.LoggerOptions = {
   level: config.NODE_ENV === 'production' ? 'info' : 'debug',
   ...(config.NODE_ENV !== 'production' && {
     transport: {
@@ -10,7 +11,7 @@ const options = {
         colorize: true,
         translateTime: `UTC:yyyy-mm-dd'T'HH:MM:ss'Z'`, //isoUtcDateTime
         ignore: 'pid,hostname',
-      },
+      } as PrettyOptions,
     },
   }),
 };
