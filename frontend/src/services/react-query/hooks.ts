@@ -1,11 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useChat } from '@ai-sdk/react'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
 import { api } from '@/services/api'
 import { useStore } from '@/store'
-import { reconcileMessages } from '@/helpers/ai'
 
 export const useChats = ({ enabled }: { enabled: boolean }) => {
   return useQuery({
@@ -39,58 +38,25 @@ export const useUser = () => {
   return query
 }
 
-export const useChatData = () => {
+export const useChatQuery = () => {
   const { chatId } = useParams({ strict: false })
 
-  const { data, isLoading } = useQuery({
+  const { isPending, data } = useQuery({
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
     enabled: !!chatId,
-    select: (dt) => {
-      const msgs = reconcileMessages({
-        chatId,
-        prevMessages: messages,
-        serverMessages: dt.messages,
-      })
-
-      setMessages(msgs)
-
-      setModel(dt.model)
-
-      return dt
-    },
   })
 
-  const { messages, setMessages } = useMyChat()
-
-  const { setModel } = useStore()
-
-  useEffect(() => {
-    if (!data && !chatId) {
-      setMessages([])
-    }
-  }, [data, chatId])
-
   return {
+    isPending,
+    data,
     inputTokens: data?.inputTokens,
     outputTokens: data?.outputTokens,
     totalTokens: data?.totalTokens,
     totalCost: data?.totalCost,
     serverMessages: data?.messages,
     title: data?.title,
-    data,
-    isLoading,
   }
-}
-
-export const useMyChat = () => {
-  const { chatId } = useParams({ strict: false })
-  const { chat } = useStore()
-
-  return useChat({
-    chat,
-    id: chatId,
-  })
 }
 
 export const useSignUp = () => {

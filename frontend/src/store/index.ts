@@ -12,9 +12,6 @@ interface ChatState {
   clearChat: () => void
   setModel: (model: string) => void
   setModelParameters: (params: ModelParameters | null) => void
-  // increasePopulation: () => void
-  // removeAllBears: () => void
-  // updateBears: (newBears: number) => void
 }
 
 export const useStore = create<ChatState>((set) => ({
@@ -38,8 +35,4 @@ export const useStore = create<ChatState>((set) => ({
       modelParameters: params || currentModelParameters,
     }))
   },
-
-  // increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-  // removeAllBears: () => set({ bears: 0 }),
-  // updateBears: (newBears) => set({ bears: newBears }),
 }))

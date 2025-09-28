@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { SidebarApp } from '@/components/sidebar-app'
-import { useChatData } from '@/services/react-query/hooks'
+import { useChatQuery } from '@/services/react-query/hooks'
 
 function CloseMobileSheetOnRouteChange() {
   const { setOpenMobile } = useSidebar()
@@ -28,7 +28,7 @@ function CloseMobileSheetOnRouteChange() {
 }
 
 export function Home() {
-  const title = useChatData().title
+  const title = useChatQuery().title
 
   return (
     <SidebarProvider>

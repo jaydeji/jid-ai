@@ -4,7 +4,7 @@ import { Card, CardContent } from './card'
 import { cn } from '@/lib/utils'
 import { extractTextFromParts } from '@/helpers/other'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { useChatData } from '@/services/react-query/hooks'
+import { useChatQuery } from '@/services/react-query/hooks'
 
 interface UsageStatsProps extends React.HTMLAttributes<HTMLDivElement> {
   showEmpty?: boolean
@@ -12,7 +12,7 @@ interface UsageStatsProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Cost = memo(() => {
   const isMobile = useIsMobile()
-  const { totalCost } = useChatData()
+  const { totalCost } = useChatQuery()
 
   return (
     <span>
@@ -23,7 +23,7 @@ const Cost = memo(() => {
 
 export function UsageStats({ className, ...props }: UsageStatsProps) {
   const { serverMessages, inputTokens, outputTokens, totalTokens } =
-    useChatData()
+    useChatQuery()
 
   return (
     <div className={cn('w-full max-w-2xl mx-auto mb-1')} {...props}>

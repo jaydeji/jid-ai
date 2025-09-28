@@ -1,12 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from '@tanstack/react-router'
+import { useChat } from '@ai-sdk/react'
 import { MyChatMessage } from './chat-message'
 import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
 import { ChatMessageArea } from '@/components/ui/chat-message-area'
 import { UsageStats } from '@/components/ui/usage-stats'
 import { BottomBar } from '@/templates/BottomBar'
-import { useMyChat } from '@/services/react-query/hooks'
 import { useStore } from '@/store'
+import { reconcileMessages } from '@/helpers/ai'
+import { useChatQuery } from '@/services/react-query/hooks'
+
+function useChatMessages(chatId: string | undefined) {
+  const chat = useStore((state) => state.chat)
+  const { setMessages, messages } = useChat({ chat })
+
+  const { data } = useChatQuery()
+
+  const msgs = useMemo(() => {
+    return reconcileMessages({
+      chatId,
+      prevMessages: messages,
+      serverMessages: data?.messages,
+    })
+  }, [data?.messages])
+
+  useEffect(() => {
+    if (chatId && data) {
+      setMessages(msgs)
+    }
+
+    return () => {
+      setMessages([])
+    }
+  }, [data, chatId])
+}
 
 export function ChatPage() {
   const [text, setText] = useState<string>('')
@@ -16,7 +43,8 @@ export function ChatPage() {
 
   const { chatId } = useParams({ strict: false })
 
-  const { sendMessage } = useMyChat()
+  const chat = useStore((state) => state.chat)
+  const { sendMessage } = useChat({ chat })
 
   const handleSubmit = () => {
     sendMessage({ text }, { body: { model, chatId, modelParameters } })
@@ -31,6 +59,8 @@ export function ChatPage() {
     }
     handleSubmit()
   }
+
+  useChatMessages(chatId)
 
   return (
     <div className="flex-1 flex flex-col h-full min-h-0 bg-background overflow-hidden">

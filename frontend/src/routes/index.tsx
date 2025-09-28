@@ -15,6 +15,7 @@ import { isLoggedIn } from '@/services/auth'
 import { ChatPage } from '@/pages/chat/Chat'
 import SignupPage from '@/pages/Signup'
 import { NotFound } from '@/components/not-found'
+import { ChatWrapper } from '@/pages/chat/chat-wrapper'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -53,13 +54,13 @@ const indexRoute = createRoute({
 const newChatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/',
-  component: ChatPage,
+  component: ChatWrapper,
 })
 
 const chatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/chats/$chatId',
-  component: ChatPage,
+  component: ChatWrapper,
 })
 
 const modelsRoute = createRoute({

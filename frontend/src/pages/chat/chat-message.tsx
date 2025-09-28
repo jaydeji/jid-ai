@@ -1,21 +1,25 @@
 import { MessageSquare } from 'lucide-react'
+import { useChat } from '@ai-sdk/react'
 import { ConversationEmptyState } from '@/components/ai-elements/conversation'
 import {
   ChatMessage,
   ChatMessageAvatar,
   ChatMessageContent,
 } from '@/components/ui/chat-message'
-import { useMyChat } from '@/services/react-query/hooks'
 import { extractTextFromParts } from '@/helpers/other'
 import { Copy } from '@/components/Copy'
 import { Actions } from '@/components/ai-elements/actions'
+import { useStore } from '@/store'
+import { useChatQuery } from '@/services/react-query/hooks'
 
 export const MyChatMessage = () => {
-  const { messages, error } = useMyChat()
+  const chat = useStore((state) => state.chat)
+  const { messages, error } = useChat({ chat })
+  const { isPending } = useChatQuery()
 
   return (
     <>
-      {messages.length === 0 ? (
+      {messages.length === 0 && !isPending ? (
         <ConversationEmptyState
           icon={<MessageSquare className="size-12" />}
           title="Start a conversation"
