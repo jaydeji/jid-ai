@@ -4,18 +4,18 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  redirect,
 } from '@tanstack/react-router'
-// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient } from '@/services'
 import App from '@/App'
 import { ModelsPage } from '@/pages'
 import LoginPage from '@/pages/Login'
-import { isLoggedIn } from '@/services/auth'
+import { getAuthHeader, isLoggedIn } from '@/services/auth'
 import { ChatPage } from '@/pages/chat/Chat'
 import SignupPage from '@/pages/Signup'
 import { NotFound } from '@/components/not-found'
-import { ChatWrapper } from '@/pages/chat/chat-wrapper'
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -24,7 +24,7 @@ const rootRoute = createRootRouteWithContext<{
     <>
       <Outlet />
       {/* <TanStackRouterDevtools /> */}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </>
   ),
   notFoundComponent: NotFound,
@@ -34,11 +34,19 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: LoginPage,
+  loader: () => {
+    if (getAuthHeader()) throw redirect({ to: '/' })
+    return {}
+  },
 })
 
 const signUpRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/signup',
+  loader: () => {
+    if (getAuthHeader()) throw redirect({ to: '/' })
+    return {}
+  },
   component: SignupPage,
 })
 
@@ -54,13 +62,13 @@ const indexRoute = createRoute({
 const newChatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/',
-  component: ChatWrapper,
+  component: ChatPage,
 })
 
 const chatRoute = createRoute({
   getParentRoute: () => indexRoute,
   path: '/chats/$chatId',
-  component: ChatWrapper,
+  component: ChatPage,
 })
 
 const modelsRoute = createRoute({

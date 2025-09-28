@@ -1,8 +1,8 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
+import { useEffect } from 'react'
 import { PriceCard } from './price-card'
 import type { ComponentProps } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Sidebar,
   SidebarContent,
@@ -23,12 +23,11 @@ import {
 } from '@/components/ui/tooltip'
 import { NavUser } from '@/components/nav-user'
 import { useChats, useUser } from '@/services/react-query/hooks'
-import { useStore } from '@/store'
 import { cn } from '@/lib/utils'
 
 export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   const { data: user } = useUser()
-  const { data: chats } = useChats({ enabled: !!user })
+  const { data: chats, isPending } = useChats({ enabled: !!user })
 
   const { chatId } = useParams({ strict: false })
 
@@ -59,8 +58,6 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   // }
 
   // if (!user || !chats) return null
-
-  const { clearChat } = useStore()
 
   // Group chats by last activity with proper fallback
   const DAY = 24 * 60 * 60 * 1000
@@ -138,7 +135,6 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
   }
 
   const handleNewChat = () => {
-    clearChat()
     if (isMobile) setOpenMobile(false)
   }
 
@@ -181,7 +177,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
           {renderChatGroup(oldChats, 'Old')}
 
           {/* Show message when no chats exist */}
-          {sortedChats.length === 0 && (
+          {sortedChats.length === 0 && !isPending && (
             <div className="p-4 text-center text-muted-foreground">
               <p>No chats yet. Start a new conversation!</p>
             </div>

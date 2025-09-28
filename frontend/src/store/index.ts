@@ -16,7 +16,7 @@ interface ChatState {
 
 export const useStore = create<ChatState>((set) => ({
   chat: createChat(),
-  model: 'meta-llama/llama-3.2-3b-instruct',
+  model: '',
   modelParameters: null,
   clearChat: () => {
     set(() => ({ chat: createChat() }))

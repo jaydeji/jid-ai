@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useChat } from '@ai-sdk/react'
 import { useEffect } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { chatKey, chatsKey, modelKey, userKey } from './keys'
@@ -31,7 +30,9 @@ export const useUser = () => {
 
   useEffect(() => {
     if (!model && query.isSuccess) {
-      setModel(query.data.currentlySelectedModel)
+      setModel(
+        query.data.currentlySelectedModel || 'meta-llama/llama-3.2-3b-instruct',
+      )
     }
   }, [query.isSuccess])
 
@@ -41,10 +42,12 @@ export const useUser = () => {
 export const useChatQuery = () => {
   const { chatId } = useParams({ strict: false })
 
+  const shouldFetch = !!chatId
+
   const { isPending, data } = useQuery({
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
-    enabled: !!chatId,
+    enabled: shouldFetch,
   })
 
   return {

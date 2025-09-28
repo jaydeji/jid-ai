@@ -35,6 +35,7 @@ export const onData = (event: Event) => {
             {
               id: chatId,
               title,
+              updatedAt: Date.now(),
             } as Chat,
             ...old,
           ]
@@ -111,30 +112,16 @@ export const createChat = () => {
 }
 
 export const reconcileMessages = ({
-  chatId,
   prevMessages,
   serverMessages,
 }: {
   prevMessages: Array<MyUIMessage>
-  serverMessages?: Array<MyUIMessage & { createdAt: Date }>
+  serverMessages?: Array<MyUIMessage>
   chatId?: string
 }) => {
   const newMessages = serverMessages || []
 
-  if (!prevMessages.length) return newMessages
-
-  if (prevMessages[0].chatId !== chatId) return newMessages
-
-  // Get IDs of existing messages
-  const existingIds = new Set(prevMessages.map((msg) => msg.id))
-
-  // Filter server messages to only new ones
-  const newMessagesToAppend = newMessages.filter(
-    (msg) => !existingIds.has(msg.id),
-  )
-
-  // Append new messages to existing ones
-  const result = [...prevMessages, ...newMessagesToAppend]
+  const result: Array<any> = prevMessages.length ? prevMessages : newMessages
 
   return result
 }

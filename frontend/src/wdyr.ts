@@ -4,9 +4,9 @@ import React from 'react'
 
 if (process.env.NODE_ENV === 'development') {
   whyDidYouRender(React, {
-    trackAllPureComponents: true,
+    // trackAllPureComponents: true,
     // trackAllPureComponents: false,
-    logOnDifferentValues: true,
+    // logOnDifferentValues: true,
     // logOwnerRender: true,
     // collapseGroups: true,
   })

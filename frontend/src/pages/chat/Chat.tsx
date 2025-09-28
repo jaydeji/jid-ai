@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { useChat } from '@ai-sdk/react'
 import { MyChatMessage } from './chat-message'
@@ -12,13 +12,15 @@ import { useChatQuery } from '@/services/react-query/hooks'
 
 function useChatMessages(chatId: string | undefined) {
   const chat = useStore((state) => state.chat)
+  const clearChat = useStore((state) => state.clearChat)
   const { setMessages, messages } = useChat({ chat })
 
   const { data } = useChatQuery()
 
+  const oldChatId = useRef(chatId)
+
   const msgs = useMemo(() => {
     return reconcileMessages({
-      chatId,
       prevMessages: messages,
       serverMessages: data?.messages,
     })
@@ -28,11 +30,24 @@ function useChatMessages(chatId: string | undefined) {
     if (chatId && data) {
       setMessages(msgs)
     }
-
-    return () => {
-      setMessages([])
-    }
   }, [data, chatId])
+
+  useEffect(() => {
+    const previousChatId = oldChatId.current
+
+    // Only clear messages when switching between different non-null chatIds
+    if (previousChatId && chatId && previousChatId !== chatId) {
+      clearChat()
+    }
+
+    // clear messages when we move from  chat Id to no chatId i.e new chat
+    if (previousChatId && !chatId) {
+      clearChat()
+    }
+
+    // Update ref for next comparison
+    oldChatId.current = chatId
+  }, [chatId])
 }
 
 export function ChatPage() {
@@ -47,7 +62,10 @@ export function ChatPage() {
   const { sendMessage } = useChat({ chat })
 
   const handleSubmit = () => {
-    sendMessage({ text }, { body: { model, chatId, modelParameters } })
+    sendMessage(
+      { text },
+      { body: { model, chatId, modelParameters, createdAt: new Date() } },
+    )
     setText('')
   }
 

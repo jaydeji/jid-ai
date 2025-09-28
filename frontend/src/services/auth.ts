@@ -1,18 +1,18 @@
 const AUTH_KEY = 'token'
 
 export const setAuth = (token: string) => {
-  sessionStorage.setItem(AUTH_KEY, token)
+  localStorage.setItem(AUTH_KEY, token)
 }
 
 export const clearAuth = () => {
-  sessionStorage.removeItem(AUTH_KEY)
+  localStorage.removeItem(AUTH_KEY)
 }
 
 export const getAuthHeader = (): string | null => {
-  const token = sessionStorage.getItem(AUTH_KEY)
+  const token = localStorage.getItem(AUTH_KEY)
   return token ? `Bearer ${token}` : null
 }
 
 export const isLoggedIn = (): boolean => {
-  return !!sessionStorage.getItem(AUTH_KEY)
+  return !!localStorage.getItem(AUTH_KEY)
 }
