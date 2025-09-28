@@ -71,6 +71,7 @@ export default function SignupPage() {
                     <Label htmlFor="firstname">Firstname</Label>
                     <Input
                       className="input"
+                      id="firstname"
                       placeholder="Firstname"
                       type="text"
                       name="firstname"
@@ -80,6 +81,7 @@ export default function SignupPage() {
                       autoFocus
                       autoCapitalize="none"
                       autoCorrect="off"
+                      autoComplete="given-name"
                       spellCheck={false}
                     />
                   </div>
@@ -88,6 +90,7 @@ export default function SignupPage() {
                     <Label htmlFor="lastname">Lastname</Label>
                     <Input
                       className="input"
+                      id="lastname"
                       placeholder="Lastname"
                       type="text"
                       name="lastname"

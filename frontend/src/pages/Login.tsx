@@ -65,6 +65,7 @@ export default function LoginPage() {
                   <div className="grid gap-3">
                     <Label htmlFor="email">Email</Label>
                     <Input
+                      id="email"
                       className="input"
                       placeholder="Email"
                       type="text"
@@ -75,6 +76,7 @@ export default function LoginPage() {
                       autoFocus
                       autoCapitalize="none"
                       autoCorrect="off"
+                      autoComplete="email"
                       spellCheck={false}
                     />
                   </div>
@@ -90,6 +92,7 @@ export default function LoginPage() {
                     </div>
                     <Input
                       className="input"
+                      id="password"
                       type="password"
                       name="password"
                       placeholder="Password"
