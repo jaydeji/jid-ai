@@ -5,13 +5,13 @@ import {
   ChatMessageAvatar,
   ChatMessageContent,
 } from '@/components/ui/chat-message'
-import { useChatMessages } from '@/services/react-query/hooks'
+import { useMyChat } from '@/services/react-query/hooks'
 import { extractTextFromParts } from '@/helpers/other'
 import { Copy } from '@/components/Copy'
 import { Actions } from '@/components/ai-elements/actions'
 
 export const MyChatMessage = () => {
-  const { messages, error } = useChatMessages()
+  const { messages, error } = useMyChat()
 
   return (
     <>

@@ -46,7 +46,30 @@ export const useChatData = () => {
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
     enabled: !!chatId,
+    select: (dt) => {
+      const msgs = reconcileMessages({
+        chatId,
+        prevMessages: messages,
+        serverMessages: dt.messages,
+      })
+
+      setMessages(msgs)
+
+      setModel(dt.model)
+
+      return dt
+    },
   })
+
+  const { messages, setMessages } = useMyChat()
+
+  const { setModel } = useStore()
+
+  useEffect(() => {
+    if (!data && !chatId) {
+      setMessages([])
+    }
+  }, [data, chatId])
 
   return {
     inputTokens: data?.inputTokens,
@@ -60,44 +83,14 @@ export const useChatData = () => {
   }
 }
 
-// Messages-specific hook that uses the base hook
-export const useChatMessages = () => {
+export const useMyChat = () => {
   const { chatId } = useParams({ strict: false })
-  const { chat, setModel } = useStore()
-  const { data, isLoading } = useChatData()
+  const { chat } = useStore()
 
-  const { messages, error, stop, sendMessage, status, setMessages } = useChat({
+  return useChat({
     chat,
     id: chatId,
   })
-
-  useEffect(() => {
-    if (data) {
-      setMessages(
-        reconcileMessages({
-          chatId,
-          prevMessages: messages,
-          serverMessages: data.messages,
-        }),
-      )
-      setModel(data.model)
-    }
-
-    if (!data && !chatId) {
-      setMessages([])
-    }
-  }, [data, chatId])
-
-  return {
-    messages,
-    error,
-    stop,
-    sendMessage,
-    status,
-    chatId,
-    isLoadingInitialData: isLoading,
-    data,
-  }
 }
 
 export const useSignUp = () => {
