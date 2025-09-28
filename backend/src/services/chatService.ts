@@ -201,7 +201,6 @@ export const postChat = async (data: {
 
       writer.merge(
         result.toUIMessageStream({
-          generateMessageId: () => crypto.randomUUID(),
           onFinish: ({ messages: completedMessages }) => {
             const _messages = [
               ...completedMessages.map((e) => ({
