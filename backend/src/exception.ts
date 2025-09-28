@@ -3,6 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { logger } from './logger';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { type AppErrorKey, AppErrors } from './types';
+import { ZodError } from 'zod';
 
 /**
  * Business Logic Error Class
@@ -10,16 +11,19 @@ import { type AppErrorKey, AppErrors } from './types';
  * * For both HTTP and non-HTTP related errors e.g. background jobs.
  * * If you need to attach more custom properties to your errors that aren't covered by HTTPException.
  */
+
 export class AppError extends Error {
   status: number;
-  isOperational: boolean;
 
-  constructor(key: AppErrorKey, isOperational = true) {
-    const { message, status } = AppErrors[key];
+  constructor(key: AppErrorKey = 'INTERNAL_ERROR', err?: unknown) {
+    const message = AppErrors[key]['message'];
 
     super(message);
-    this.status = status;
-    this.isOperational = isOperational;
+
+    this.status = AppErrors[key]['status'];
+
+    if (err) this.cause = err;
+
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -44,7 +48,7 @@ const getMessage = ({
   message,
 }: {
   status: StatusType;
-  message: String;
+  message?: String;
 }) => {
   let headers;
   if (status === 401)
@@ -53,11 +57,13 @@ const getMessage = ({
       'WWW-Authenticate': 'Bearer error="invalid_token"',
     };
 
-  return { message: message || statusMessages[status], status, headers };
+  return { message: message || statusMessages[status], headers };
 };
 
 export const errorHandler = (error: Error, c: Context) => {
   logger.error(error);
+  logger.error(error.name);
+  logger.error(error.message);
 
   if (error instanceof AppError) {
     const status = error.status as StatusType;
@@ -67,12 +73,33 @@ export const errorHandler = (error: Error, c: Context) => {
       message: error.message,
     });
 
-    return c.json({ message: msg.message }, msg.status);
+    if (error.cause instanceof ZodError) {
+      return c.json(
+        {
+          message: msg.message,
+          error: error.cause.errors,
+        },
+        status
+      );
+    }
+
+    return c.json({ message: msg.message }, status);
   }
 
   if (error instanceof HTTPException) {
     // this comes directly from auth middleware
     return c.json({ message: error.message }, error.getResponse());
+  }
+
+  if (error instanceof SyntaxError) {
+    const status = 400;
+
+    const msg = getMessage({
+      status,
+    });
+
+    // this comes directly from hono
+    return c.json({ message: msg.message }, status);
   }
 
   // For unhandled errors
@@ -84,6 +111,6 @@ export const handleConnectionError = (error: any) => {
     error instanceof DrizzleQueryError &&
     (error?.cause as any)?.code === 'ECONNREFUSED'
   ) {
-    throw new AppError('INTERNAL_ERROR');
+    throw new AppError(undefined, error);
   }
 };
