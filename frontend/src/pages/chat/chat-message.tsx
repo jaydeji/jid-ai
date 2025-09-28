@@ -5,15 +5,13 @@ import {
   ChatMessageAvatar,
   ChatMessageContent,
 } from '@/components/ui/chat-message'
-import { useMyChat } from '@/services/react-query/hooks'
+import { useChatMessages } from '@/services/react-query/hooks'
 import { extractTextFromParts } from '@/helpers/other'
 import { Copy } from '@/components/Copy'
 import { Actions } from '@/components/ai-elements/actions'
 
-type Props = {}
-
-export const MyChatMessage = (props: Props) => {
-  const { messages, error } = useMyChat()
+export const MyChatMessage = () => {
+  const { messages, error } = useChatMessages()
 
   return (
     <>
@@ -70,4 +68,4 @@ export const MyChatMessage = (props: Props) => {
   )
 }
 
-MyChatMessage.whyDidYouRender = true
+// MyChatMessage.whyDidYouRender = true

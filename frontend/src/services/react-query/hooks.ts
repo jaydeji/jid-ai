@@ -39,23 +39,36 @@ export const useUser = () => {
   return query
 }
 
-export const useMyChat = () => {
+export const useChatData = () => {
   const { chatId } = useParams({ strict: false })
-
-  const { chat, setModel } = useStore()
-
-  const { messages, error, stop, sendMessage, status, setMessages } = useChat({
-    chat,
-    id: chatId, // fixes streaming
-  })
-
-  // Only fetch when we have a chatId and haven't loaded this chat yet
-  const shouldFetch = !!chatId
 
   const { data, isLoading } = useQuery({
     queryKey: chatKey(chatId!),
     queryFn: () => api.getChat(chatId!),
-    enabled: shouldFetch,
+    enabled: !!chatId,
+  })
+
+  return {
+    inputTokens: data?.inputTokens,
+    outputTokens: data?.outputTokens,
+    totalTokens: data?.totalTokens,
+    totalCost: data?.totalCost,
+    serverMessages: data?.messages,
+    title: data?.title,
+    data,
+    isLoading,
+  }
+}
+
+// Messages-specific hook that uses the base hook
+export const useChatMessages = () => {
+  const { chatId } = useParams({ strict: false })
+  const { chat, setModel } = useStore()
+  const { data, isLoading } = useChatData()
+
+  const { messages, error, stop, sendMessage, status, setMessages } = useChat({
+    chat,
+    id: chatId,
   })
 
   useEffect(() => {
@@ -67,14 +80,13 @@ export const useMyChat = () => {
           serverMessages: data.messages,
         }),
       )
-
       setModel(data.model)
     }
 
     if (!data && !chatId) {
       setMessages([])
     }
-  }, [data])
+  }, [data, chatId])
 
   return {
     messages,
@@ -85,11 +97,6 @@ export const useMyChat = () => {
     chatId,
     isLoadingInitialData: isLoading,
     data,
-    inputTokens: data?.inputTokens,
-    outputTokens: data?.outputTokens,
-    totalTokens: data?.totalTokens,
-    totalCost: data?.totalCost,
-    serverMessages: data?.messages,
   }
 }
 

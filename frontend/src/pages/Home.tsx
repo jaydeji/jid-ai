@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { SidebarApp } from '@/components/sidebar-app'
-import { useMyChat } from '@/services/react-query/hooks'
+import { useChatData } from '@/services/react-query/hooks'
 
 function CloseMobileSheetOnRouteChange() {
   const { setOpenMobile } = useSidebar()
@@ -28,7 +28,7 @@ function CloseMobileSheetOnRouteChange() {
 }
 
 export function Home() {
-  const { data } = useMyChat()
+  const title = useChatData().title
 
   return (
     <SidebarProvider>
@@ -42,9 +42,9 @@ export function Home() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  {data?.title && (
+                  {title && (
                     <BreadcrumbPage className="line-clamp-1">
-                      {data.title}
+                      {title}
                     </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>

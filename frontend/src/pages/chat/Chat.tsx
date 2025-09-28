@@ -4,7 +4,7 @@ import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
 import { ChatMessageArea } from '@/components/ui/chat-message-area'
 import { UsageStats } from '@/components/ui/usage-stats'
 import { BottomBar } from '@/templates/BottomBar'
-import { useMyChat } from '@/services/react-query/hooks'
+import { useChatMessages } from '@/services/react-query/hooks'
 import { useStore } from '@/store'
 
 export function ChatPage() {
@@ -13,7 +13,7 @@ export function ChatPage() {
   const modelParameters = useStore((state) => state.modelParameters)
   const model = useStore((state) => state.model)
 
-  const { sendMessage, chatId } = useMyChat()
+  const { sendMessage, chatId } = useChatMessages()
 
   const handleSubmit = () => {
     sendMessage({ text }, { body: { model, chatId, modelParameters } })
