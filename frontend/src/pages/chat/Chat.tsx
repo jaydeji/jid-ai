@@ -12,7 +12,6 @@ import { useChatQuery } from '@/services/react-query/hooks'
 
 function useChatMessages(chatId: string | undefined) {
   const chat = useStore((state) => state.chat)
-  const clearChat = useStore((state) => state.clearChat)
   const { setMessages, messages } = useChat({ chat })
 
   const { data } = useChatQuery()
@@ -24,7 +23,7 @@ function useChatMessages(chatId: string | undefined) {
       prevMessages: messages,
       serverMessages: data?.messages,
     })
-  }, [data?.messages])
+  }, [data])
 
   useEffect(() => {
     if (chatId && data) {
@@ -37,12 +36,12 @@ function useChatMessages(chatId: string | undefined) {
 
     // Only clear messages when switching between different non-null chatIds
     if (previousChatId && chatId && previousChatId !== chatId) {
-      clearChat()
+      setMessages([])
     }
 
     // clear messages when we move from  chat Id to no chatId i.e new chat
     if (previousChatId && !chatId) {
-      clearChat()
+      setMessages([])
     }
 
     // Update ref for next comparison
