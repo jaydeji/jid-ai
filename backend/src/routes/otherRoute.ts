@@ -43,7 +43,19 @@ otherRoute.get('/models', jwtMiddleware, async (c) => {
   const res = await fetch(`${config.OPEN_ROUTER_BASE_URL}/models`);
 
   if (!res.ok) {
-    throw new AppError('INTERNAL_ERROR');
+    let errorBody;
+    try {
+      errorBody = await res.json();
+    } catch {
+      errorBody = await res.text();
+    }
+
+    throw new AppError('INTERNAL_ERROR', {
+      status: res.status,
+      statusText: res.statusText,
+      url: res.url,
+      body: errorBody,
+    });
   }
 
   const upstreamDateHeader = res.headers.get('Date') || '';
@@ -76,7 +88,7 @@ otherRoute.get('/models', jwtMiddleware, async (c) => {
 //     });
 //     return res;
 //   } catch (error) {
-//     throw new AppError('INTERNAL_ERROR');
+//     throw new AppError('INTERNAL_ERROR',error);
 //   }
 // });
 

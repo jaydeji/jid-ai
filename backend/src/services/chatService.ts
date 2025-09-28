@@ -49,15 +49,14 @@ export const postChat = async (data: {
   const { message, model, chatId: _chatId, userId, modelParameters } = data;
 
   if (!userId) {
-    logger.error(data);
-    throw new AppError('UNAUTHORIZED');
+    throw new AppError('UNAUTHORIZED', data);
   }
 
   // cache this in reddis
   const user = await db.getUserById(userId);
 
   if (user.role !== 'admin' && parseFloat(user.credits) <= 0)
-    throw new AppError('CREDITS_EXPIRED');
+    throw new AppError('CREDITS_EXPIRED', { userId });
 
   // If chat exists, we can diff messages later by id. If not, we will create it onFinish.
   let existingChat;
@@ -79,8 +78,7 @@ export const postChat = async (data: {
   }
 
   if (!existingChat) {
-    logger.error(chat);
-    throw new AppError('INTERNAL_ERROR');
+    throw new AppError('INTERNAL_ERROR', { chat });
   }
 
   const chatId = existingChat.id;

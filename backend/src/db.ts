@@ -23,8 +23,7 @@ export class DB {
       .limit(1)
       .catch((error) => {
         handleConnectionError(error);
-
-        throw new AppError('USER_NOT_FOUND');
+        throw new AppError('USER_NOT_FOUND', error);
       });
 
     if (!result.length) throw new AppError('USER_NOT_FOUND');
@@ -60,23 +59,18 @@ export class DB {
     )[0];
   };
 
-  getChatById = async (id: string) => {
-    try {
-      const chatById = await this.db
-        .select()
-        .from(chatsTable)
-        .where(eq(chatsTable.id, id))
-        .limit(1);
+  getChatById = async (chatId: string) => {
+    const chatById = await this.db
+      .select()
+      .from(chatsTable)
+      .where(eq(chatsTable.id, chatId))
+      .limit(1);
 
-      if (!chatById.length) {
-        logger.error({ id }, `chat id not found`);
-        throw new AppError('INTERNAL_ERROR');
-      }
-
-      return chatById?.[0];
-    } catch (error) {
-      throw new AppError('CHAT_NOT_FOUND');
+    if (!chatById.length) {
+      throw new AppError('CHAT_NOT_FOUND', { chatId });
     }
+
+    return chatById?.[0];
   };
 
   getChats = (userId: string) => {

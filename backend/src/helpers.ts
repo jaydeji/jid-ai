@@ -25,8 +25,7 @@ export const getPayload = (c: Context) => {
     const jwtPayload = c.get('jwtPayload') as any;
     return jwtPayload;
   } catch (error) {
-    logger.error('Error parsing jwt');
-    throw new AppError('INTERNAL_ERROR');
+    throw new AppError('INTERNAL_ERROR', error);
   }
 };
 

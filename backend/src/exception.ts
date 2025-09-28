@@ -60,10 +60,17 @@ const getMessage = ({
   return { message: message || statusMessages[status], headers };
 };
 
+export const handleConnectionError = (error: any) => {
+  if (
+    error instanceof DrizzleQueryError &&
+    (error?.cause as any)?.code === 'ECONNREFUSED'
+  ) {
+    throw new AppError(undefined, error);
+  }
+};
+
 export const errorHandler = (error: Error, c: Context) => {
   logger.error(error);
-  logger.error(error.name);
-  logger.error(error.message);
 
   if (error instanceof AppError) {
     const status = error.status as StatusType;
@@ -104,13 +111,4 @@ export const errorHandler = (error: Error, c: Context) => {
 
   // For unhandled errors
   return c.json({ message: 'Internal Server Error' }, 500);
-};
-
-export const handleConnectionError = (error: any) => {
-  if (
-    error instanceof DrizzleQueryError &&
-    (error?.cause as any)?.code === 'ECONNREFUSED'
-  ) {
-    throw new AppError(undefined, error);
-  }
 };

@@ -13,7 +13,7 @@ export const signIn = async (user: any) => {
   try {
     parsedUser = userSignInSchema.parse(user);
   } catch (error) {
-    throw new AppError('BAD_REQUEST');
+    throw new AppError('BAD_REQUEST', error);
   }
 
   parsedUser = await db.getUserByemail(parsedUser.email);
@@ -24,8 +24,9 @@ export const signIn = async (user: any) => {
   );
 
   if (!isMatch) {
-    logger.error({ id: user.userId });
-    throw new AppError('USER_NOT_FOUND');
+    throw new AppError('USER_NOT_FOUND', {
+      user: { ...user, password: undefined },
+    });
   }
 
   return { user, token: await generateToken(parsedUser!) };
@@ -37,7 +38,7 @@ export const signUp = async (user: any) => {
   try {
     parsedUser = userSignUpSchema.parse(user);
   } catch (error) {
-    throw new AppError('BAD_REQUEST');
+    throw new AppError('BAD_REQUEST', error);
   }
 
   const hp = await bcrypt.hash(parsedUser.password, consts.SALT_ROUNDS);
