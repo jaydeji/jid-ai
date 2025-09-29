@@ -118,7 +118,6 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                     chatId === chat.id && 'bg-card text-chart-2',
                   )}
                 >
-                  <MessageCircle className="mr-2 h-4 w-4" />
                   <span
                     className="flex-1 min-w-0 truncate"
                     title={chat.title || 'Untitled Chat'}
