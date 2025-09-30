@@ -87,7 +87,7 @@ export function NavUser() {
             >
               <DropdownMenuItem>
                 <VectorSquare />
-                Models
+                All Models
               </DropdownMenuItem>
             </Link>
             {/* <DropdownMenuSeparator /> */}
