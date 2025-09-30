@@ -3,7 +3,7 @@ import { config } from './config';
 
 export const consts = {
   SALT_ROUNDS: 10,
-  TITLE_GEN_MODEL: 'x-ai/grok-4-fast:free', //'meta-llama/llama-3.2-1b-instruct'
+  TITLE_GEN_MODEL: 'meta-llama/llama-3.2-1b-instruct', 
 };
 
 export const openrouter = createOpenRouter({
