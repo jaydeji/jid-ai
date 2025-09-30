@@ -54,7 +54,7 @@ export const CellContent = ({
               <>
                 <span className="hidden md:inline">
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <ModelName name={name} />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
