@@ -118,11 +118,6 @@ export const postChat = async (data: {
       const result = streamText({
         model: getModel({ model, userId, modelParameters }),
         messages: convertToModelMessages(allMessages),
-        providerOptions: {
-          openai: {
-            reasoningEffort: 'high',
-          },
-        },
         experimental_transform: smoothStream({
           delayInMs: 20, // optional: defaults to 10ms
           chunking: 'word',
