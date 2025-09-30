@@ -116,6 +116,8 @@ function ChatInputTextArea({
 
   return (
     <div className="w-full relative">
+      {children}
+
       <Textarea
         ref={textareaRef}
         {...props}
@@ -130,7 +132,6 @@ function ChatInputTextArea({
         )}
         rows={rows}
       />
-      {children}
     </div>
   )
 }

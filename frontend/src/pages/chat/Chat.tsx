@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { useChat } from '@ai-sdk/react'
+import { FileIcon, FileTextIcon, XCircleIcon } from 'lucide-react'
 import { MyChatMessage } from './chat-message'
 import {
   ChatInput,
@@ -13,6 +14,7 @@ import { BottomBar } from '@/templates/BottomBar'
 import { useStore } from '@/store'
 import { reconcileMessages } from '@/helpers/ai'
 import { useChatQuery } from '@/services/react-query/hooks'
+import { cn } from '@/lib/utils'
 
 function useChatMessages(chatId: string | undefined) {
   const chat = useStore((state) => state.chat)
@@ -58,6 +60,9 @@ export function ChatPage() {
 
   const modelParameters = useStore((state) => state.modelParameters)
   const model = useStore((state) => state.model)
+  const files = useStore((state) => state.files)
+  const removeFile = useStore((state) => state.removeFile)
+  const clearFiles = useStore((state) => state.clearFiles)
 
   const { chatId } = useParams({ strict: false })
 
@@ -66,10 +71,13 @@ export function ChatPage() {
 
   const handleSubmit = () => {
     sendMessage(
-      { text },
-      { body: { model, chatId, modelParameters, createdAt: new Date() } },
+      { text, files },
+      {
+        body: { model, chatId, modelParameters, createdAt: new Date() },
+      },
     )
     setText('')
+    clearFiles()
   }
 
   const isLoading = ['submitted', 'streaming'].includes(status)
@@ -79,6 +87,12 @@ export function ChatPage() {
       return
     }
     handleSubmit()
+  }
+
+  const getFileIcon = (mediaType: any) => {
+    if (mediaType.includes('pdf') || mediaType.includes('document'))
+      return <FileTextIcon size={14} />
+    return <FileIcon size={14} />
   }
 
   useChatMessages(chatId)
@@ -100,12 +114,47 @@ export function ChatPage() {
         >
           <UsageStats />
           <BottomBar className="mb-2" />
-          <ChatInputTextArea placeholder="Type a message...">
+          <ChatInputTextArea
+            placeholder="Type a message..."
+            className={cn(files.length > 0 && 'rounded-t-none')}
+          >
             <ChatInputSubmit
               className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer"
               loading={isLoading}
               onStop={stop}
             />
+            <div
+              className={cn(
+                'hidden',
+                files.length &&
+                  'bg-[#1D1D22] flex gap-2 items-center px-3 py-1 rounded-t-md',
+              )}
+            >
+              {files.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-start relative hover:text-accent-foreground"
+                >
+                  {file.mediaType.startsWith('image/') ? (
+                    <img
+                      src={file.url}
+                      alt="preview"
+                      className="w-12 rounded h-12 border border-input hover:border-input/50"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded flex items-center justify-center border border-input hover:border-input/50">
+                      {getFileIcon(file.mediaType)}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => removeFile(index)}
+                    className="absolute -top-1 -right-1 cursor-pointer "
+                  >
+                    <XCircleIcon size={16} className="bg-border z-10" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </ChatInputTextArea>
         </ChatInput>
       </div>

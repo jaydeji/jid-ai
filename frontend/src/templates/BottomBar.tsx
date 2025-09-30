@@ -19,8 +19,10 @@ export const BottomBarNoMemo = ({
   return (
     <div className={cn('w-full flex justify-between items-center', className)}>
       <div className="flex justify-between items-center gap-2">
+        <Attachment />
+
         <Button
-          className="rounded-full md:rounded-md flex gap-2"
+          className=" flex gap-2 cursor-pointer"
           onClick={() => {
             if (!modelParameters) {
               setModelParameters({
@@ -35,26 +37,9 @@ export const BottomBarNoMemo = ({
           variant={modelParameters?.includeSearch ? 'default' : 'ghost'}
         >
           <GlobeIcon size={16} />
-          <span className="hidden md:inline">Search</span>
+          <span className="hidden md:inline text-sm font-normal">Search</span>
         </Button>
-        {/* <Button
-          className="rounded-full md:rounded-md flex gap-2"
-          onClick={() => {
-            if (!modelParameters) {
-              setModelParameters({
-                includeSearch: true,
-              })
-            }
 
-            setModelParameters({
-              includeSearch: !modelParameters?.includeSearch,
-            })
-          }}
-          variant={modelParameters?.includeSearch ? 'default' : 'ghost'}
-        >
-          <PaperclipIcon size={16} />
-        </Button> */}
-        <Attachment onSubmit={() => {}} />
         <ComboBox
           model={model}
           onSelect={(val: string) => {
