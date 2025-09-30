@@ -1,4 +1,4 @@
-import { GlobeIcon, PaperclipIcon } from 'lucide-react'
+import { GlobeIcon } from 'lucide-react'
 import { memo } from 'react'
 import { ComboBox } from './ComboBox'
 import { useStore } from '@/store'
