@@ -25,6 +25,8 @@ export function UsageStats({ className, ...props }: UsageStatsProps) {
   const { serverMessages, inputTokens, outputTokens, totalTokens } =
     useChatQuery()
 
+  if (!totalTokens) return null
+
   return (
     <div className={cn('w-full max-w-2xl mx-auto mb-1')} {...props}>
       <Card className=" border-0 py-1 bg-transparent">

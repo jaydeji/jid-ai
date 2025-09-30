@@ -4,15 +4,20 @@ import { ComboBox } from './ComboBox'
 import { ChatInputSubmit } from '@/components/ui/chat-input'
 import { useStore } from '@/store'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-export const BottomBarNoMemo = () => {
+export const BottomBarNoMemo = ({
+  className,
+}: {
+  className?: HTMLElement['className']
+}) => {
   const model = useStore((state) => state.model)
   const modelParameters = useStore((state) => state.modelParameters)
   const setModel = useStore((state) => state.setModel)
   const setModelParameters = useStore((state) => state.setModelParameters)
 
   return (
-    <div className="w-full flex justify-between items-center mt-2">
+    <div className={cn('w-full flex justify-between items-center', className)}>
       <div className="flex justify-between items-center gap-2">
         <Button
           className="rounded-full md:rounded-md flex gap-2"
@@ -39,7 +44,6 @@ export const BottomBarNoMemo = () => {
           }}
         />
       </div>
-      <ChatInputSubmit />
     </div>
   )
 }

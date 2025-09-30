@@ -86,7 +86,7 @@ export function ChatPage() {
           <MyChatMessage />
         </div>
       </ChatMessageArea>
-      <div className="px-2 py-4 max-w-2xl mx-auto w-full shrink-0">
+      <div className="px-2 pt-4 py-1 md:py-4 max-w-2xl mx-auto w-full shrink-0">
         <ChatInput
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -95,8 +95,8 @@ export function ChatPage() {
           onStop={stop}
         >
           <UsageStats />
+          <BottomBar className="mb-2" />
           <ChatInputTextArea placeholder="Type a message..." />
-          <BottomBar />
         </ChatInput>
       </div>
     </div>

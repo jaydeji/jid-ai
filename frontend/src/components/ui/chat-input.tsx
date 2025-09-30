@@ -104,20 +104,23 @@ function ChatInputTextArea({
   }
 
   return (
-    <Textarea
-      ref={textareaRef}
-      {...props}
-      value={value}
-      onChange={onChange}
-      onKeyDown={handleKeyDown}
-      className={cn(
-        'max-h-[400px] min-h-0 resize-none overflow-x-hidden',
-        variant === 'unstyled' &&
-          'border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none',
-        className,
-      )}
-      rows={rows}
-    />
+    <div className="w-full relative">
+      <Textarea
+        ref={textareaRef}
+        {...props}
+        value={value}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        className={cn(
+          'max-h-[400px] min-h-0 resize-none overflow-x-hidden',
+          variant === 'unstyled' &&
+            'border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none',
+          className,
+        )}
+        rows={rows}
+      />
+      <ChatInputSubmit className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer" />
+    </div>
   )
 }
 

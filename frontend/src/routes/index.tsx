@@ -6,7 +6,7 @@ import {
   createRouter,
   redirect,
 } from '@tanstack/react-router'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient } from '@/services'
 import App from '@/App'
@@ -24,7 +24,7 @@ const rootRoute = createRootRouteWithContext<{
     <>
       <Outlet />
       {/* <TanStackRouterDevtools /> */}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </>
   ),
   notFoundComponent: NotFound,
