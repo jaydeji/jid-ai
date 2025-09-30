@@ -1,6 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { MessageCircle, SquarePen } from 'lucide-react'
-import { useEffect } from 'react'
 import { PriceCard } from './price-card'
 import type { ComponentProps } from 'react'
 import {
@@ -115,7 +114,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton
                   className={cn(
                     'w-full flex items-center justify-start gap-2',
-                    chatId === chat.id && 'bg-card text-chart-2',
+                    chatId === chat.id && 'bg-card',
                   )}
                 >
                   <span
@@ -155,7 +154,7 @@ export function SidebarApp({ ...props }: ComponentProps<typeof Sidebar>) {
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <SquarePen size={20} className="cursor-pointer text-chart-2" />
+                <SquarePen size={20} className="cursor-pointer" />
               </TooltipTrigger>
               {!isMobile && (
                 <TooltipContent>

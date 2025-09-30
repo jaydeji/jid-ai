@@ -13,31 +13,32 @@ export const BottomBarNoMemo = () => {
 
   return (
     <div className="w-full flex justify-between items-center mt-2">
-      <Button
-        className="rounded-full md:rounded-md flex gap-2"
-        onClick={() => {
-          if (!modelParameters) {
+      <div className="flex justify-between items-center gap-2">
+        <Button
+          className="rounded-full md:rounded-md flex gap-2"
+          onClick={() => {
+            if (!modelParameters) {
+              setModelParameters({
+                includeSearch: true,
+              })
+            }
+
             setModelParameters({
-              includeSearch: true,
+              includeSearch: !modelParameters?.includeSearch,
             })
-          }
-
-          setModelParameters({
-            includeSearch: !modelParameters?.includeSearch,
-          })
-        }}
-        variant={modelParameters?.includeSearch ? 'default' : 'ghost'}
-      >
-        <GlobeIcon size={16} />
-        <span className="hidden md:inline">Search</span>
-      </Button>
-      <ComboBox
-        model={model}
-        onSelect={(val: string) => {
-          setModel(val)
-        }}
-      />
-
+          }}
+          variant={modelParameters?.includeSearch ? 'default' : 'ghost'}
+        >
+          <GlobeIcon size={16} />
+          <span className="hidden md:inline">Search</span>
+        </Button>
+        <ComboBox
+          model={model}
+          onSelect={(val: string) => {
+            setModel(val)
+          }}
+        />
+      </div>
       <ChatInputSubmit />
     </div>
   )
