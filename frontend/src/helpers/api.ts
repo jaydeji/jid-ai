@@ -8,6 +8,46 @@ export const groupByProvider = async (
   keys: Array<string>
 }> => {
   const data = (await models).data
+  // const data = (await models).data
+  // .filter((e) => !e.id.includes(':free'))
+  // .slice(0, 150)
+
+  // console.log(data.map((e) => e.id))
+
+  // const providers = [
+  //   'openai',
+  //   'z-ai',
+  //   'x-ai',
+  //   'qwen',
+  //   'mistral',
+  //   'anthropic',
+  //   'moonshot',
+  //   'meta',
+  //   'google',
+  //   'anthropic',
+  //   'deepseek',
+  // ]
+
+  // const map = providers.reduce((acc: any, e: string) => {
+  //   acc[e] = []
+  //   return acc
+  // }, {})
+
+  // data.forEach((e) => {
+  //   const validId = providers.find((s) => e.id.toLowerCase().includes(s))
+
+  //   if (validId && !e.id.includes(':free')) {
+  //     map[validId].push(e)
+  //   }
+  // })
+
+  // for (const key in map) {
+  //   map[key] = map[key]
+  //     .sort((a: any, b: any) => a.created - b.createdAt)
+  //     .filter((_: any, i: number) => i < 6)
+  // }
+
+  // console.log(map)
 
   // group models by provider
   const grouped: GroupedModels = data.reduce<GroupedModels>(
@@ -21,6 +61,8 @@ export const groupByProvider = async (
     },
     {},
   )
+
+  // console.log(grouped)
 
   const keys = Object.keys(grouped)
 

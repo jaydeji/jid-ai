@@ -1,9 +1,10 @@
-import { GlobeIcon } from 'lucide-react'
+import { GlobeIcon, PaperclipIcon } from 'lucide-react'
 import { memo } from 'react'
 import { ComboBox } from './ComboBox'
 import { useStore } from '@/store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Attachment } from '@/components/Attachment'
 
 export const BottomBarNoMemo = ({
   className,
@@ -36,6 +37,24 @@ export const BottomBarNoMemo = ({
           <GlobeIcon size={16} />
           <span className="hidden md:inline">Search</span>
         </Button>
+        {/* <Button
+          className="rounded-full md:rounded-md flex gap-2"
+          onClick={() => {
+            if (!modelParameters) {
+              setModelParameters({
+                includeSearch: true,
+              })
+            }
+
+            setModelParameters({
+              includeSearch: !modelParameters?.includeSearch,
+            })
+          }}
+          variant={modelParameters?.includeSearch ? 'default' : 'ghost'}
+        >
+          <PaperclipIcon size={16} />
+        </Button> */}
+        <Attachment onSubmit={() => {}} />
         <ComboBox
           model={model}
           onSelect={(val: string) => {
