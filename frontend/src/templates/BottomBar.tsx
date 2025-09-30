@@ -1,7 +1,6 @@
 import { GlobeIcon } from 'lucide-react'
 import { memo } from 'react'
 import { ComboBox } from './ComboBox'
-import { ChatInputSubmit } from '@/components/ui/chat-input'
 import { useStore } from '@/store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'

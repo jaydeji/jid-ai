@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useTextareaResize } from '@/hooks/use-textarea-resize'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ChatInputContextValue {
   value?: string
@@ -90,10 +91,19 @@ function ChatInputTextArea({
     variantProp ?? (context.variant === 'default' ? 'unstyled' : 'default')
 
   const textareaRef = useTextareaResize(value, rows)
+  const isMobile = useIsMobile()
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!onSubmit) {
       return
     }
+
+    if (isMobile) {
+      // Let newline happen; also guard against any global handlers
+      e.stopPropagation()
+      return
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       if (typeof value !== 'string' || value.trim().length === 0) {
         return

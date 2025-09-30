@@ -52,7 +52,6 @@ export const getModel = ({
     usage: { include: true },
     user: userId,
     reasoning: {
-      enabled: false,
       effort: 'low',
     },
   });
