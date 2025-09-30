@@ -48,7 +48,14 @@ export const getModel = ({
     m += ':online';
   }
 
-  return openrouter(m, { usage: { include: true }, user: userId });
+  return openrouter(m, {
+    usage: { include: true },
+    user: userId,
+    reasoning: {
+      enabled: false,
+      effort: 'low',
+    },
+  });
 };
 
 export const decrement = (column: AnyColumn, value = 1) => {
