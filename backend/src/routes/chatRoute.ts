@@ -22,5 +22,6 @@ chatRoute.get('/chats/:id', jwtMiddleware, async (c) => {
 
 chatRoute.post('/chat', jwtMiddleware, async (c) => {
   const userId = getPayload(c).sub;
-  return postChat({ ...(await c.req.json()), userId });
+  const abortSignal = c.req.raw.signal;
+  return postChat({ ...(await c.req.json()), userId, abortSignal });
 });

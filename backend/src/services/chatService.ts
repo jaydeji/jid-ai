@@ -45,8 +45,16 @@ export const postChat = async (data: {
   chatId: string;
   userId?: string;
   modelParameters: ModelParameters | null;
+  abortSignal: AbortSignal;
 }) => {
-  const { message, model, chatId: _chatId, userId, modelParameters } = data;
+  const {
+    message,
+    model,
+    chatId: _chatId,
+    userId,
+    modelParameters,
+    abortSignal,
+  } = data;
 
   if (!userId) {
     throw new AppError('UNAUTHORIZED', data);
@@ -122,6 +130,7 @@ export const postChat = async (data: {
           delayInMs: 20, // optional: defaults to 10ms
           chunking: 'word',
         }),
+        abortSignal,
         async onFinish(event) {
           let title;
 

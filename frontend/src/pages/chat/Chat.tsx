@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { useChat } from '@ai-sdk/react'
 import { MyChatMessage } from './chat-message'
-import { ChatInput, ChatInputTextArea } from '@/components/ui/chat-input'
+import {
+  ChatInput,
+  ChatInputSubmit,
+  ChatInputTextArea,
+} from '@/components/ui/chat-input'
 import { ChatMessageArea } from '@/components/ui/chat-message-area'
 import { UsageStats } from '@/components/ui/usage-stats'
 import { BottomBar } from '@/templates/BottomBar'
@@ -58,7 +62,7 @@ export function ChatPage() {
   const { chatId } = useParams({ strict: false })
 
   const chat = useStore((state) => state.chat)
-  const { sendMessage } = useChat({ chat })
+  const { sendMessage, status, stop } = useChat({ chat })
 
   const handleSubmit = () => {
     sendMessage(
@@ -68,7 +72,7 @@ export function ChatPage() {
     setText('')
   }
 
-  const isLoading = status === 'submitted'
+  const isLoading = ['submitted', 'streaming'].includes(status)
 
   const handleSubmitMessage = () => {
     if (isLoading) {
@@ -96,7 +100,13 @@ export function ChatPage() {
         >
           <UsageStats />
           <BottomBar className="mb-2" />
-          <ChatInputTextArea placeholder="Type a message..." />
+          <ChatInputTextArea placeholder="Type a message...">
+            <ChatInputSubmit
+              className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer"
+              loading={isLoading}
+              onStop={stop}
+            />
+          </ChatInputTextArea>
         </ChatInput>
       </div>
     </div>

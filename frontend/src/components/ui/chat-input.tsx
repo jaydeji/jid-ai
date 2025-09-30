@@ -78,6 +78,7 @@ function ChatInputTextArea({
   onChange: onChangeProp,
   className,
   variant: variantProp,
+  children,
   ...props
 }: ChatInputTextAreaProps) {
   const context = useContext(ChatInputContext)
@@ -129,7 +130,7 @@ function ChatInputTextArea({
         )}
         rows={rows}
       />
-      <ChatInputSubmit className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer" />
+      {children}
     </div>
   )
 }
