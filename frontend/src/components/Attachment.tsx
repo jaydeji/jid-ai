@@ -63,7 +63,7 @@ export function Attachment() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
         multiple
-        accept="image/*,.pdf,.doc,.docx"
+        // accept="image/*,.pdf,.doc,.docx"
       />
 
       <Button
