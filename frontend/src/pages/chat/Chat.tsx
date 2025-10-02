@@ -121,7 +121,7 @@ export function ChatPage() {
             className={cn(files.length > 0 && 'rounded-t-none')}
           >
             <ChatInputSubmit
-              className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer touch-manipulation"
+              className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer z-50"
               loading={isLoading}
               onStop={stop}
             />
