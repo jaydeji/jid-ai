@@ -80,7 +80,7 @@ export function ChatPage() {
     clearFiles()
   }
 
-  const isLoading = ['submitted', 'streaming'].includes(status)
+  const isLoading = status === 'streaming'
 
   const handleSubmitMessage = () => {
     if (isLoading) {
