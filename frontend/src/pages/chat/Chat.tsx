@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 
 function useChatMessages(chatId: string | undefined) {
   const chat = useStore((state) => state.chat)
-  const { setMessages, messages } = useChat({ chat })
+  const { setMessages, messages, clearError } = useChat({ chat })
 
   const { data } = useChatQuery()
 
@@ -43,11 +43,13 @@ function useChatMessages(chatId: string | undefined) {
     // Only clear messages when switching between different non-null chatIds
     if (previousChatId && chatId && previousChatId !== chatId) {
       setMessages([])
+      clearError()
     }
 
     // clear messages when we move from  chat Id to no chatId i.e new chat
     if (previousChatId && !chatId) {
       setMessages([])
+      clearError()
     }
 
     // Update ref for next comparison
