@@ -101,7 +101,9 @@ export const getOptions = (): ConstructorParameters<
   onFinish: (event: any) => onFinish(event),
   onError: (event) => {
     if (event.message) {
-      toast.error(JSON.parse(event.message)?.message)
+      if ((event.message as any)?.message) {
+        toast.error(JSON.parse((event.message as any).message))
+      } else toast.error(event.message)
     }
   },
   generateId: () => uuidv4(),
