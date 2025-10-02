@@ -6,17 +6,26 @@ import { createChat } from '@/helpers/ai'
 import { queryClient } from '@/services'
 import { userKey } from '@/services/react-query/keys'
 
+interface TextAttachment {
+  filename: string
+  content: string
+}
+
 interface ChatState {
   chat: ReactChat<MyUIMessage>
   model: string
   modelParameters: ModelParameters | null
   files: Array<FileUIPart>
+  textAttachments: Array<TextAttachment>
   clearChat: () => void
   setModel: (model: string) => void
   setModelParameters: (params: ModelParameters | null) => void
   setFiles: (files: Array<FileUIPart>) => void
   removeFile: (index: number) => void
   clearFiles: () => void
+  setTextAttachments: (attachments: Array<TextAttachment>) => void
+  removeTextAttachment: (index: number) => void
+  clearTextAttachments: () => void
 }
 
 export const useStore = create<ChatState>((set) => ({
@@ -24,6 +33,7 @@ export const useStore = create<ChatState>((set) => ({
   model: '',
   modelParameters: null,
   files: [],
+  textAttachments: [],
   clearChat: () => {
     set(() => ({ chat: createChat() }))
   },
@@ -49,5 +59,18 @@ export const useStore = create<ChatState>((set) => ({
   },
   removeFile: (index: number) => {
     set((state) => ({ files: state.files.filter((_, i) => i !== index) }))
+  },
+  setTextAttachments: (attachments) => {
+    set((state) => ({
+      textAttachments: [...state.textAttachments, ...attachments],
+    }))
+  },
+  clearTextAttachments: () => {
+    set(() => ({ textAttachments: [] }))
+  },
+  removeTextAttachment: (index: number) => {
+    set((state) => ({
+      textAttachments: state.textAttachments.filter((_, i) => i !== index),
+    }))
   },
 }))

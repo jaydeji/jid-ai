@@ -65,6 +65,9 @@ export function ChatPage() {
   const files = useStore((state) => state.files)
   const removeFile = useStore((state) => state.removeFile)
   const clearFiles = useStore((state) => state.clearFiles)
+  const textAttachments = useStore((state) => state.textAttachments)
+  const removeTextAttachment = useStore((state) => state.removeTextAttachment)
+  const clearTextAttachments = useStore((state) => state.clearTextAttachments)
 
   const { chatId } = useParams({ strict: false })
 
@@ -72,14 +75,26 @@ export function ChatPage() {
   const { sendMessage, status, stop } = useChat({ chat })
 
   const handleSubmit = () => {
+    // Append text file contents to the message
+    let messageText = text
+    if (textAttachments.length > 0) {
+      const attachedContent = textAttachments
+        .map(
+          (attachment) => `\n\n[${attachment.filename}]\n${attachment.content}`,
+        )
+        .join('\n')
+      messageText = text + attachedContent
+    }
+
     sendMessage(
-      { text, files },
+      { text: messageText, files },
       {
         body: { model, chatId, modelParameters, createdAt: new Date() },
       },
     )
     setText('')
     clearFiles()
+    clearTextAttachments()
   }
 
   const isLoading = status === 'streaming'
@@ -93,6 +108,8 @@ export function ChatPage() {
 
   const getFileIcon = (mediaType: any) => {
     if (mediaType.includes('pdf') || mediaType.includes('document'))
+      return <FileTextIcon size={14} />
+    if (mediaType.includes('text') || mediaType.includes('plain'))
       return <FileTextIcon size={14} />
     return <FileIcon size={14} />
   }
@@ -118,7 +135,10 @@ export function ChatPage() {
           <BottomBar className="mb-2" />
           <ChatInputTextArea
             placeholder="Type a message..."
-            className={cn(files.length > 0 && 'rounded-t-none')}
+            className={cn(
+              (files.length > 0 || textAttachments.length > 0) &&
+                'rounded-t-none',
+            )}
           >
             <ChatInputSubmit
               className="absolute bottom-0 right-0 mr-1 mb-1 cursor-pointer z-50"
@@ -128,13 +148,13 @@ export function ChatPage() {
             <div
               className={cn(
                 'hidden',
-                files.length &&
+                (files.length > 0 || textAttachments.length > 0) &&
                   'bg-[#1D1D22] flex gap-2 items-center px-3 py-1 rounded-t-md',
               )}
             >
               {files.map((file, index) => (
                 <div
-                  key={index}
+                  key={`file-${index}`}
                   className="flex items-start relative hover:text-accent-foreground"
                 >
                   {file.mediaType.startsWith('image/') ? (
@@ -150,6 +170,22 @@ export function ChatPage() {
                   )}
                   <button
                     onClick={() => removeFile(index)}
+                    className="absolute -top-1 -right-1 cursor-pointer "
+                  >
+                    <XCircleIcon size={16} className="bg-border z-10" />
+                  </button>
+                </div>
+              ))}
+              {textAttachments.map((attachment, index) => (
+                <div
+                  key={`text-${index}`}
+                  className="flex items-start relative hover:text-accent-foreground"
+                >
+                  <div className="w-12 h-12 rounded flex items-center justify-center border border-input hover:border-input/50">
+                    <FileTextIcon size={14} />
+                  </div>
+                  <button
+                    onClick={() => removeTextAttachment(index)}
                     className="absolute -top-1 -right-1 cursor-pointer "
                   >
                     <XCircleIcon size={16} className="bg-border z-10" />

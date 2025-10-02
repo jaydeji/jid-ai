@@ -14,10 +14,24 @@ const fileToDataURL = (file: File) => {
   })
 }
 
+const fileToText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => resolve((e.target as any).result)
+    reader.onerror = reject
+    reader.readAsText(file)
+  })
+}
+
+const isTextFile = (file: File): boolean => {
+  return file.type.includes('text')
+}
+
 export function Attachment() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const setFiles = useStore((state) => state.setFiles)
+  const setTextAttachments = useStore((state) => state.setTextAttachments)
 
   const handleAttachClick = () => {
     // Trigger the hidden file input
@@ -29,23 +43,37 @@ export function Attachment() {
     const selectedFiles = Array.from(e.target.files as FileList)
 
     try {
-      // Convert files to FileUIPart format with data URLs
-      const filePromises = selectedFiles.map(async (file) => {
-        const url = await fileToDataURL(file)
+      const textFiles: Array<{ filename: string; content: string }> = []
+      const regularFiles: Array<FileUIPart> = []
 
-        return {
-          // id: crypto.randomUUID(),
-          type: 'file',
-          mediaType: file.type,
-          filename: file.name,
-          url: url,
-          // size: file.size,
-        } as FileUIPart
-      })
+      // Process each file
+      for (const file of selectedFiles) {
+        if (isTextFile(file)) {
+          // Read text file content
+          const content = await fileToText(file)
+          textFiles.push({
+            filename: file.name,
+            content: content,
+          })
+        } else {
+          // Convert to data URL for images and other files
+          const url = await fileToDataURL(file)
+          regularFiles.push({
+            type: 'file',
+            mediaType: file.type,
+            filename: file.name,
+            url: url,
+          } as FileUIPart)
+        }
+      }
 
-      const newFiles = await Promise.all(filePromises)
-
-      setFiles(newFiles)
+      // Update store with separate arrays
+      if (textFiles.length > 0) {
+        setTextAttachments(textFiles)
+      }
+      if (regularFiles.length > 0) {
+        setFiles(regularFiles)
+      }
     } catch (error) {
       console.error('Error processing files:', error)
     }
@@ -63,7 +91,7 @@ export function Attachment() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
         multiple
-        // accept="image/*,.pdf,.doc,.docx"
+        // accept="image/*,.pdf,.doc,.docx,.txt,text/plain"
       />
 
       <Button
