@@ -8,41 +8,8 @@ import { errorHandler } from './exception';
 import { authRoute, chatRoute, otherRoute } from './routes';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
-import { logger } from './logger';
+import { logger, pinoLoggerMiddleware } from './logger';
 import { compress } from 'hono/compress';
-
-const pinoLoggerMiddleware = (): MiddlewareHandler => {
-  return async function pinoLogger(c, next) {
-    const requestId = c.var.requestId;
-    const { method } = c.req;
-    const path = new URL(c.req.url).pathname;
-
-    logger.info({
-      requestId,
-      method,
-      path,
-      type: 'request',
-    });
-
-    const start = Date.now();
-
-    await next();
-
-    const duration = Date.now() - start;
-    const status = c.res.status;
-
-    const logLevel = status >= 400 ? 'error' : status >= 300 ? 'warn' : 'info';
-
-    logger[logLevel]({
-      requestId,
-      method,
-      path,
-      status,
-      duration: `${duration}ms`,
-      type: 'response',
-    });
-  };
-};
 
 const app = new Hono();
 
@@ -52,6 +19,7 @@ app.use(compress());
 app.use(requestId());
 
 app.use(pinoLoggerMiddleware());
+
 app.use(
   cors({
     origin: config.CORS_ORIGIN, // Your frontend origin
